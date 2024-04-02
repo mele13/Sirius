@@ -27,6 +27,8 @@ The key objectives of the Sirius Animal Shelter app are as follows:
 ## Collaborators
 
 - [Selene](https://github.com/SeleneGonzalezCurbelo)
+- [Leyre](https://github.com/LeyreRodriguez)
+- [Kronno](https://github.com/Kronn0)
 - [Mele13](https://github.com/mele13)
 
 ---
