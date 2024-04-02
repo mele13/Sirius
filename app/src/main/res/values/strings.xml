@@ -1,0 +1,77 @@
+<resources>
+    <string name="app_name" translatable="false">Sirius</string>
+    <string name="api_key" translatable="false">AIzaSyCGv5fXGwfRBLnXN0X_XqWxoFBG2plIT_M</string>
+
+    <!-- Globals -->
+    <string name="close" translatable="false">Close</string>
+    <string name="save" translatable="false">Save</string>
+    <string name="ok" translatable="false">Ok</string>
+
+    <!-- Animals -->
+    <string name="adopt_me" translatable="false">Adopt me!</string>
+
+    <!-- Navbar -->
+    <string name="home" translatable="false">Home</string>
+    <string name="animals" translatable="false">Animals</string>
+    <string name="donations" translatable="false">Donations</string>
+    <string name="aboutUs" translatable="false">About Us</string>
+    <string name="profile" translatable="false">Profile</string>
+
+    <!-- Landing Page -->
+    <string name="loginSignup" translatable="false">Log In / Sign Up</string>
+    <string name="guest" translatable="false">Join as a guest</string>
+    <string name="slogan" translatable="false">Proud to be an animal adopter</string>
+
+    <!-- Log In & Sign Up-->
+    <string name="login" translatable="false">Log In</string>
+    <string name="signup" translatable="false">Sign Up</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="username" translatable="false">Username</string>
+    <string name="password" translatable="false">Password</string>
+    <string name="account_login" translatable="false">Got an account?\nLog In</string>
+    <string name="account_signup" translatable="false">Don\'t have an account?\nSign Up</string>
+
+    <!-- Profile -->
+    <string name="new_profile_image" translatable="false">Select a new profile image</string>
+    <string name="liked_friends" translatable="false">Friends you like</string>
+    <string name="no_liked_friends" translatable="false">No liked animals</string>
+    <string name="logout" translatable="false">Log Out</string>
+    <string name="change_password" translatable="false">Change password</string>
+    <string name="current_password" translatable="false">Current password</string>
+    <string name="new_password" translatable="false">New password</string>
+
+    <!-- Home -->
+    <string name="newsIntro" translatable="false">What\'s New</string>
+    <string name="animalsIntro" translatable="false">Our friends</string>
+    <string name="lostIntro" translatable="false">Lost</string>
+    <string name="goodNewsIntro" translatable="false">Good news</string>
+
+    <string name="item_detail_title" translatable="false">Item detail title</string>
+    <string name="animals_title" translatable="false">Animals title</string>
+    <string name="animal_detail_title" translatable="false">Animal detail title</string>
+
+    <!-- Donations -->
+    <string name="donationsTitle" translatable="false">Your support makes a difference!</string>
+    <string name="donationsText" translatable="false">🐾 Consider making a donation to our animal shelter. Your contribution helps provide food, shelter, and care to animals in need. Every small act of kindness counts, and together, we can creae a brighter future for these furry friends.</string>
+    <string name="donationsEnd" translatable="false">Thank you for being a part of our mission to make the world a better place for animals! 🌟</string>
+
+    <!-- Errors -->
+    <string name="error_wd_title" translatable="false">Woopsie Daisy!</string>
+    <string name="error_wd_text" translatable="false">Looks like something went completely wrong!</string>
+    <string name="error_email" translatable="false">*Email is required</string>
+    <string name="error_username" translatable="false">*Username is required</string>
+    <string name="error_password" translatable="false">*Password is required</string>
+    <string name="error_email_format" translatable="false">**Expected format: name@example.com</string>
+    <string name="error_password_format" translatable="false">**Password must be at least six characters long</string>
+    <string name="invalid_login" translatable="false">Invalid username or password. Please double-check your credentials</string>
+    <string name="invalid_signup" translatable="false">Oops! Something went wrong during user creation</string>
+    <string name="error_date_format" translatable="false">Invalid date format</string>
+
+    <!-- Not available functions -->
+    <string name="not_available" translatable="false">Function currently not available</string>
+    <string name="not_available_description" translatable="false">We\'re working hard to bring you this feature in a future update. Stay tuned for exciting updates!</string>
+
+    <!-- Navigation -->
+    <string name="to_homepage" translatable="false">Go to Homepage</string>
+
+</resources>
