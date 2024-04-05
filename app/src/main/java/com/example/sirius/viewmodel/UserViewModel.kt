@@ -154,6 +154,10 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return userDao.getUserByCredentials(username, password)
     }
 
+    suspend fun getAllUsers(): List<User>? {
+        return userDao.getAllUsers()
+    }
+
     suspend fun deleteAllUsers() {
         userDao.deleteAllUsers()
     }

@@ -16,6 +16,7 @@
     <string name="donations" translatable="false">Donations</string>
     <string name="aboutUs" translatable="false">About Us</string>
     <string name="profile" translatable="false">Profile</string>
+    <string name="chat" translatable="false">Chat</string>
 
     <!-- Landing Page -->
     <string name="loginSignup" translatable="false">Log In / Sign Up</string>

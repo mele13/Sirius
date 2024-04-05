@@ -52,6 +52,7 @@ import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.view.screens.AnimalInfo
+import com.example.sirius.view.screens.ChatScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
@@ -109,7 +110,7 @@ fun NavigationContent(
                     val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())
                     val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
 
-                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList)
+                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel)
                 }
                 composable(route = Routes.ANIMALS) {
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())
@@ -131,6 +132,9 @@ fun NavigationContent(
                 }
                 composable(route = Routes.ABOUTUS) {
                     AboutUsScreen()
+                }
+                composable(route = Routes.CHAT) {
+                    ChatScreen(navController, userViewModel)
                 }
                 composable(route = Routes.ANIMALINFO + "/{id}",
                     arguments = listOf(navArgument(name = "id") {

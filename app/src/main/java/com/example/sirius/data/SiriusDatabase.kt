@@ -41,8 +41,8 @@ abstract class SiriusDatabase: RoomDatabase() {
                     SiriusDatabase::class.java,
                     "app_database"
                 )
-//                    .createFromAsset(database_path)
-//                    .fallbackToDestructiveMigration()
+                    .createFromAsset(database_path)
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 return instance
