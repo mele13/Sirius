@@ -31,6 +31,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.*
 
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -62,11 +63,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
+import com.example.sirius.ui.theme.Green4
+import com.example.sirius.view.components.SingleMessage
+import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.UserViewModel
+
+import androidx.compose.runtime.livedata.observeAsState
+import com.example.sirius.model.Chat
 
 
 @Composable
-fun ChatScreen(NavController: NavHostController,userViewModel: UserViewModel){
+fun ChatScreen(NavController: NavHostController,chatViewModel: ChatViewModel, userViewModel : UserViewModel){
 
     var userList by remember { mutableStateOf<List<User?>>(emptyList()) }
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
@@ -85,7 +92,7 @@ fun ChatScreen(NavController: NavHostController,userViewModel: UserViewModel){
 
         Column(modifier = Modifier.fillMaxHeight()) {
             Column(horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(10.dp, top = 15.dp)) {
+                modifier = Modifier.padding(10.dp)) {
 
                 user?.let { UserEachRow(person = it) { NavController.navigate(route = Routes.PROFILE)} }
 
@@ -93,7 +100,7 @@ fun ChatScreen(NavController: NavHostController,userViewModel: UserViewModel){
                     items(items = userList, key = { it?.id ?: "" }) { item ->
                         if (item != null) {
                             UserEachRow(person = item) {
-
+                                NavController.navigate(Routes.CHAT + "/${item.id}")
                             }
                         }
                     }
@@ -168,30 +175,26 @@ fun Modifier.noRippleEffect(onClick: () -> Unit) = composed {
     }
 }
 
-/*
+
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun Messages(recipientUserId: String, navHostController: NavController, chatViewModel: ChatViewModel = hiltViewModel()) {
+fun Messages(navHostController: NavController, recipientUserId: Int, userViewModel : UserViewModel, chatViewModel : ChatViewModel) {
 
-    val UserViewModel : UserViewModel = hiltViewModel()
-    // var user: UserData? = null
-    val userState = remember { mutableStateOf<UserData?>(null) }
+    val userState = remember { mutableStateOf<User?>(null) }
 
     LaunchedEffect(UserViewModel) {
-        val user = UserViewModel.getUserById(recipientUserId)
+        val user = userViewModel.getUserById(recipientUserId)
 
         userState.value = user
     }
-    Log.i("USER",userState.value?.profilePictureUrl.toString())
-
 
     initRecipientUserId(recipientUserId, chatViewModel)
 
     val message: String by chatViewModel.message.observeAsState(initial = "")
-    val messages: List<Map<String, Any>> by chatViewModel.messages.observeAsState(
-        initial = emptyList<Map<String, Any>>().toMutableList()
+    val messages: List<Chat> by chatViewModel.messages.observeAsState(
+        initial = emptyList<Chat>()
     )
 
     Box(
@@ -205,12 +208,6 @@ fun Messages(recipientUserId: String, navHostController: NavController, chatView
             //  verticalArrangement = Arrangement.Bottom
         ) {
 
-            Box(
-                //modifier = Modifier.fillMaxSize()
-                contentAlignment = Alignment.TopCenter
-            ) {
-                userState.value?.let { Recipient(userData = it, navController = navHostController) }
-            }
 
             LazyColumn(
                 modifier = Modifier
@@ -221,14 +218,11 @@ fun Messages(recipientUserId: String, navHostController: NavController, chatView
                 reverseLayout = true
             ) {
                 items(messages) { message ->
-                    val isCurrentUser = message[Constants.IS_CURRENT_USER] as Boolean
-
                     SingleMessage(
-                        message = message[Constants.MESSAGE].toString(),
-                        isCurrentUser = isCurrentUser
+                        message = message.message,
+                        isCurrentUser = message.sentBy == userViewModel.getAuthenticatedUser()?.id ?: 0
                     )
                 }
-
             }
             Box(
                 // modifier = Modifier.fillMaxSize(),
@@ -238,6 +232,7 @@ fun Messages(recipientUserId: String, navHostController: NavController, chatView
                     value = message,
                     onValueChange = {
                         chatViewModel.updateMessage(it)
+                       // message = it
                     },
                     label = {
                         Text(
@@ -257,12 +252,13 @@ fun Messages(recipientUserId: String, navHostController: NavController, chatView
                         IconButton(
                             onClick = {
                                 chatViewModel.addMessage(recipientUserId)
+                                chatViewModel.updateMessage("")
                             }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
                                 contentDescription = "Boton de enviar",
-                                tint = Violet
+                                tint = Green4
                             )
                         }
                     }
@@ -270,10 +266,13 @@ fun Messages(recipientUserId: String, navHostController: NavController, chatView
             }
         }
     }
+}
 
 
-*/
 
+fun initRecipientUserId(recipientUserId: Int, chatViewModel: ChatViewModel) {
+    chatViewModel.initRecipientUserId(recipientUserId)
+}
 
 
 

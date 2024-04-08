@@ -8,22 +8,26 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.sirius.data.dao.AnimalDao
+import com.example.sirius.data.dao.ChatDao
 import com.example.sirius.data.dao.NewsDao
 import com.example.sirius.data.dao.UserDao
 import com.example.sirius.model.Animal
+import com.example.sirius.model.Chat
 import com.example.sirius.model.LikedAnimal
 import com.example.sirius.model.News
 import com.example.sirius.model.User
 
 @Database(
-    entities = [Animal::class, News::class, User::class, LikedAnimal::class],
-    version = 1,
+    entities = [Animal::class, News::class, User::class, LikedAnimal::class, Chat::class],
+    version = 2,
     exportSchema = false
 )
 abstract class SiriusDatabase: RoomDatabase() {
     abstract fun animalDao(): AnimalDao
     abstract fun newsDao(): NewsDao
     abstract fun userDao(): UserDao
+
+    abstract fun chatDao(): ChatDao
 
     companion object {
         @Volatile
@@ -41,8 +45,8 @@ abstract class SiriusDatabase: RoomDatabase() {
                     SiriusDatabase::class.java,
                     "app_database"
                 )
-                    .createFromAsset(database_path)
-                    .fallbackToDestructiveMigration()
+                  //  .createFromAsset(database_path)
+                 //   .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 return instance
