@@ -1,16 +1,9 @@
-package com.example.sirius.view.screens
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
-import android.widget.TextView
+package com.example.sirius.view.components
+
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -34,13 +27,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sirius.R
-import com.example.sirius.ui.theme.Green1
-import com.example.sirius.ui.theme.Green3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BarSearchScreen(
+fun BarSearch(
     state: MutableState<TextFieldValue>,
     placeHolder: String,
     modifier: Modifier

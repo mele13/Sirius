@@ -80,6 +80,7 @@ import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.calculateAgeCategory
 import com.example.sirius.tools.getYearRangeFromCategory
 import com.example.sirius.tools.mapCategoryToYearRange
+import com.example.sirius.tools.stringToBoolean
 import com.example.sirius.ui.theme.Black
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
@@ -468,7 +469,7 @@ fun AnimalCard(
     }
 
     if (user != null) {
-        if (type == "AnimalsInShelter" || type == "LostAnimals") {
+        if (type == "AnimalsInShelter" || type == "LostAnimals"|| type == null) {
             userViewModel.viewModelScope.launch {
                 userViewModel.getLikedAnimals(user.id).collect { likedAnimals ->
                     isFavorite = likedAnimals.any { it.id == (item as Animal).id }
@@ -955,6 +956,3 @@ fun AnimalCard(
     }
 }
 
-fun stringToBoolean(value: String): Boolean {
-    return value == "1"
-}

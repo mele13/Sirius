@@ -97,3 +97,7 @@ fun getYearRangeFromCategory(ageRange: String): Pair<Int, Int> {
         else -> Pair(0, Int.MAX_VALUE) // Rango predeterminado si no se encuentra ninguna categoría
     }
 }
+
+fun stringToBoolean(value: String): Boolean {
+    return value == "1"
+}

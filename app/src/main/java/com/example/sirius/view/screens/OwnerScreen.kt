@@ -1,25 +1,18 @@
 package com.example.sirius.view.screens
 
-import android.widget.SearchView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -46,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.sirius.model.User
 import com.example.sirius.ui.theme.Green1
+import com.example.sirius.view.components.BarSearch
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -64,7 +58,7 @@ fun OwnerScreen(viewModel: UserViewModel) {
     val textState = remember { mutableStateOf(TextFieldValue(""))}
 
     Column {
-        BarSearchScreen(state= textState, placeHolder= "Search here...", modifier = Modifier)
+        BarSearch(state= textState, placeHolder= "Search here...", modifier = Modifier)
         val searchedText = textState.value.text
         val filteredWorkers = workers.filter {
             it?.username?.contains(searchedText, ignoreCase = true) ?: false
