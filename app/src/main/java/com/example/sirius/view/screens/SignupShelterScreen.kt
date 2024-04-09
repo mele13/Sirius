@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
@@ -221,24 +222,44 @@ fun SignupShelterScreen (navController: NavController, userViewModel: UserViewMo
             }
             Spacer(modifier = Modifier.height(20.dp))
             // Sign Up button
-            TextButton(
-                onClick = {
 
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .offset(y = 23.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White)
+            ConstraintLayout(
+                modifier = Modifier.fillMaxSize()
             ) {
+                val (image, text) = createRefs()
+
+                // Center - Log In button
+                Image(
+                    painter = painterResource(id = R.drawable.paw2),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .constrainAs(image) {
+                            centerTo(parent)
+                        }
+                        .size(230.dp)
+                        .zIndex(-1f)
+                        .size(230.dp)
+                        .offset(x = 16.dp, y = -100.dp)
+                        .clickable {
+
+                        }
+                )
+
                 Text(
-                    stringResource(id = R.string.signup),
+                    text = stringResource(id = R.string.signup),
                     color = Color.White,
-                    fontSize = 25.sp
+                    fontSize = 25.sp,
+                    modifier = Modifier
+                        .constrainAs(text) {
+                            // Centrar el texto en el centro de la imagen
+                            //top.linkTo(image.top)
+                            centerTo(parent)
+                            //  centerTo(image)
+                        }
+                        .offset(x = 6.dp, y = -80.dp)
                 )
             }
+
             // Error Snackbar
             errorMessage?.let { message ->
                 CustomSnackbar(
@@ -258,6 +279,7 @@ fun SignupShelterScreen (navController: NavController, userViewModel: UserViewMo
                 .zIndex(-1f)
         )
         // Center - Log In button
+        /*
         Image(
             painter = painterResource(id = R.drawable.paw2),
             contentDescription = null,
@@ -267,6 +289,8 @@ fun SignupShelterScreen (navController: NavController, userViewModel: UserViewMo
                 .offset(x = 16.dp, y = 130.dp)
                 .zIndex(-1f)
         )
+
+         */
         // Top right big
         Image(
             painter = painterResource(id = R.drawable.paw3),

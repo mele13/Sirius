@@ -54,6 +54,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
@@ -238,6 +239,59 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
+
+            ConstraintLayout(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val (image, text) = createRefs()
+
+                // Center - Log In button
+                Image(
+                    painter = painterResource(id = R.drawable.paw2),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .constrainAs(image) {
+                            centerTo(parent)
+                        }
+                        .size(230.dp)
+                        .zIndex(-1f)
+                        .size(230.dp)
+                        .offset(x = 16.dp, y = -100.dp)
+                        .clickable {
+                            userViewModel.viewModelScope.launch {
+                                signUpButtonClicked = true
+                                if (isEmailValid(email) && isPasswordValid(password)) {
+                                    val success = userViewModel.registerUser(username, email, password)
+                                    if (success) {
+                                        delay(2000)
+                                        navController.navigate(Routes.HOME)
+                                    } else {
+                                        errorMessage = "Oops! Something went wrong during user creation"
+                                    }
+                                } else if (!isPasswordValid(password)) {
+                                    errorMessage = "Invalid password format.\nPassword must have at least 6 characters, 1 uppercase letter, and 1 special symbol\n"
+                                } else {
+                                    errorMessage = "Invalid email format.\nExpected format: name@example.com\n"
+                                }
+                            }
+                        }
+                )
+
+                Text(
+                    text = stringResource(id = R.string.signup),
+                    color = Color.White,
+                    fontSize = 25.sp,
+                    modifier = Modifier
+                        .constrainAs(text) {
+                            // Centrar el texto en el centro de la imagen
+                            //top.linkTo(image.top)
+                            centerTo(parent)
+                            //  centerTo(image)
+                        }
+                        .offset(x = 6.dp, y = -80.dp)
+                )
+            }
+            /*
             // Sign Up button
             TextButton(
                 onClick = {
@@ -272,6 +326,8 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                     fontSize = 25.sp
                 )
             }
+
+             */
             // Error Snackbar
             errorMessage?.let { message ->
                 CustomSnackbar(
@@ -291,6 +347,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                 .zIndex(-1f)
         )
         // Center - Log In button
+        /*
         Image(
             painter = painterResource(id = R.drawable.paw2),
             contentDescription = null,
@@ -300,6 +357,8 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                 .offset(x = 16.dp, y = 130.dp)
                 .zIndex(-1f)
         )
+
+         */
         // Top right big
         Image(
             painter = painterResource(id = R.drawable.paw3),

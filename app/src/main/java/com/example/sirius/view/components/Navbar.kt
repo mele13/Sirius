@@ -56,8 +56,10 @@ import com.example.sirius.view.screens.ChatScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
+import com.example.sirius.view.screens.Messages
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SignupScreen
+import com.example.sirius.view.screens.SignupShelterScreen
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
@@ -83,7 +85,8 @@ fun NavigationContent(
                 Routes.LOADING,
                 Routes.ANIMALINFO,
                 Routes.ANIMALINFO + "/{id}",
-                Routes.PROFILE
+                Routes.PROFILE,
+                Routes.SIGNUPSHELTER
         )) {
             ProfileButton(
                 onClick = {
@@ -162,6 +165,18 @@ fun NavigationContent(
                 composable(route = Routes.CHAT) {
                     ChatScreen(navController, chatViewModel, userViewModel)
                 }
+
+
+
+                composable(route = Routes.CHAT + "/{recipient_user}",
+                    arguments = listOf(navArgument(name = "recipient_user") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    })
+                ) { navBackStackEntry ->
+                    val recipient_user = navBackStackEntry.arguments?.getInt("recipient_user") ?: -1
+                    Messages(navController, recipient_user, userViewModel, chatViewModel)
+                }
                 composable(route = Routes.ANIMALINFO + "/{id}",
                     arguments = listOf(navArgument(name = "id") {
                         type = NavType.IntType
@@ -178,6 +193,9 @@ fun NavigationContent(
                 }
                 composable(route = Routes.SIGNUP) {
                     SignupScreen(navController = navController, userViewModel = userViewModel)
+                }
+                composable(route = Routes.SIGNUPSHELTER) {
+                    SignupShelterScreen(navController, userViewModel)
                 }
                 composable(route = Routes.LANDINGPAGE) {
                     LandingPage(navController = navController)
@@ -204,7 +222,7 @@ fun NavigationContent(
             }
             if (currentRoute !in listOf(
                     Routes.LANDINGPAGE, Routes.SIGNUP, Routes.LOGIN,
-                    Routes.LOADING, Routes.LOADING + "/{id}"
+                    Routes.LOADING, Routes.LOADING + "/{id}", Routes.SIGNUPSHELTER
                 )
             ) {
                 Navbar(
