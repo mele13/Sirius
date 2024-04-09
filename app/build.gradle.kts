@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sirius"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -85,6 +85,7 @@ dependencies {
 
     // LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
+    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
 
     // Fragment
     implementation("androidx.fragment:fragment-ktx:1.6.2")

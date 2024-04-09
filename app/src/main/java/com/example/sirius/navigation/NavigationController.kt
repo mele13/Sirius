@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.sirius.view.components.NavigationActions
 import com.example.sirius.view.components.NavigationContent
 import com.example.sirius.viewmodel.AnimalViewModel
+import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 
@@ -22,7 +23,8 @@ import com.example.sirius.viewmodel.UserViewModel
 fun NavigationController(
     userViewModel: UserViewModel,
     animalViewModel: AnimalViewModel,
-    newsViewModel: NewsViewModel
+    newsViewModel: NewsViewModel,
+    chatViewModel: ChatViewModel
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -44,6 +46,7 @@ fun NavigationController(
             navigateDestination = navigateAction::navigateTo,
             animalViewModel = animalViewModel,
             newsViewModel = newsViewModel,
+            chatViewModel = chatViewModel
         )
     }
 }

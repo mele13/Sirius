@@ -12,6 +12,7 @@ import com.example.sirius.ui.theme.SiriusTheme
 import com.example.sirius.navigation.NavigationController
 import com.example.sirius.view.screens.OwnerScreen
 import com.example.sirius.viewmodel.AnimalViewModel
+import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import com.google.gson.Gson
@@ -35,6 +36,12 @@ class MainActivity : ComponentActivity() {
         NewsViewModel((application as AnimalApplication).newsDao)
     }
 
+    private val chatViewModel: ChatViewModel by lazy {
+        val animalApplication = application as AnimalApplication
+        animalApplication.initContext(applicationContext)
+        ChatViewModel((application as AnimalApplication).chatDao, userViewModel)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +49,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SiriusTheme {
-                NavigationController(userViewModel, animalViewModel, newsViewModel)
+                NavigationController(userViewModel, animalViewModel, newsViewModel, chatViewModel)
                 //LandingPage()
                 //MyComposable(viewModel = viewModel)
             }

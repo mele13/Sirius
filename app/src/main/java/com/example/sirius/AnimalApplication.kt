@@ -15,6 +15,7 @@ class AnimalApplication: Application() {
     val userDao by lazy { database.userDao() }
     val animalDao by lazy { database.animalDao() }
     val newsDao by lazy { database.newsDao() }
+    val chatDao by lazy { database.chatDao() }
 
     fun initContext(appContext: Context) {
         context = appContext

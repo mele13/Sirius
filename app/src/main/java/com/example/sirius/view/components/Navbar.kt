@@ -24,12 +24,14 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -41,20 +43,24 @@ import com.example.sirius.navigation.createDestinations
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.sirius.model.News
 import com.example.sirius.ui.theme.Green3
 import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.view.screens.AnimalInfo
+import com.example.sirius.view.screens.ChatScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SignupScreen
-import com.example.sirius.view.screens.SignupShelterScreen
+import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -66,6 +72,7 @@ fun NavigationContent(
     navigateDestination: (Destinations) -> Unit,
     animalViewModel: AnimalViewModel,
     newsViewModel: NewsViewModel,
+    chatViewModel: ChatViewModel
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         val currentRoute = navController.currentBackStackEntry?.destination?.route
@@ -76,8 +83,7 @@ fun NavigationContent(
                 Routes.LOADING,
                 Routes.ANIMALINFO,
                 Routes.ANIMALINFO + "/{id}",
-                Routes.PROFILE,
-                Routes.SIGNUPSHELTER,
+                Routes.PROFILE
         )) {
             ProfileButton(
                 onClick = {
@@ -112,8 +118,6 @@ fun NavigationContent(
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())
                     val breedList by animalViewModel.getBreed().collectAsState(emptyList())
                     val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
-                    println("typeeee null")
-                    println(it.arguments?.getString("type"))
                     AnimalsGallery(
                         navController = navController,
                         ageList = ageList,
@@ -136,8 +140,6 @@ fun NavigationContent(
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())
                     val breedList by animalViewModel.getBreed().collectAsState(emptyList())
                     val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
-                    println("typeeee")
-                    println(it.arguments?.getString("type"))
                     AnimalsGallery(
                         navController = navController,
                         ageList = ageList,
@@ -157,6 +159,9 @@ fun NavigationContent(
                 composable(route = Routes.ABOUTUS) {
                     AboutUsScreen()
                 }
+                composable(route = Routes.CHAT) {
+                    ChatScreen(navController, chatViewModel, userViewModel)
+                }
                 composable(route = Routes.ANIMALINFO + "/{id}",
                     arguments = listOf(navArgument(name = "id") {
                         type = NavType.IntType
@@ -173,9 +178,6 @@ fun NavigationContent(
                 }
                 composable(route = Routes.SIGNUP) {
                     SignupScreen(navController = navController, userViewModel = userViewModel)
-                }
-                composable(route = Routes.SIGNUPSHELTER) {
-                    SignupShelterScreen(navController = navController, userViewModel = userViewModel)
                 }
                 composable(route = Routes.LANDINGPAGE) {
                     LandingPage(navController = navController)
@@ -201,7 +203,7 @@ fun NavigationContent(
                 }
             }
             if (currentRoute !in listOf(
-                    Routes.LANDINGPAGE, Routes.SIGNUP, Routes.LOGIN, Routes.SIGNUPSHELTER,
+                    Routes.LANDINGPAGE, Routes.SIGNUP, Routes.LOGIN,
                     Routes.LOADING, Routes.LOADING + "/{id}"
                 )
             ) {
