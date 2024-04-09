@@ -56,7 +56,6 @@ import com.example.sirius.view.screens.ChatScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
-import com.example.sirius.view.screens.Messages
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SignupScreen
 import com.example.sirius.viewmodel.ChatViewModel
@@ -76,36 +75,33 @@ fun NavigationContent(
     chatViewModel: ChatViewModel
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-
+        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        if (currentRoute !in listOf(
+                Routes.LOGIN,
+                Routes.SIGNUP,
+                Routes.LANDINGPAGE,
+                Routes.LOADING,
+                Routes.ANIMALINFO,
+                Routes.ANIMALINFO + "/{id}",
+                Routes.PROFILE
+        )) {
+            ProfileButton(
+                onClick = {
+                    if (userViewModel.getAuthenticatedUser() != null)
+                        navController.navigate(Routes.PROFILE)
+                    else {
+                        navController.navigate(Routes.LOGIN)
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .zIndex(99f),
+            )
+        }
         Column(
-            modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.End
+            modifier = modifier.fillMaxSize()
         ) {
-
-            val currentRoute = navController.currentBackStackEntry?.destination?.route
-            if (currentRoute !in listOf(
-                    Routes.LOGIN,
-                    Routes.SIGNUP,
-                    Routes.LANDINGPAGE,
-                    Routes.LOADING,
-                    Routes.ANIMALINFO,
-                    Routes.ANIMALINFO + "/{id}",
-                    Routes.PROFILE
-                )) {
-                ProfileButton(
-                    onClick = {
-                        if (userViewModel.getAuthenticatedUser() != null)
-                            navController.navigate(Routes.PROFILE)
-                        else {
-                            navController.navigate(Routes.LOGIN)
-                        }
-                    },
-                    modifier = Modifier
-                       // .align
-                        .padding(top = 16.dp, end = 16.dp)
-                    //    .zIndex(99f),
-                )
-            }
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = navController,
@@ -116,23 +112,47 @@ fun NavigationContent(
                     val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())
                     val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
 
-                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel)
+                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel)
                 }
                 composable(route = Routes.ANIMALS) {
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())
                     val breedList by animalViewModel.getBreed().collectAsState(emptyList())
                     val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
-
                     AnimalsGallery(
                         navController = navController,
                         ageList = ageList,
                         breedList = breedList,
                         typeList = typeList,
                         userViewModel = userViewModel,
-                        viewModel = animalViewModel
+                        viewModel = animalViewModel,
+                        animalViewModel =  animalViewModel,
+                        newsViewModel =  newsViewModel,
+                        type = null,
+                        isAnimal = true,
                     )
                 }
+                composable(route = Routes.ANIMALS + "/{type}",
+                    arguments = listOf(navArgument(name = "type") {
+                        type = NavType.StringType
+                    })) {
+                    val isAnimal = it.arguments?.getString("type")?.contains("Animals", ignoreCase = true) == true
 
+                    val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())
+                    val breedList by animalViewModel.getBreed().collectAsState(emptyList())
+                    val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
+                    AnimalsGallery(
+                        navController = navController,
+                        ageList = ageList,
+                        breedList = breedList,
+                        typeList = typeList,
+                        userViewModel = userViewModel,
+                        viewModel = animalViewModel,
+                        animalViewModel =  animalViewModel,
+                        newsViewModel =  newsViewModel,
+                        type = it.arguments?.getString("type"),
+                        isAnimal = isAnimal,
+                    )
+                }
                 composable(route = Routes.DONATIONS) {
                     DonationsScreen(navController = navController)
                 }
@@ -148,7 +168,6 @@ fun NavigationContent(
                     })) {
 
                     AnimalInfo(
-                        navController,
                         it.arguments?.getInt("id"),
                         animalViewModel,
                         userViewModel
@@ -174,16 +193,6 @@ fun NavigationContent(
                 ) { navBackStackEntry ->
                     val id = navBackStackEntry.arguments?.getInt("id") ?: -1
                     LoadingPage(navController, id)
-                }
-
-                composable(route = Routes.CHAT + "/{recipient_user}",
-                    arguments = listOf(navArgument(name = "recipient_user") {
-                        type = NavType.IntType
-                        defaultValue = -1
-                    })
-                ) { navBackStackEntry ->
-                    val recipient_user = navBackStackEntry.arguments?.getInt("recipient_user") ?: -1
-                    Messages(navController, recipient_user, userViewModel, chatViewModel)
                 }
                 composable(route = Routes.PROFILE) {
                     ProfileScreen(

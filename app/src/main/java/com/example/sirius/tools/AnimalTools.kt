@@ -27,7 +27,7 @@ fun calculateAge(birthDate: String): Int {
  * @param plural The plural label to be used when the value is not equal to 1.
  * @return The formatted string.
  */
-private fun formatPluralizedAge(value: Int, singular: String, plural: String): String {
+private fun formatPluralizedAge(value: Comparable<*>, singular: String, plural: String): String {
     return if (value == 1) "$value $singular" else "$value $plural"
 }
 
@@ -40,7 +40,7 @@ private fun formatPluralizedAge(value: Int, singular: String, plural: String): S
  * @return The formatted age text.
  */
 @Composable
-fun buildAnAgeText(age: Int, birthDate: String, isShorten: Boolean = false): String {
+fun buildAnAgeText(age: Comparable<*>, birthDate: String, isShorten: Boolean = false): String {
     return when {
         age == 0 -> formatPluralizedAge(birthDate.substring(6, 7).toInt(), if (!isShorten) "month" else "(mo)", if (!isShorten) "months" else "(mo)")
         else -> formatPluralizedAge(age, if (!isShorten) "year" else "", if (!isShorten) "years" else "")
@@ -96,4 +96,8 @@ fun getYearRangeFromCategory(ageRange: String): Pair<Int, Int> {
         ">= 8" -> Pair(8, Int.MAX_VALUE)
         else -> Pair(0, Int.MAX_VALUE) // Rango predeterminado si no se encuentra ninguna categoría
     }
+}
+
+fun stringToBoolean(value: String): Boolean {
+    return value == "1"
 }

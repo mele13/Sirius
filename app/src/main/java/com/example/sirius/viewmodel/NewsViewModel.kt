@@ -7,11 +7,20 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sirius.AnimalApplication
 import com.example.sirius.data.dao.NewsDao
 import com.example.sirius.model.News
+import com.example.sirius.model.User
 import kotlinx.coroutines.flow.Flow
 
 class NewsViewModel(private val newsDao: NewsDao) : ViewModel() {
 
     fun getNews(): Flow<List<News>> = newsDao.getNews()
+
+    suspend fun getGoodNews(): Flow<List<News>> {
+        return newsDao.getGoodNews()
+    }
+
+    suspend fun getWhatNews(): Flow<List<News>> {
+        return newsDao.getWhatNews()
+    }
 
     fun getNewsByTitle(title: String): Flow<List<News>> = newsDao.getNewsByTitle(title)
 
@@ -21,6 +30,14 @@ class NewsViewModel(private val newsDao: NewsDao) : ViewModel() {
 
     suspend fun deleteAllNews() {
         newsDao.deleteAllNews()
+    }
+
+    suspend fun updateNew(newNew: News) {
+        newsDao.updateNews(newNew)
+    }
+
+    suspend fun deleteNews(newNew: News) {
+        newsDao.deleteNews(newNew)
     }
 
     companion object {

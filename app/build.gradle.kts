@@ -62,15 +62,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation ("androidx.compose.material:material:1.4.2")
-
-
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
-
-
-    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
-
-
 
     // Hilt
 //    implementation("com.google.dagger:hilt-android:2.x.x")
@@ -86,15 +77,15 @@ dependencies {
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation("androidx.benchmark:benchmark-macro:1.2.0")
     implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
-
-
     // LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
+    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
 
     // Fragment
     implementation("androidx.fragment:fragment-ktx:1.6.2")
@@ -119,14 +110,12 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:2.9.0")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
 
+    implementation("androidx.compose.material:material:1.0.0")
+
+
     // Accompanist
 //    implementation ("com.google.accompanist:accompanist-permissions:0.31.3-beta")
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
-
-
-
-
-
 }

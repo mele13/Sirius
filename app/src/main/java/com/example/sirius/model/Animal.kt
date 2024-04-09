@@ -1,13 +1,9 @@
 package com.example.sirius.model
 
-import android.annotation.SuppressLint
 import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 @Entity(tableName = "Animal")
 data class Animal (
@@ -16,7 +12,7 @@ data class Animal (
     val id: Int,
     @NonNull
     @ColumnInfo(name = "name")
-    val nameAnimal: String,
+    var nameAnimal: String,
     @NonNull
     @ColumnInfo(name = "birth_date")
     val birthDate: String,
@@ -31,10 +27,10 @@ data class Animal (
     val fosterCare: Int, // 0 -> no foster care | 1 -> in foster care
     @NonNull
     @ColumnInfo(name = "short_info")
-    val shortInfoAnimal: String,
+    var shortInfoAnimal: String,
     @NonNull
     @ColumnInfo(name = "long_info")
-    val longInfoAnimal: String,
+    var longInfoAnimal: String,
     @NonNull
     @ColumnInfo(name = "breed")
     val breedAnimal: String,
@@ -47,5 +43,11 @@ data class Animal (
     val entryDate: String,
     @NonNull
     @ColumnInfo(name = "photo_animal")
-    val photoAnimal: String
+    var photoAnimal: String,
+    @NonNull
+    @ColumnInfo(name = "in_shelter")
+    var in_shelter: Int,
+    @NonNull
+    @ColumnInfo(name = "lost")
+    var lost: Int,
 )

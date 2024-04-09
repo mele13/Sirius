@@ -31,6 +31,9 @@
     <string name="password" translatable="false">Password</string>
     <string name="account_login" translatable="false">Got an account?\nLog In</string>
     <string name="account_signup" translatable="false">Don\'t have an account?\nSign Up</string>
+    <string name="account_signup_shelter" translatable="false">Are you a company?</string>
+    <string name="sheltername" translatable="false">Shelter\'s Name</string>
+    <string name="emailowner" translatable="false">Mail Owner</string>
 
     <!-- Profile -->
     <string name="new_profile_image" translatable="false">Select a new profile image</string>
