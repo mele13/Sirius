@@ -13,10 +13,10 @@ data class News (
         val id: Int,
         @NonNull
         @ColumnInfo(name = "title")
-        val titleNews: String,
+        var titleNews: String,
         @NonNull
         @ColumnInfo(name = "short_info")
-        val shortInfoNews: String,
+        var shortInfoNews: String,
         @NonNull
         @ColumnInfo(name = "long_info")
         val longInfoNews: String,

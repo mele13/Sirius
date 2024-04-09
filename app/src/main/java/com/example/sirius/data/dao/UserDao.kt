@@ -32,8 +32,16 @@ interface UserDao {
     @Query("SELECT * FROM user")
     suspend fun getAllUsers(): List<User>
 
+    //modificar el rol
+    @Query("SELECT * FROM user WHERE role = 'admin' OR role = 'user' ORDER BY username ASC")
+    suspend fun getAllWorkers(): List<User>
+
+    //modificar el rol
+    @Query("SELECT * FROM user WHERE role = 'user'")
+    suspend fun getAllVolunteers(): List<User>
+
     @Query("DELETE FROM User")
-    suspend fun deleteAllUsers()
+    fun deleteAllUsers()
 
     @Query("SELECT animal.* FROM Animal INNER JOIN LikedAnimal ON animal.id = LikedAnimal.animal_id WHERE LikedAnimal.user_id = :userId")
     fun getLikedAnimals(userId: Int): Flow<List<Animal>>
@@ -41,4 +49,6 @@ interface UserDao {
     @Query("UPDATE User SET photo_user = :newPhoto WHERE id = :userId")
     suspend fun updateProfilePhoto(userId: Int, newPhoto: String)
 
+    @Query("UPDATE User SET role = :newRole WHERE id = :userId")
+    suspend fun updateRole(userId: Int, newRole: String)
 }

@@ -40,6 +40,7 @@ object Routes {
     const val ANIMALINFO = "animal info"
     const val LOGIN = "login"
     const val SIGNUP = "signup"
+    const val SIGNUPSHELTER = "signup shelter"
     const val LANDINGPAGE = "landing page"
     const val PROFILE = "profile"
     const val LOADING = "loading"

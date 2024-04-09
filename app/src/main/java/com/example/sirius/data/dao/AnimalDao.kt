@@ -1,7 +1,5 @@
 package com.example.sirius.data.dao
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -10,11 +8,8 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.sirius.model.Animal
 import com.example.sirius.model.LikedAnimal
-import com.example.sirius.model.TypeAnimal
+import com.example.sirius.model.News
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Dao
 interface AnimalDao {
@@ -83,4 +78,24 @@ interface AnimalDao {
 
     @Query("SELECT * FROM Animal WHERE SUBSTR(birth_date, 1, 4) BETWEEN :startYear AND :endYear")
     fun getAnimalsByBirthYearRange(startYear: String, endYear: String): Flow<List<Animal>>
+
+    @Query("UPDATE Animal SET name = :newName WHERE id = :animalId")
+    suspend fun updateNameAnimal(animalId: Int, newName: String)
+
+    @Query("UPDATE Animal SET short_info = :newSortInfo WHERE id = :animalId")
+    suspend fun updateShortInfoAnimal(animalId: Int, newSortInfo: String)
+
+    @Query("UPDATE Animal SET long_info = :newLongInfo WHERE id = :animalId")
+    suspend fun updateLongtInfoAnimal(animalId: Int, newLongInfo: String)
+
+    @Query("UPDATE Animal SET photo_animal = :newPhoto WHERE id = :animalId")
+    suspend fun updatePhotoAnimal(animalId: Int, newPhoto: String)
+
+    @Query("SELECT * FROM Animal WHERE lost = 1")
+    fun getLostAnimals(): Flow<List<Animal>>
+
+
+    @Query("SELECT * FROM Animal WHERE in_shelter = 1")
+    fun getOurFriends(): Flow<List<Animal>>
+
 }

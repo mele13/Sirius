@@ -77,6 +77,7 @@ dependencies {
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation("androidx.benchmark:benchmark-macro:1.2.0")
     implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
     // ViewModel
@@ -107,6 +108,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:maps-compose:2.9.0")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
+
+    implementation("androidx.compose.material:material:1.0.0")
+
 
     // Accompanist
 //    implementation ("com.google.accompanist:accompanist-permissions:0.31.3-beta")

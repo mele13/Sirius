@@ -10,21 +10,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
@@ -32,11 +33,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,8 +61,6 @@ import com.example.sirius.R
 import com.example.sirius.model.Animal
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
-import com.example.sirius.tools.isPasswordValid
-import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.ui.theme.Wine
 import com.example.sirius.view.components.NotAvailableDialog
@@ -75,21 +72,29 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AnimalInfo(
-    navController: NavController,
     id: Int?,
     viewModel: AnimalViewModel,
     userViewModel: UserViewModel
 ) {
+    val user = userViewModel.getAuthenticatedUser()
     var showDialog by remember { mutableStateOf(false) }
+
+    var editMode by remember { mutableStateOf(false) }
+
+    var editedName by remember { mutableStateOf("") }
+    var editedLongInfo by remember { mutableStateOf("") }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
     ) {
         var isFavorite by remember { mutableStateOf(false) }
         val animal by viewModel.getAnimalById(id ?: 0).collectAsState(initial = null)
         val context = LocalContext.current
         val userId = userViewModel.getAuthenticatedUser()?.id
+
+        editedName = animal?.nameAnimal.toString()
+        editedLongInfo = animal?.longInfoAnimal.toString()
+
 
         if (userId != null) {
             userViewModel.viewModelScope.launch {
@@ -154,59 +159,114 @@ fun AnimalInfo(
                             modifier = Modifier
                                 .padding(start = 20.dp)
                         ) {
-                            Text(
-                                text = animal!!.nameAnimal,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Start,
-                            )
-                            // Icono de favorito
-                            if (userId != null) {
-                                if (isFavorite) {
-                                    Icon(
-                                        imageVector = Icons.Default.Favorite,
-                                        contentDescription = null,
-                                        tint = Wine,
-                                        modifier = Modifier
-                                            .clickable {
-                                                isFavorite = !isFavorite
-                                                userViewModel.viewModelScope.launch {
-                                                    viewModel.removeLikedAnimal(
-                                                        animalId = animal!!.id,
-                                                        userId = userId
-                                                    )
+                            if (!editMode) {
+                                Text(
+                                    text = animal!!.nameAnimal,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Start,
+                                )
+                            } else {
+                                var editedName_ by remember { mutableStateOf(animal?.nameAnimal ?: "") }
+                                editedName = editedName_
+                                TextField(
+                                    value = editedName_,
+                                    onValueChange = { editedName_ = it },
+                                    label = { Text("Name animal") },
+                                )
+                            }
+                            if (user!!.role.trim() != "admin") {
+                                if (userId != null) {
+                                    if (isFavorite) {
+                                        Icon(
+                                            imageVector = Icons.Default.Favorite,
+                                            contentDescription = null,
+                                            tint = Wine,
+                                            modifier = Modifier
+                                                .clickable {
+                                                    isFavorite = !isFavorite
+                                                    userViewModel.viewModelScope.launch {
+                                                        viewModel.removeLikedAnimal(
+                                                            animalId = animal!!.id,
+                                                            userId = userId
+                                                        )
+                                                    }
                                                 }
-                                            }
-                                    )
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Default.FavoriteBorder,
-                                        contentDescription = null,
-                                        tint = Wine,
-                                        modifier = Modifier
-                                            .clickable {
-                                                isFavorite = !isFavorite
-                                                userViewModel.viewModelScope.launch {
-                                                    viewModel.insertLikedAnimal(
-                                                        animalId = animal!!.id,
-                                                        userId = userId
-                                                    )
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Default.FavoriteBorder,
+                                            contentDescription = null,
+                                            tint = Wine,
+                                            modifier = Modifier
+                                                .clickable {
+                                                    isFavorite = !isFavorite
+                                                    userViewModel.viewModelScope.launch {
+                                                        viewModel.insertLikedAnimal(
+                                                            animalId = animal!!.id,
+                                                            userId = userId
+                                                        )
+                                                    }
                                                 }
-                                            }
-                                    )
+                                        )
+                                    }
                                 }
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = Color.Black,
+                                    modifier = Modifier
+                                        .clickable{
+                                            editMode = !editMode
+                                        }
+                                        .size(15.dp)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = Color.Black,
+                                    modifier = Modifier
+                                        .clickable {
+                                                viewModel.viewModelScope.launch {
+                                                    val updatedAnimal = animal?.copy(
+                                                        nameAnimal = editedName,
+                                                        longInfoAnimal = editedLongInfo
+                                                    )
+                                                    updatedAnimal?.let { viewModel.updateAnimal(it) }
+                                                }
+                                                editMode = false
+                                        }
+                                        .size(15.dp)
+                                )
                             }
                         }
                     }
                     item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = animal!!.longInfoAnimal,
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Start,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 20.dp, end = 20.dp)
-                        )
+                                .padding(start = 20.dp)
+                        ) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (!editMode) {
+                                Text(
+                                    text = animal!!.longInfoAnimal,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 20.dp, end = 20.dp)
+                                )
+                            } else {
+                                var editedLongInfo_ by remember { mutableStateOf(animal?.longInfoAnimal ?: "") }
+                                editedLongInfo = editedLongInfo_
+                                TextField(
+                                    value = editedLongInfo_,
+                                    onValueChange = { editedLongInfo_ = it },
+                                    label = { Text("Información larga del animal") },
+                                )
+                            }
+                        }
                     }
                     val age = calculateAge(animal!!.birthDate)
                     item {
@@ -220,24 +280,29 @@ fun AnimalInfo(
                                 .padding(start = 20.dp)
                         )
                     }
-//                    item {
-//                        IconButton(
-//                            onClick = {
-//                                navController.popBackStack()
-//                            },
-//                            modifier = Modifier
-//                                .padding(start = 8.dp)
-//                                .offset(x = (-16).dp)
-//                        ) {
-//                            Icon(
-//                                imageVector = Icons.Default.ArrowBack,
-//                                contentDescription = null
-//                            )
-//                        }
-//                    }
+                    item{
+                        if (editMode) {
+                            Button(
+                                onClick = {
+                                    viewModel.viewModelScope.launch {
+                                        val updatedAnimal = animal?.copy(
+                                            nameAnimal = editedName,
+                                            longInfoAnimal = editedLongInfo
+                                        )
+                                        updatedAnimal?.let { viewModel.updateAnimal(it) }
+                                    }
+                                    editMode = false
+                                },
+                            ) {
+                                Text("Save changes")
+                            }
+                        }
+                    }
+
                 }
             }
         }
+
     }
     if (showDialog) {
         NotAvailableDialog(
@@ -247,6 +312,8 @@ fun AnimalInfo(
         )
     }
 }
+
+
 
 @SuppressLint("DiscouragedApi")
 @OptIn(ExperimentalFoundationApi::class)

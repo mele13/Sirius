@@ -15,7 +15,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
+import com.example.sirius.model.Animal
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
 import java.lang.Exception
 
 class UserViewModel(private val userDao: UserDao) : ViewModel() {
@@ -95,6 +98,14 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return false
     }
 
+    suspend fun getAllWorkers(): List<User> {
+        return userDao.getAllWorkers()
+    }
+
+    suspend fun getAllVolunteers(): List<User> {
+        return userDao.getAllVolunteers()
+    }
+
     suspend fun updateProfilePhoto(user: User, newPhoto: String) {
         user.photoUser = newPhoto
         userDao.updateProfilePhoto(user.id, newPhoto)
@@ -163,6 +174,12 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
     }
 
     fun getLikedAnimals(userId: Int) = userDao.getLikedAnimals(userId)
+
+
+    suspend fun updateRole(user: User, newRole: String) {
+        user.role = newRole
+        userDao.update(user)
+    }
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {

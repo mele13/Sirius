@@ -24,7 +24,7 @@ data class User(
     @NonNull
     @ColumnInfo(name = "role")
     //Enumerado
-    val role: String,
+    var role: String,
     @NonNull
     @ColumnInfo(name = "photo_user")
     var photoUser: String,
