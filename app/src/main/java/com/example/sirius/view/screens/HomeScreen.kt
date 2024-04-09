@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +23,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -39,15 +46,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.News
 import com.example.sirius.model.Animal
 import com.example.sirius.navigation.Routes
+import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green2
 import com.example.sirius.ui.theme.Green3
 import com.example.sirius.ui.theme.Green4
+import com.example.sirius.ui.theme.Wine
 import com.example.sirius.viewmodel.UserViewModel
+import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
 @Composable
@@ -55,9 +66,13 @@ fun HomeScreen(
     navController: NavController,
     animalList: List<Animal>,
     newsList: List<News>,
+    userViewModel: UserViewModel,
 ) {
     val context = LocalContext.current
-
+    val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
+    println("useer")
+    println(user)
+    println(user?.role)
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -66,12 +81,28 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             item {
-                // What's New
-                Text(
-                    text = stringResource(id = R.string.newsIntro),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(6.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // What's New
+                    Text(
+                        text = stringResource(id = R.string.newsIntro),
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                    if (user != null && user!!.role.trim() == "admin") {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = Color.Black,
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate(route = Routes.ANIMALS)
+                                }
+                        )
+                    }
+
+                }
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -85,19 +116,34 @@ fun HomeScreen(
                         }
                     }
                 }
-                // Our friends
-                Text(
-                    text = stringResource(id = R.string.animalsIntro),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(6.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Our friends
+                    Text(
+                        text = stringResource(id = R.string.animalsIntro),
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                    if (user != null && user!!.role.trim() == "admin") {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = Color.Black,
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate(route = Routes.ANIMALS)
+                                }
+                        )
+                    }
+                }
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(animalList) {animal ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
+                        ) {
                             AnimalItem(animal, context, navController)
                             Text(
                                 text = animal.nameAnimal,
@@ -109,12 +155,27 @@ fun HomeScreen(
                         }
                     }
                 }
-                // Lost
-                Text(
-                    text = stringResource(id = R.string.lostIntro),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(6.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Lost
+                    Text(
+                        text = stringResource(id = R.string.lostIntro),
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                    if (user != null && user!!.role.trim() == "admin") {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = Color.Black,
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate(route = Routes.ANIMALS)
+                                }
+                        )
+                    }
+                }
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -128,12 +189,27 @@ fun HomeScreen(
                         }
                     }
                 }
-                // Good News
-                Text(
-                    text = stringResource(id = R.string.goodNewsIntro),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(6.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Good News
+                    Text(
+                        text = stringResource(id = R.string.goodNewsIntro),
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                    if (user != null && user!!.role.trim() == "admin") {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = Color.Black,
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate(route = Routes.ANIMALS)
+                                }
+                        )
+                    }
+                }
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -159,7 +235,7 @@ fun NewsItem(news: News, context: Context) {
     )
 
     if (resourceId != 0) {
-        // Si se encontró el recurso, cargar la imagen
+        // Si se encontrÃ³ el recurso, cargar la imagen
         val painter = painterResource(id = resourceId)
         SquareImage(painter = painter)
     } else {

@@ -61,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -523,12 +524,12 @@ fun ChangePasswordButton(userViewModel: UserViewModel, user: User) {
 
 @SuppressLint("DiscouragedApi")
 @Composable
-fun UserImage(imageUrl: String) {
+fun UserImage(imageUrl: String, size: Dp = 200.dp) {
     Image(
         painter = painterResource(id = getDrawableResourceId(imagePath = imageUrl)),
         contentDescription = null,
         modifier = Modifier
-            .size(200.dp)
+            .size(size)
             .clip(MaterialTheme.shapes.small)
             .zIndex(-1f)
             .padding(bottom = 4.dp)

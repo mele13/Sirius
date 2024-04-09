@@ -52,11 +52,14 @@ import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.view.screens.AnimalInfo
+import com.example.sirius.view.screens.ChatScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
+import com.example.sirius.view.screens.Messages
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SignupScreen
+import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 
@@ -70,35 +73,39 @@ fun NavigationContent(
     navigateDestination: (Destinations) -> Unit,
     animalViewModel: AnimalViewModel,
     newsViewModel: NewsViewModel,
+    chatViewModel: ChatViewModel
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        val currentRoute = navController.currentBackStackEntry?.destination?.route
-        if (currentRoute !in listOf(
-                Routes.LOGIN,
-                Routes.SIGNUP,
-                Routes.LANDINGPAGE,
-                Routes.LOADING,
-                Routes.ANIMALINFO,
-                Routes.ANIMALINFO + "/{id}",
-                Routes.PROFILE
-        )) {
-            ProfileButton(
-                onClick = {
-                    if (userViewModel.getAuthenticatedUser() != null)
-                        navController.navigate(Routes.PROFILE)
-                    else {
-                        navController.navigate(Routes.LOGIN)
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .zIndex(99f),
-            )
-        }
+
         Column(
-            modifier = modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.End
         ) {
+
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            if (currentRoute !in listOf(
+                    Routes.LOGIN,
+                    Routes.SIGNUP,
+                    Routes.LANDINGPAGE,
+                    Routes.LOADING,
+                    Routes.ANIMALINFO,
+                    Routes.ANIMALINFO + "/{id}",
+                    Routes.PROFILE
+                )) {
+                ProfileButton(
+                    onClick = {
+                        if (userViewModel.getAuthenticatedUser() != null)
+                            navController.navigate(Routes.PROFILE)
+                        else {
+                            navController.navigate(Routes.LOGIN)
+                        }
+                    },
+                    modifier = Modifier
+                       // .align
+                        .padding(top = 16.dp, end = 16.dp)
+                    //    .zIndex(99f),
+                )
+            }
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = navController,
@@ -109,7 +116,7 @@ fun NavigationContent(
                     val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())
                     val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
 
-                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList)
+                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel)
                 }
                 composable(route = Routes.ANIMALS) {
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())
@@ -131,6 +138,9 @@ fun NavigationContent(
                 }
                 composable(route = Routes.ABOUTUS) {
                     AboutUsScreen()
+                }
+                composable(route = Routes.CHAT) {
+                    ChatScreen(navController, chatViewModel, userViewModel)
                 }
                 composable(route = Routes.ANIMALINFO + "/{id}",
                     arguments = listOf(navArgument(name = "id") {
@@ -164,6 +174,16 @@ fun NavigationContent(
                 ) { navBackStackEntry ->
                     val id = navBackStackEntry.arguments?.getInt("id") ?: -1
                     LoadingPage(navController, id)
+                }
+
+                composable(route = Routes.CHAT + "/{recipient_user}",
+                    arguments = listOf(navArgument(name = "recipient_user") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    })
+                ) { navBackStackEntry ->
+                    val recipient_user = navBackStackEntry.arguments?.getInt("recipient_user") ?: -1
+                    Messages(navController, recipient_user, userViewModel, chatViewModel)
                 }
                 composable(route = Routes.PROFILE) {
                     ProfileScreen(

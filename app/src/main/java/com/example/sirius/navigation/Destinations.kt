@@ -1,6 +1,7 @@
 package com.example.sirius.navigation
 
 import android.content.res.Configuration
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.example.sirius.R
@@ -20,8 +21,10 @@ fun createDestinations(): List<Destinations> {
     return listOf(
         createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
         createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
+        createDestination(Routes.CHAT,R.drawable.chat_icon, R.string.chat),
         createDestination(Routes.DONATIONS, R.drawable.donations_icon, R.string.donations),
         createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
+
     )
 }
 
@@ -43,4 +46,5 @@ object Routes {
     const val LANDINGPAGE = "landing page"
     const val PROFILE = "profile"
     const val LOADING = "loading"
+    const val CHAT = "chat"
 }

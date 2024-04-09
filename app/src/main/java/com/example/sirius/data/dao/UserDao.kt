@@ -41,4 +41,6 @@ interface UserDao {
     @Query("UPDATE User SET photo_user = :newPhoto WHERE id = :userId")
     suspend fun updateProfilePhoto(userId: Int, newPhoto: String)
 
+
+
 }

@@ -79,6 +79,95 @@ import java.time.Year
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
+fun DropdownFilters(ageList: List<String>,
+                    breedList: List<String>,
+                    typeList: List<String>,
+                    viewModel: AnimalViewModel,
+                    onCategorySelected: (String) -> Unit,
+                    onBreedSelected: (String) -> Unit,
+                    onTypeSelected: (String) -> Unit
+){
+    var ageDropdownExpanded by remember { mutableStateOf(false) }
+    var breedDropdownExpanded by remember { mutableStateOf(false) }
+    var typeDropdownExpanded by remember { mutableStateOf(false) }
+
+    var selectedCategory by remember { mutableStateOf("") }
+    var selectedBreed by remember { mutableStateOf("") }
+    var selectedType by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) { // es algo aqui TODO
+        DropdownButton(
+            text = "Age range",
+            options = ageList.map { it.toString() },
+            selectedOption = selectedCategory,
+            onOptionSelected = {
+                selectedCategory = it
+                onCategorySelected(it)
+                               },
+            expanded = ageDropdownExpanded,
+            onExpandedChange = { expanded ->
+                ageDropdownExpanded = expanded
+            },
+            viewModel = viewModel,
+            originalText = "Age range",
+            color = Color.White,
+            aux = true,
+        )
+        ClearFilterIconButton(
+            onClick = { selectedCategory = "" },
+            onOptionSelected = { selectedCategory = it },
+            selectedOption = selectedCategory
+        )
+        DropdownButton(
+            text = "Breed",
+            options = breedList.map { it },
+            selectedOption = selectedBreed,
+            onOptionSelected = {
+                selectedBreed = it
+                onBreedSelected(it)
+                               },
+            expanded = breedDropdownExpanded,
+            onExpandedChange = { expanded ->
+                breedDropdownExpanded = expanded
+            },
+            viewModel = viewModel,
+            originalText = "Breed",
+            color = Color.White,
+        )
+        ClearFilterIconButton(
+            onClick = { selectedBreed = "" },
+            onOptionSelected = { selectedBreed = it },
+            selectedOption = selectedBreed
+        )
+        DropdownButton(
+            text = "Type",
+            options = typeList.map { it },
+            selectedOption = selectedType,
+            onOptionSelected = {
+                selectedType = it
+                onTypeSelected(it)
+                               },
+            expanded = typeDropdownExpanded,
+            onExpandedChange = { expanded ->
+                typeDropdownExpanded = expanded
+            },
+            viewModel = viewModel,
+            originalText = "Type",
+            color = Color.White,
+        )
+        ClearFilterIconButton(
+            onClick = { selectedType = "" },
+            onOptionSelected = { selectedType = it },
+            selectedOption = selectedType
+        )
+    }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
 fun AnimalsGallery(
     navController: NavController,
     ageList: List<String>,
@@ -91,9 +180,7 @@ fun AnimalsGallery(
     var selectedBreed by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("") }
 
-    var ageDropdownExpanded by remember { mutableStateOf(false) }
-    var breedDropdownExpanded by remember { mutableStateOf(false) }
-    var typeDropdownExpanded by remember { mutableStateOf(false) }
+
 
     Column(
         modifier = Modifier
@@ -102,67 +189,15 @@ fun AnimalsGallery(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) { // es algo aqui TODO
-            DropdownButton(
-                text = "Age range",
-                options = ageList.map { it.toString() },
-                selectedOption = selectedCategory,
-                onOptionSelected = { selectedCategory = it },
-                expanded = ageDropdownExpanded,
-                onExpandedChange = { expanded ->
-                    ageDropdownExpanded = expanded
-                },
-                viewModel = viewModel,
-                originalText = "Age range",
-                color = Color.White,
-                aux = true,
-            )
-            ClearFilterIconButton(
-                onClick = { selectedCategory = "" },
-                onOptionSelected = { selectedCategory = it },
-                selectedOption = selectedCategory
-            )
-            DropdownButton(
-                text = "Breed",
-                options = breedList.map { it },
-                selectedOption = selectedBreed,
-                onOptionSelected = { selectedBreed = it },
-                expanded = breedDropdownExpanded,
-                onExpandedChange = { expanded ->
-                    breedDropdownExpanded = expanded
-                },
-                viewModel = viewModel,
-                originalText = "Breed",
-                color = Color.White,
-            )
-            ClearFilterIconButton(
-                onClick = { selectedBreed = "" },
-                onOptionSelected = { selectedBreed = it },
-                selectedOption = selectedBreed
-            )
-            DropdownButton(
-                text = "Type",
-                options = typeList.map { it },
-                selectedOption = selectedType,
-                onOptionSelected = { selectedType = it },
-                expanded = typeDropdownExpanded,
-                onExpandedChange = { expanded ->
-                    typeDropdownExpanded = expanded
-                },
-                viewModel = viewModel,
-                originalText = "Type",
-                color = Color.White,
-            )
-            ClearFilterIconButton(
-                onClick = { selectedType = "" },
-                onOptionSelected = { selectedType = it },
-                selectedOption = selectedType
-            )
-        }
+
+        DropdownFilters(ageList,
+            breedList,
+            typeList,
+            viewModel,
+            onCategorySelected = { selectedCategory = it },
+            onBreedSelected = { selectedBreed = it },
+            onTypeSelected = { selectedType = it }
+        )
 
         val animalsByAgeCategory = if (selectedCategory.isNotBlank()) {
             val ageRange = mapCategoryToYearRange(selectedCategory)

@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sirius"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -62,6 +62,15 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation ("androidx.compose.material:material:1.4.2")
+
+
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
+
+
 
     // Hilt
 //    implementation("com.google.dagger:hilt-android:2.x.x")
@@ -81,6 +90,8 @@ dependencies {
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
+
 
     // LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
@@ -113,4 +124,9 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+
+
+
+
 }
