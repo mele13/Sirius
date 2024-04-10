@@ -77,6 +77,7 @@ fun NavigationContent(
     chatViewModel: ChatViewModel
 ) {
     Box(modifier = modifier.fillMaxSize()) {
+
         val currentRoute = navController.currentBackStackEntry?.destination?.route
         if (currentRoute !in listOf(
                 Routes.LOGIN,

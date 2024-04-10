@@ -86,12 +86,107 @@ import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.ui.theme.Wine
+import com.example.sirius.view.components.DeleteDialog
+import com.example.sirius.view.components.EditDialog
+import com.example.sirius.view.components.OutlinedIcon
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import java.time.Year
 import java.util.Date
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DropdownFilters(ageList: List<String>,
+                    breedList: List<String>,
+                    typeList: List<String>,
+                    viewModel: AnimalViewModel,
+                    onCategorySelected: (String) -> Unit,
+                    onBreedSelected: (String) -> Unit,
+                    onTypeSelected: (String) -> Unit
+){
+    var ageDropdownExpanded by remember { mutableStateOf(false) }
+    var breedDropdownExpanded by remember { mutableStateOf(false) }
+    var typeDropdownExpanded by remember { mutableStateOf(false) }
+
+    var selectedCategory by remember { mutableStateOf("") }
+    var selectedBreed by remember { mutableStateOf("") }
+    var selectedType by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) { // es algo aqui TODO
+        DropdownButton(
+            text = "Age range",
+            options = ageList.map { it.toString() },
+            selectedOption = selectedCategory,
+            onOptionSelected = {
+                selectedCategory = it
+                onCategorySelected(it)
+            },
+            expanded = ageDropdownExpanded,
+            onExpandedChange = { expanded ->
+                ageDropdownExpanded = expanded
+            },
+            viewModel = viewModel,
+            originalText = "Age range",
+            color = Color.White,
+            aux = true,
+        )
+        ClearFilterIconButton(
+            onClick = { selectedCategory = "" },
+            onOptionSelected = { selectedCategory = it },
+            selectedOption = selectedCategory
+        )
+        DropdownButton(
+            text = "Breed",
+            options = breedList.map { it },
+            selectedOption = selectedBreed,
+            onOptionSelected = {
+                selectedBreed = it
+                onBreedSelected(it)
+            },
+            expanded = breedDropdownExpanded,
+            onExpandedChange = { expanded ->
+                breedDropdownExpanded = expanded
+            },
+            viewModel = viewModel,
+            originalText = "Breed",
+            color = Color.White,
+        )
+        ClearFilterIconButton(
+            onClick = { selectedBreed = "" },
+            onOptionSelected = { selectedBreed = it },
+            selectedOption = selectedBreed
+        )
+        DropdownButton(
+            text = "Type",
+            options = typeList.map { it },
+            selectedOption = selectedType,
+            onOptionSelected = {
+                selectedType = it
+                onTypeSelected(it)
+            },
+            expanded = typeDropdownExpanded,
+            onExpandedChange = { expanded ->
+                typeDropdownExpanded = expanded
+            },
+            viewModel = viewModel,
+            originalText = "Type",
+            color = Color.White,
+        )
+        ClearFilterIconButton(
+            onClick = { selectedType = "" },
+            onOptionSelected = { selectedType = it },
+            selectedOption = selectedType
+        )
+    }
+}
+
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -112,10 +207,6 @@ fun AnimalsGallery(
     var selectedBreed by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("") }
 
-    var ageDropdownExpanded by remember { mutableStateOf(false) }
-    var breedDropdownExpanded by remember { mutableStateOf(false) }
-    var typeDropdownExpanded by remember { mutableStateOf(false) }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -123,67 +214,14 @@ fun AnimalsGallery(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (type != "") {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) { // es algo aqui TODO
-                DropdownButton(
-                    text = "Age range",
-                    options = ageList.map { it },
-                    selectedOption = selectedCategory,
-                    onOptionSelected = { selectedCategory = it },
-                    expanded = ageDropdownExpanded,
-                    onExpandedChange = { expanded ->
-                        ageDropdownExpanded = expanded
-                    },
-                    viewModel = viewModel,
-                    originalText = "Age range",
-                    color = Color.White,
-                    aux = true,
-                )
-                ClearFilterIconButton(
-                    onClick = { selectedCategory = "" },
-                    onOptionSelected = { selectedCategory = it },
-                    selectedOption = selectedCategory
-                )
-                DropdownButton(
-                    text = "Breed",
-                    options = breedList.map { it },
-                    selectedOption = selectedBreed,
-                    onOptionSelected = { selectedBreed = it },
-                    expanded = breedDropdownExpanded,
-                    onExpandedChange = { expanded ->
-                        breedDropdownExpanded = expanded
-                    },
-                    viewModel = viewModel,
-                    originalText = "Breed",
-                    color = Color.White,
-                )
-                ClearFilterIconButton(
-                    onClick = { selectedBreed = "" },
-                    onOptionSelected = { selectedBreed = it },
-                    selectedOption = selectedBreed
-                )
-                DropdownButton(
-                    text = "Type",
-                    options = typeList.map { it },
-                    selectedOption = selectedType,
-                    onOptionSelected = { selectedType = it },
-                    expanded = typeDropdownExpanded,
-                    onExpandedChange = { expanded ->
-                        typeDropdownExpanded = expanded
-                    },
-                    viewModel = viewModel,
-                    originalText = "Type",
-                    color = Color.White,
-                )
-                ClearFilterIconButton(
-                    onClick = { selectedType = "" },
-                    onOptionSelected = { selectedType = it },
-                    selectedOption = selectedType
-                )
-            }
+            DropdownFilters(ageList,
+                breedList,
+                typeList,
+                viewModel,
+                onCategorySelected = { selectedCategory = it },
+                onBreedSelected = { selectedBreed = it },
+                onTypeSelected = { selectedType = it }
+            )
         }
 
         val animalsByAgeCategory = if (selectedCategory.isNotBlank()) {
@@ -435,38 +473,7 @@ fun AnimalCard(
 
     var showDialogDelete by remember { mutableStateOf(false) }
     var showDialogEdit by remember { mutableStateOf(false) }
-    var textValue by remember { mutableStateOf(TextFieldValue()) }
-    var selectedDate by remember { mutableStateOf<Date?>(null) }
 
-    var nameAnimal by remember { mutableStateOf("") }
-    var shortInfoAnimal by remember { mutableStateOf("") }
-    var longInfoAnimal by remember { mutableStateOf("") }
-    var waitingAdoptionAnimal by remember { mutableStateOf("") }
-    var fosterCareAnimal by remember { mutableStateOf("") }
-    var photoAnimal by remember { mutableStateOf("") }
-    var photoNews by remember { mutableStateOf("") }
-    var titleNews by remember { mutableStateOf("") }
-    var shortInfoNews by remember { mutableStateOf("") }
-
-    val predefinedImageList = listOf(
-        "res/drawable/user_image1",
-        "res/drawable/user_image2",
-        "res/drawable/user_image3",
-        "res/drawable/user_image4",
-        "res/drawable/user_image5",
-        "res/drawable/user_image6",
-        "res/drawable/user_image7",
-        "res/drawable/user_image8",
-        "res/drawable/user_image9",
-        "res/drawable/user_image10"
-    )
-
-    if (item is Animal) {
-        nameAnimal = item.nameAnimal
-        shortInfoAnimal = item.shortInfoAnimal
-        waitingAdoptionAnimal = item.waitingAdoption.toString()
-        fosterCareAnimal = item.fosterCare.toString()
-    }
 
     if (user != null) {
         if (type == "AnimalsInShelter" || type == "LostAnimals"|| type == null) {
@@ -561,44 +568,13 @@ fun AnimalCard(
                                 } else if (item is News){
                                     titleDialog = "Eliminar ${item.titleNews}"
                                 }
-                                AlertDialog(
-                                    onDismissRequest = { showDialogDelete = false },
-                                    title = {
-                                        Text(text = titleDialog)
-                                    },
-                                    text = {
-                                        Text(text = "¿Estás seguro de eliminarlo?")
-                                    },
-                                    confirmButton = {
-                                        Button(
-                                            onClick = {
-                                                showDialogDelete = false
-                                                if (item is Animal){
-                                                    animalViewModel.viewModelScope.launch {
-                                                        animalViewModel.deleteAnimal(
-                                                            animal = item
-                                                        )
-                                                    }
-                                                } else if (item is News){
-                                                    newsViewModel.viewModelScope.launch {
-                                                        newsViewModel.deleteNews(
-                                                            newNew = item
-                                                        )
-                                                    }
-                                                }
 
-                                            }
-                                        ) {
-                                            Text("Aceptar")
-                                        }
-                                    },
-                                    dismissButton = {
-                                        Button(
-                                            onClick = { showDialogDelete = false }
-                                        ) {
-                                            Text("Cancelar")
-                                        }
-                                    }
+                                DeleteDialog(
+                                    onDismissRequest = { showDialogDelete = false} ,
+                                    titleDialog = titleDialog,
+                                    animalViewModel = animalViewModel,
+                                    newsViewModel = newsViewModel,
+                                    item = item
                                 )
                             }
                         }
@@ -608,6 +584,9 @@ fun AnimalCard(
                 }
                 if (user != null) {
                         if (user!!.role.trim() != "admin") {
+
+
+
                             if (isFavorite) {
                                 // Mostrar ícono de favorito
                                 Icon(
@@ -650,226 +629,13 @@ fun AnimalCard(
                             Box (contentAlignment = Alignment.Center,
                                 modifier = Modifier
                                     .align(Alignment.TopEnd))  {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    tint = Black,
-                                    modifier = Modifier
-                                        .clickable {
-                                            showDialogEdit = true
-                                        }
-                                        .size(20.dp)
-                                )
+
+                                OutlinedIcon(Icons.Default.Edit, {showDialogEdit = true})
                             }
 
                             if (showDialogEdit) {
-                                //Animal
-                                var editedName by remember { mutableStateOf((item as? Animal)?.nameAnimal ?: "") }
-                                var editedShortInfoAnimal by remember { mutableStateOf((item as? Animal)?.shortInfoAnimal ?: "") }
-                                var editedWaitingAdoption by remember { mutableStateOf(stringToBoolean(waitingAdoptionAnimal)) }
-                                var editedFosterCare by remember { mutableStateOf(stringToBoolean(fosterCareAnimal)) }
-                                var editedPhotoAnimal by remember { mutableStateOf((item as? Animal)?.photoAnimal ?: "") }
-                                var editedBirthDate by remember { mutableStateOf((item as? Animal)?.birthDate ?: "") }
 
-                                //News
-                                var editedTitle by remember { mutableStateOf((item as? News)?.titleNews ?: "") }
-                                var editedShortInfoNew by remember { mutableStateOf((item as? News)?.shortInfoNews ?: "") }
-                                var editedPhotoNews by remember { mutableStateOf((item as? News)?.photoNews ?: "") }
-
-
-                                AlertDialog(
-                                    onDismissRequest = { showDialogEdit = false },
-                                    title = {
-                                        Text(when (item) {
-                                            is Animal -> "Editar Datos ${item.nameAnimal}"
-                                            is News -> "Editar Datos ${item.titleNews}"
-                                            else -> ""
-                                        })
-                                    },
-                                    text = {
-                                        Column {
-                                            when (val currentItem = item) {
-                                                is Animal -> {
-                                                    TextField(
-                                                        value = editedName,
-                                                        onValueChange = { editedName = it },
-                                                        label = { Text("Nombre") }
-                                                    )
-                                                    TextField(
-                                                        value = editedShortInfoAnimal,
-                                                        onValueChange = { editedShortInfoAnimal = it },
-                                                        label = { Text("Short Info") }
-                                                    )
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        Text("Waiting Adoption")
-                                                        Checkbox(
-                                                            checked = editedWaitingAdoption,
-                                                            onCheckedChange = {
-                                                                editedWaitingAdoption = it
-                                                            },
-                                                        )
-                                                    }
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        Text("Foster Care")
-                                                        Checkbox(
-                                                            checked = editedFosterCare,
-                                                            onCheckedChange = {
-                                                                editedFosterCare = it
-                                                            },
-                                                        )
-                                                    }
-                                                    DatePicker(
-                                                        state = rememberDatePickerState(),
-                                                        modifier = Modifier.padding(16.dp),
-                                                        dateFormatter = DatePickerFormatter(),
-                                                        dateValidator = { date ->
-                                                            true
-                                                        },
-                                                        title = {
-                                                            Text("Seleccione una fecha", fontWeight = FontWeight.Bold)
-                                                        }
-                                                    )
-                                                    Text("Change Photo")
-                                                    Column {
-                                                        val chunkedImages = predefinedImageList.chunked(5)
-                                                        chunkedImages.forEach { rowImages ->
-                                                            Row(
-                                                                modifier = Modifier
-                                                                    .fillMaxWidth()
-                                                                    .padding(8.dp),
-                                                                horizontalArrangement = Arrangement.SpaceEvenly
-                                                            ) {
-                                                                rowImages.forEach { imagePath ->
-                                                                    val isSelected = editedPhotoAnimal == imagePath
-                                                                    Image(
-                                                                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
-                                                                        contentDescription = null,
-                                                                        modifier = Modifier
-                                                                            .size(50.dp)
-                                                                            .padding(4.dp)
-                                                                            .clip(MaterialTheme.shapes.extraSmall)
-                                                                            .clickable {
-                                                                                editedPhotoAnimal = imagePath
-                                                                            }
-                                                                            .border(
-                                                                                width = 2.dp,
-                                                                                color = if (isSelected) Green1 else Color.Transparent,
-                                                                                shape = MaterialTheme.shapes.extraSmall
-                                                                            )
-                                                                    )
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    /*TextField(
-                                                        value = editedLongInfo,
-                                                        onValueChange = { editedLongInfo = it },
-                                                        label = { Text("Long Info") }
-                                                    )*/
-                                                }
-                                                is News -> {
-                                                    // Texto editable para News
-                                                    TextField(
-                                                        value = editedTitle,
-                                                        onValueChange = { editedTitle = it },
-                                                        label = { Text("Título") }
-                                                    )
-                                                    TextField(
-                                                        value = editedShortInfoNew,
-                                                        onValueChange = { editedShortInfoNew = it },
-                                                        label = { Text("Short Info") }
-                                                    )
-                                                    Text("Change Photo")
-                                                    Column {
-                                                        val chunkedImages = predefinedImageList.chunked(5)
-                                                        chunkedImages.forEach { rowImages ->
-                                                            Row(
-                                                                modifier = Modifier
-                                                                    .fillMaxWidth()
-                                                                    .padding(8.dp),
-                                                                horizontalArrangement = Arrangement.SpaceEvenly
-                                                            ) {
-                                                                rowImages.forEach { imagePath ->
-                                                                    val isSelected = editedPhotoNews == imagePath
-                                                                    Image(
-                                                                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
-                                                                        contentDescription = null,
-                                                                        modifier = Modifier
-                                                                            .size(50.dp)
-                                                                            .padding(4.dp)
-                                                                            .clip(MaterialTheme.shapes.extraSmall)
-                                                                            .clickable {
-                                                                                editedPhotoNews = imagePath
-                                                                            }
-                                                                            .border(
-                                                                                width = 2.dp,
-                                                                                color = if (isSelected) Green1 else Color.Transparent,
-                                                                                shape = MaterialTheme.shapes.extraSmall
-                                                                            )
-                                                                    )
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    confirmButton = {
-                                        Button(
-                                            onClick = {
-                                                when (item) {
-                                                    is Animal -> {
-                                                        nameAnimal = editedName
-                                                        shortInfoAnimal = editedShortInfoAnimal
-                                                        waitingAdoptionAnimal = if (editedWaitingAdoption) "1" else "0"
-                                                        fosterCareAnimal = if (editedFosterCare) "1" else "0"
-                                                        photoAnimal = editedPhotoAnimal
-                                                        //longInfoAnimal = editedLongInfo
-                                                        animalViewModel.viewModelScope.launch {
-                                                            animalViewModel.updateAnimal(animal = Animal(item.id, nameAnimal, item.birthDate, item.sexAnimal, waitingAdoptionAnimal.toInt(), fosterCareAnimal.toInt(), shortInfoAnimal, longInfoAnimal, item.breedAnimal, item.typeAnimal, item.entryDate, photoAnimal, item.in_shelter, item.lost))
-
-                                                        }
-                                                    }
-                                                    is News -> {
-                                                        titleNews = editedTitle
-                                                        shortInfoNews = editedShortInfoAnimal
-                                                        photoNews = editedPhotoNews
-                                                        newsViewModel.viewModelScope.launch {
-                                                            newsViewModel.updateNew(newNew = News(item.id, titleNews, shortInfoNews, item.longInfoNews, item.publishedDate, item.createdAt, item.untilDate, photoNews, item.goodNews))
-                                                        }
-
-                                                    }
-                                                }
-                                                // Cerrar el diálogo
-                                                showDialogEdit = false
-                                            }
-                                        ) {
-                                            Text("Aceptar")
-                                        }
-                                    },
-                                    dismissButton = {
-                                        Button(
-                                            onClick = {
-                                                // Cerrar el diálogo sin guardar cambios
-                                                showDialogEdit = false
-                                            }
-                                        ) {
-                                            Text("Cancelar")
-                                        }
-                                    }
-                                )
+                                EditDialog( {showDialogEdit = false } , item, animalViewModel, newsViewModel)
                             }
 
                         }
