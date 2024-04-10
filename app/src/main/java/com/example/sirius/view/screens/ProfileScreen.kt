@@ -8,8 +8,11 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -107,92 +111,108 @@ fun ProfileScreen(
         "res/drawable/user_image10"
     )
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        LazyColumn(
+    Column {
+        Icon(
+            imageVector = Icons.Outlined.Settings,
+            contentDescription = "Settings",
+            tint = Color.Black,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 16.dp, start = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .align(Alignment.End)
+                .padding(10.dp)
+                .clickable {
+                    navController.navigate(Routes.SETTIGNS)
+            }
+
+        )
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background,
         ) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(
-                        onClick = { showUpdateImageDialog = true },
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(end = 16.dp, start = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                item {
+                    Row(
                         modifier = Modifier
-                            .size(20.dp)
-                            .zIndex(20f)
-                            .offset(x = (-70).dp, y = (30).dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Edit,
-                            contentDescription = null,
-                            tint = Color.Black
-                        )
-                    }
-                }
-                UserImage(imageUrl = imageUrl)
-            }
-            item {
-                if (showUpdateImageDialog) {
-                    user?.let { it ->
-                        ShowAlertDialog(
-                            user = it,
-                            predefinedImageList = predefinedImageList,
-                            onImageSelected = { newImage ->
-                                userViewModel.viewModelScope.launch {
-                                    user?.let { userViewModel.updateProfilePhoto(it, newImage) }
-                                }
-                                currentUser?.let {
-                                    imageUrl = it.photoUser
-                                }
-                            },
-                            onDismiss = { showUpdateImageDialog = false }
-                        )
-                    }
-                }
-            }
-            // User info
-            item {
-                ProfileItem(labelId = R.string.username, initialValue = username, userViewModel)
-                ProfileItem(labelId = R.string.email, initialValue = email, userViewModel)
-                // Change Password Button
-                user?.let { ChangePasswordButton(userViewModel, it) }
-            }
-            // Log Out Button
-            item {
-                LogoutButton(
-                    onLogoutClick = {
-                        userViewModel.viewModelScope.launch {
-                            userViewModel.logout()
-                            navController.navigate(Routes.LOGIN)
+                        IconButton(
+                            onClick = { showUpdateImageDialog = true },
+                            modifier = Modifier
+                                .size(20.dp)
+                                .zIndex(20f)
+                                .offset(x = (-70).dp, y = (30).dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = null,
+                                tint = Color.Black
+                            )
                         }
                     }
-                )
-            }
-            // Friends you like
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                if (likedAnimals.isNotEmpty()) {
-                    LikedAnimalsSection(likedAnimals, animalViewModel, navController)
-                } else {
-                    Text(
-                        text = stringResource(id = R.string.no_liked_friends),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        textAlign = TextAlign.Center
+                    UserImage(imageUrl = imageUrl)
+                }
+                item {
+                    if (showUpdateImageDialog) {
+                        user?.let { it ->
+                            ShowAlertDialog(
+                                user = it,
+                                predefinedImageList = predefinedImageList,
+                                onImageSelected = { newImage ->
+                                    userViewModel.viewModelScope.launch {
+                                        user?.let { userViewModel.updateProfilePhoto(it, newImage) }
+                                    }
+                                    currentUser?.let {
+                                        imageUrl = it.photoUser
+                                    }
+                                },
+                                onDismiss = { showUpdateImageDialog = false }
+                            )
+                        }
+                    }
+                }
+                // User info
+                item {
+                    ProfileItem(labelId = R.string.username, initialValue = username, userViewModel)
+                    ProfileItem(labelId = R.string.email, initialValue = email, userViewModel)
+                    // Change Password Button
+                    user?.let { ChangePasswordButton(userViewModel, it) }
+                }
+                // Log Out Button
+                item {
+                    LogoutButton(
+                        onLogoutClick = {
+                            userViewModel.viewModelScope.launch {
+                                userViewModel.logout()
+                                navController.navigate(Routes.LOGIN)
+                            }
+                        }
                     )
+                }
+                // Friends you like
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    if (likedAnimals.isNotEmpty()) {
+                        LikedAnimalsSection(likedAnimals, animalViewModel, navController)
+                    } else {
+                        Text(
+                            text = stringResource(id = R.string.no_liked_friends),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }
     }
+
 }
 
 @Composable
@@ -310,12 +330,14 @@ fun ProfileItem(
                                         userViewModel.viewModelScope.launch {
                                             if (isEmailValid(editedValue)) {
                                                 user?.let {
-                                                    val updateSuccessful = userViewModel.updateEmail(
-                                                        user = it,
-                                                        newEmail = editedValue
-                                                    )
+                                                    val updateSuccessful =
+                                                        userViewModel.updateEmail(
+                                                            user = it,
+                                                            newEmail = editedValue
+                                                        )
                                                     if (!updateSuccessful) {
-                                                        errorMessage = "Unable to update email. Please try again."
+                                                        errorMessage =
+                                                            "Unable to update email. Please try again."
                                                         editedValue = originalValue
                                                     }
                                                 }

@@ -16,6 +16,7 @@ import com.example.sirius.view.components.NavigationContent
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
+import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -24,7 +25,8 @@ fun NavigationController(
     userViewModel: UserViewModel,
     animalViewModel: AnimalViewModel,
     newsViewModel: NewsViewModel,
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
+    shelterViewModel : ShelterViewModel
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -46,7 +48,8 @@ fun NavigationController(
             navigateDestination = navigateAction::navigateTo,
             animalViewModel = animalViewModel,
             newsViewModel = newsViewModel,
-            chatViewModel = chatViewModel
+            chatViewModel = chatViewModel,
+            shelterViewModel = shelterViewModel
         )
     }
 }

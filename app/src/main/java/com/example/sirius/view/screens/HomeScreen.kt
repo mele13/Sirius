@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -56,8 +57,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sirius.R
-import com.example.sirius.model.News
 import com.example.sirius.model.Animal
+import com.example.sirius.model.News
 import com.example.sirius.navigation.Routes
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green4
@@ -222,10 +223,11 @@ private fun BoxWithContent(
 }
 
 @Composable
-private fun AddButton(
+fun AddButton(
     showDialogAdd: MutableState<Boolean>,
     dialogType: String,
-    align: Modifier) {
+    align: Modifier,
+    icon : ImageVector? = Icons.Default.Add) {
     SmallFloatingActionButton(
         onClick = {
             showDialogAdd.value = true
@@ -235,11 +237,13 @@ private fun AddButton(
             .then(align),
         shape = CircleShape
     ) {
-        Icon(
-            Icons.Default.Add,
-            contentDescription = null,
-            tint = Color.Black
-        )
+        if (icon != null) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = Color.Black
+            )
+        }
     }
 }
 

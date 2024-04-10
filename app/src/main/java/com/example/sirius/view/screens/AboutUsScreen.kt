@@ -1,35 +1,27 @@
+
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.sirius.R
 import com.example.sirius.ui.theme.Green1
-import com.example.sirius.ui.theme.Green4
-import com.example.sirius.ui.theme.SiriusTheme
+import com.example.sirius.view.screens.AddButton
+import com.example.sirius.view.screens.ShelterFormDialog
+import com.example.sirius.viewmodel.ShelterViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -102,15 +94,16 @@ fun LocationCard(location: String) {
                     .clip(MaterialTheme.shapes.medium)
                     .background(Green1)
             ) {
-                AddGoogleMap()
+                AddGoogleMap(location)
             }
         }
     }
 }
 
 @Composable
-fun AddGoogleMap() {
-    val sirius = LatLng(28.302164, -16.396366)
+fun AddGoogleMap(location : String) {
+    val output = location.split(';').map { it.toDouble() }
+    val sirius = LatLng(output[0], output[1])
     val marker = MarkerState(position = sirius)
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(sirius,15f)
@@ -129,9 +122,14 @@ fun AddGoogleMap() {
 
 @SuppressLint("DiscouragedApi")
 @Composable
-fun AboutUsScreen() {
+fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
     val shelterImages = listOf<String>("shelter1", "shelter2", "shelter3", "shelter4")
     val context = LocalContext.current
+
+    val shelter by shelterViewModel.getShelterById(id ?: 0).collectAsState(initial = null)
+
+    val showDialogAdd = remember { mutableStateOf(false) }
+    var dialogType = ""
 
     LazyColumn(
         modifier = Modifier
@@ -140,7 +138,8 @@ fun AboutUsScreen() {
     ) {
         item {
             SectionTitle("About Us")
-            JustifiedText("Welcome to our shelter! We are dedicated to providing a safe and caring environment for animals in need.")
+            //JustifiedText("Welcome to our shelter! We are dedicated to providing a safe and caring environment for animals in need.")
+            shelter?.let { JustifiedText(it.aboutUs) }
         }
 
         item {
@@ -166,35 +165,46 @@ fun AboutUsScreen() {
         }
 
         item {
-            LocationCard("Our shelter is located at XYZ Street, City, Country.")
+            shelter?.let { LocationCard(it.location) }
         }
 
         item {
             SectionTitle("Schedule")
-            JustifiedText("Monday - Friday: 9 AM - 6 PM\nSaturday - Sunday: 10 AM - 4 PM")
+          //  JustifiedText("Monday - Friday: 9 AM - 6 PM\nSaturday - Sunday: 10 AM - 4 PM")
+            shelter?.let { JustifiedText(it.schedule) }
+
         }
 
         item {
             SectionTitle("Shelter's Data")
-            JustifiedText("Established in 2010, our shelter has rescued and rehomed thousands of animals. We prioritize their well-being and work towards a future with no homeless pets.")
+            //JustifiedText("Established in 2010, our shelter has rescued and rehomed thousands of animals. We prioritize their well-being and work towards a future with no homeless pets.")
+            shelter?.let { JustifiedText(it.sheltersData) }
         }
 
         item {
             SectionTitle("Contact Information")
-            JustifiedText("Email: sirius@shelter.org\nPhone: +1 123 456 7890")
+          //  JustifiedText("Email: sirius@shelter.org\nPhone: +1 123 456 7890")
+            JustifiedText("Email: " + (shelter?.email ?: "") +"\nPhone: " + (shelter?.phone ?: ""))
+
         }
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        AddButton(
+            showDialogAdd,
+            dialogType,
+            Modifier.align(Alignment.BottomEnd),
+            Icons.Default.Edit
+        )
+    }
+
+
+
+    if( showDialogAdd.value){
+        ShelterFormDialog(shelter, showDialogAdd = showDialogAdd , shelterViewModel)
     }
 }
 
-@Preview
-@Composable
-fun AboutUsScreenPreview() {
-    SiriusTheme {
-        Surface {
-            AboutUsScreen()
-        }
-    }
-}
+
 
 @Composable
 fun JustifiedText(text: String) {

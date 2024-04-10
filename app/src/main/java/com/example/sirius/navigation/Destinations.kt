@@ -48,4 +48,5 @@ object Routes {
     const val PROFILE = "profile"
     const val LOADING = "loading"
     const val CHAT = "chat"
+    const val SETTIGNS = "settings"
 }

@@ -58,9 +58,11 @@ import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
 import com.example.sirius.view.screens.Messages
 import com.example.sirius.view.screens.ProfileScreen
+import com.example.sirius.view.screens.SettingsScreen
 import com.example.sirius.view.screens.SignupScreen
 import com.example.sirius.view.screens.SignupShelterScreen
 import com.example.sirius.viewmodel.ChatViewModel
+import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 
@@ -74,7 +76,8 @@ fun NavigationContent(
     navigateDestination: (Destinations) -> Unit,
     animalViewModel: AnimalViewModel,
     newsViewModel: NewsViewModel,
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
+    shelterViewModel: ShelterViewModel
 ) {
     Box(modifier = modifier.fillMaxSize()) {
 
@@ -161,12 +164,27 @@ fun NavigationContent(
                     DonationsScreen(navController = navController)
                 }
                 composable(route = Routes.ABOUTUS) {
-                    AboutUsScreen()
+                    AboutUsScreen(shelterViewModel = shelterViewModel)
                 }
+
+                composable(route = Routes.ABOUTUS + "/{id}",
+                    arguments = listOf(navArgument(name = "id") {
+                        type = NavType.IntType
+                    })) {
+
+                    AboutUsScreen(
+                        it.arguments?.getInt("id"),
+                        shelterViewModel
+                    )
+                }
+
                 composable(route = Routes.CHAT) {
                     ChatScreen(navController, chatViewModel, userViewModel)
                 }
 
+                composable(route = Routes.SETTIGNS) {
+                    SettingsScreen(shelterViewModel, navController)
+                }
 
 
                 composable(route = Routes.CHAT + "/{recipient_user}",

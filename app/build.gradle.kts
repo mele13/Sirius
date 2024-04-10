@@ -121,4 +121,5 @@ dependencies {
 
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha07")
 
+    implementation("io.coil-kt:coil-compose:1.4.0")
 }
