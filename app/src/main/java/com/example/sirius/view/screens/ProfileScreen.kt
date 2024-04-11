@@ -542,16 +542,21 @@ fun ChangePasswordButton(userViewModel: UserViewModel, user: User) {
 
 @SuppressLint("DiscouragedApi")
 @Composable
-fun UserImage(imageUrl: String, size: Dp = 200.dp) {
-    Image(
-        painter = painterResource(id = getDrawableResourceId(imagePath = imageUrl)),
-        contentDescription = null,
-        modifier = Modifier
-            .size(size)
-            .clip(MaterialTheme.shapes.small)
-            .zIndex(-1f)
-            .padding(bottom = 4.dp)
-    )
+fun UserImage(imageUrl: String,
+              size: Dp = 200.dp,
+              modifier : Modifier? = Modifier
+                    .size(size)
+                    .clip(MaterialTheme.shapes.small)
+                    .zIndex(-1f)
+                    .padding(bottom = 4.dp)
+) {
+    if (modifier != null) {
+        Image(
+            painter = painterResource(id = getDrawableResourceId(imagePath = imageUrl)),
+            contentDescription = null,
+            modifier = modifier
+        )
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

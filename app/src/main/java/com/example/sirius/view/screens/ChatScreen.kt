@@ -3,8 +3,6 @@ package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -15,68 +13,58 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.*
-
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
-
 import androidx.compose.material3.Card
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.android.InternalPlatformTextApi
-
-import androidx.navigation.NavHostController
-
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.collectAsState
-
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.sirius.model.Chat
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
+import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green4
 import com.example.sirius.view.components.SingleMessage
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.UserViewModel
+import java.util.Locale
 
-import androidx.compose.runtime.livedata.observeAsState
-import com.example.sirius.model.Chat
-
-
+@SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
 fun ChatScreen(NavController: NavHostController,chatViewModel: ChatViewModel, userViewModel : UserViewModel){
 
     var userList by remember { mutableStateOf<List<User?>>(emptyList()) }
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
+
 
     LaunchedEffect(Unit) {
         try {
@@ -94,14 +82,29 @@ fun ChatScreen(NavController: NavHostController,chatViewModel: ChatViewModel, us
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(10.dp)) {
 
-                user?.let { UserEachRow(person = it) { NavController.navigate(route = Routes.PROFILE)} }
+            //    user?.let { myProfile(person = it) { NavController.navigate(route = Routes.PROFILE)} }
 
                 LazyColumn(modifier = Modifier.padding(10.dp)) {
                     items(items = userList, key = { it?.id ?: "" }) { item ->
                         if (item != null) {
-                            UserEachRow(person = item) {
-                                NavController.navigate(Routes.CHAT + "/${item.id}")
+                            var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
+
+                            LaunchedEffect(Unit) {
+                                try {
+                                    val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
+                                    lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
+                                } catch (e: Exception) {
+                                    Log.e("Firestore", "Error en ChildList", e)
+                                }
                             }
+
+
+
+
+                                UserEachRow(person = item, lastMessage = lastMessage) {
+                                    NavController.navigate(Routes.CHAT + "/${item.id}")
+                                }
+
                         }
                     }
                 }
@@ -117,34 +120,34 @@ fun ChatScreen(NavController: NavHostController,chatViewModel: ChatViewModel, us
 }
 
 
-@OptIn(InternalPlatformTextApi::class)
+
 @Composable
-fun UserEachRow(
+fun myProfile(
     person: User,
-   // unseenMessages: List<String>,
     onClick: () -> Unit = {}
-) {
-
-   // val UserViewModel : UserViewModel = hiltViewModel()
-    val imageUrlState = remember { mutableStateOf("") }
-
-
+)
+{
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(4.dp)
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent
+        )
+    ){
 
-    ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
         ) {
-
-            UserImage(imageUrl = person.photoUser, 50.dp)
+            UserImage(imageUrl = person.photoUser, 40.dp,
+                Modifier
+                    .clip(shape = CircleShape)
+                    .size(40.dp))
 
             Text(
-                text = person.username ?: "",
+                text  = person.username.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+                    ?: "",
                 style = TextStyle(
                     fontSize = 20.sp,
                     color = Color.Black
@@ -154,13 +157,98 @@ fun UserEachRow(
                     .align(CenterVertically)
             )
 
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp)
+                .drawBehind {
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 1f
+                    )
+                }
+        )
+    }
 
 
+}
+@OptIn(InternalPlatformTextApi::class)
+@Composable
+fun UserEachRow(
+    person: User,
+   // unseenMessages: List<String>,
+
+    lastMessage: String?,
+    onClick: () -> Unit = {},
+) {
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent
+        )
+    ){
+
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            UserImage(imageUrl = person.photoUser,
+                40.dp,
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(8.dp))
+                    .size(40.dp))
+
+            Column {
+                Text(
+                    text  = person.username.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+                        ?: "",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        color =  Color.Black
+                    ),
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                        //.align(CenterVertically)
+                )
+
+                if(lastMessage != null){
+                    Text(
+                        text = lastMessage?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+                            ?: "",
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            color = Green1
+                        ),
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                    )
+                }
+
+            }
 
 
         }
 
-
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+                .drawBehind {
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 1f
+                    )
+                }
+        )
     }
 }
 
@@ -180,7 +268,7 @@ fun Modifier.noRippleEffect(onClick: () -> Unit) = composed {
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun Messages(navHostController: NavController, recipientUserId: Int, userViewModel : UserViewModel, chatViewModel : ChatViewModel) {
+fun Messages(NavController: NavController, recipientUserId: Int, userViewModel : UserViewModel, chatViewModel : ChatViewModel) {
 
     val userState = remember { mutableStateOf<User?>(null) }
 
@@ -209,6 +297,9 @@ fun Messages(navHostController: NavController, recipientUserId: Int, userViewMod
         ) {
 
 
+            userState.value?.let { myProfile(person = it) { NavController.navigate(route = Routes.PROFILE) } }
+
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -225,14 +316,14 @@ fun Messages(navHostController: NavController, recipientUserId: Int, userViewMod
                 }
             }
             Box(
-                // modifier = Modifier.fillMaxSize(),
+               //  modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 OutlinedTextField(
                     value = message,
                     onValueChange = {
                         chatViewModel.updateMessage(it)
-                       // message = it
+                        // message = it
                     },
                     label = {
                         Text(
@@ -243,7 +334,7 @@ fun Messages(navHostController: NavController, recipientUserId: Int, userViewMod
                     modifier = Modifier
                         .padding(horizontal = 15.dp, vertical = 1.dp)
                         .fillMaxWidth(),
-                    // .weight(weight = 0.09f, fill = true),
+                     //   .weight(weight = 0.09f, fill = true),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text
                     ),

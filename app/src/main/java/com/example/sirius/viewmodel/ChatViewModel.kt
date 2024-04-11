@@ -1,7 +1,6 @@
 package com.example.sirius.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -43,7 +42,7 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
 
 
 
-    private fun generateChatId(user1Id: Int, user2Id: Int): String {
+    fun generateChatId(user1Id: Int, user2Id: Int): String {
         return if (user1Id < user2Id) {
             "$user1Id-$user2Id"
         } else {
@@ -91,6 +90,11 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
 
     fun initRecipientUserId(userId: Int) {
         _recipientUserId.value = userId
+    }
+
+    suspend fun getLastMessage(chatId: String): String {
+
+        return chatDao.getLastMessage(chatId)
     }
 
 
