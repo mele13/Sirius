@@ -113,8 +113,9 @@ fun NavigationContent(
                 composable(route = Routes.HOME) {
                     val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())
                     val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
+                    val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
 
-                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel, animalViewModel = animalViewModel, newsViewmodel = newsViewModel)
+                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel, animalViewModel = animalViewModel, newsViewmodel = newsViewModel, typeList = typeList)
                 }
                 composable(route = Routes.ANIMALS) {
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())

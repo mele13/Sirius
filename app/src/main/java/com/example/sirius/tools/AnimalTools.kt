@@ -3,6 +3,7 @@ package com.example.sirius.tools
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import com.example.sirius.model.TypeAnimal
 import java.time.Year
 
 /**
@@ -95,5 +96,19 @@ fun getYearRangeFromCategory(ageRange: String): Pair<Int, Int> {
         "4-7" -> Pair(4, 7)
         ">= 8" -> Pair(8, Int.MAX_VALUE)
         else -> Pair(0, Int.MAX_VALUE) // Rango predeterminado si no se encuentra ninguna categoría
+    }
+}
+
+/**
+ * Converts a string representation to the corresponding TypeAnimal enum value.
+ *
+ * @param value The string representation of the TypeAnimal.
+ * @return The TypeAnimal enum value corresponding to the provided string, or null if no match is found.
+ */
+fun stringToEnumTypeAnimal(value: String): TypeAnimal? {
+    return try {
+        TypeAnimal.valueOf(value)
+    } catch (e: IllegalArgumentException) {
+        null
     }
 }

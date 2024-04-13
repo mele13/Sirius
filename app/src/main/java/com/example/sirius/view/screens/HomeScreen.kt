@@ -1,13 +1,16 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +30,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerFormatter
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,10 +67,11 @@ import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
-import com.example.sirius.model.TypeAnimal
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
+import com.example.sirius.tools.calculateAgeCategory
 import com.example.sirius.tools.formatDate
+import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green4
 import com.example.sirius.viewmodel.AnimalViewModel
@@ -73,6 +80,7 @@ import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
 @Composable
@@ -82,7 +90,8 @@ fun HomeScreen(
     newsList: List<News>,
     userViewModel: UserViewModel,
     animalViewModel: AnimalViewModel,
-    newsViewmodel: NewsViewModel
+    newsViewmodel: NewsViewModel,
+    typeList: List<String>,
 ) {
     val dateState = System.currentTimeMillis()
 
@@ -103,6 +112,7 @@ fun HomeScreen(
                     dateState = dateState,
                     animalViewModel = animalViewModel,
                     newsViewmodel = newsViewmodel,
+                    typeList = typeList,
                 )
                 Section(
                     title = stringResource(id = R.string.animalsIntro),
@@ -113,6 +123,7 @@ fun HomeScreen(
                     dateState = dateState,
                     animalViewModel = animalViewModel,
                     newsViewmodel = newsViewmodel,
+                    typeList = typeList,
                 )
                 Section(
                     title = stringResource(id = R.string.lostIntro),
@@ -123,6 +134,7 @@ fun HomeScreen(
                     dateState = dateState,
                     animalViewModel = animalViewModel,
                     newsViewmodel = newsViewmodel,
+                    typeList = typeList,
                 )
                 Section(
                     title = stringResource(id = R.string.goodNewsIntro),
@@ -133,12 +145,14 @@ fun HomeScreen(
                     dateState = dateState,
                     animalViewModel = animalViewModel,
                     newsViewmodel = newsViewmodel,
+                    typeList = typeList,
                 )
             }
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Section(
@@ -150,7 +164,7 @@ fun Section(
     dateState: Long,
     animalViewModel: AnimalViewModel,
     newsViewmodel: NewsViewModel,
-) {
+    typeList: List<String>) {
     val typeRuta = determineRoute(isAnimalSection, title)
 
     val showDialogAdd = remember { mutableStateOf(false) }
@@ -172,7 +186,8 @@ fun Section(
                 showDialogAdd = showDialogAdd,
                 animalFormState = animalFormState,
                 dateState = dateState,
-                animalViewmodel = animalViewModel
+                animalViewmodel = animalViewModel,
+                typeList = typeList,
             ) {
             }
         } else {
@@ -281,6 +296,7 @@ fun AddButton(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AnimalFormDialog(
@@ -288,6 +304,7 @@ private fun AnimalFormDialog(
     animalFormState: AnimalFormState,
     dateState: Long,
     animalViewmodel: AnimalViewModel,
+    typeList: List<String>,
     onAddClick: () -> Unit,
     ) {
 
@@ -298,7 +315,12 @@ private fun AnimalFormDialog(
         onDismissRequest = { showDialogAdd.value = false },
         title = { Text("Agregar Nuevo") },
         text = {
-            formData = AnimalFormFields(animalFormState = animalFormState, dateState = dateState)
+            formData = AnimalFormFields(
+                animalFormState = animalFormState,
+                dateState = dateState,
+                animalViewmodel = animalViewmodel,
+                typeList = typeList,
+            )
         },
 
         confirmButton = {
@@ -307,7 +329,10 @@ private fun AnimalFormDialog(
                     onAddClick()
                     showDialogAdd.value = false
                     animalViewmodel?.viewModelScope?.launch {
-                        animalViewmodel.insertAnimal(Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed, TypeAnimal.DOG, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)))
+                        stringToEnumTypeAnimal(formData.type)?.let {
+                            Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
+                                it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter))
+                        }?.let { animalViewmodel.insertAnimal(it) }
 
                     }
                 }
@@ -368,11 +393,14 @@ private fun NewsFormDialog(
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AnimalFormFields(
     animalFormState: AnimalFormState,
-    dateState: Long
+    dateState: Long,
+    animalViewmodel: AnimalViewModel,
+    typeList: List<String>
 ): AnimalFormData {
     val predefinedImageList = listOf(
         "res/drawable/user_image1",
@@ -465,11 +493,14 @@ private fun AnimalFormFields(
             )
         }
         item {
-            CustomTextField(
-                value = animalFormState.typeAnimal,
-                onValueChange = { animalFormState.typeAnimal = it },
-                label = "Type animal"
+            var selectedType by remember { mutableStateOf("") }
+            Text("Type animal")
+            DropdownFiltersHome(
+                typeList,
+                animalViewmodel,
+                onTypeSelected = { selectedType = it }
             )
+            animalFormState.typeAnimal = selectedType
         }
         item {
             DatePickerItem(
@@ -511,6 +542,96 @@ private fun AnimalFormFields(
     }
 
     return formData
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DropdownFiltersHome(
+        typeList: List<String>,
+        animalViewModel: AnimalViewModel,
+        onTypeSelected: (String) -> Unit
+){
+    var typeDropdownExpanded by remember { mutableStateOf(false) }
+
+    var selectedType by remember { mutableStateOf("") }
+
+    DropdownButtonHome(
+        text = "Type",
+        options = typeList.map { it },
+        selectedOption = selectedType,
+        onOptionSelected = {
+            selectedType = it
+            onTypeSelected(it)
+        },
+        expanded = typeDropdownExpanded,
+        onExpandedChange = { expanded ->
+            typeDropdownExpanded = expanded
+        },
+        viewModel = animalViewModel,
+        originalText = "Type",
+        color = Color.White,
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DropdownButtonHome(
+    text: String,
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    viewModel: AnimalViewModel,
+    originalText: String,
+    color: Color,
+    aux: Boolean = false,
+) {
+    Box {
+        Button(
+            onClick = { onExpandedChange(!expanded) },
+            modifier = Modifier
+                .padding(5.dp),
+            contentPadding = PaddingValues(5.dp)
+        ) {
+            TextWithSplit(
+                text = selectedOption.ifBlank { originalText },
+                color = color
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+        ) {
+            val uniqueOptions = if (aux) {
+                val ageCategories = options.map { calculateAgeCategory(it) }.distinct()
+                ageCategories.map { it }
+            } else {
+                options.distinct()
+            }
+            uniqueOptions.forEachIndexed { index, option ->
+                if (index > 0) {
+                    Divider(color = Color.Black, thickness = 1.dp)
+                }
+                DropdownMenuItem(
+                    {
+                        Text(text = option)
+                    },
+                    onClick = {
+                        when (text) {
+                            "Type" -> {
+                                if (option.isNotBlank()) {
+                                    viewModel.getAnimalsByTypeAnimal(option)
+                                }
+                            }
+                        }
+                        onOptionSelected(option)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
