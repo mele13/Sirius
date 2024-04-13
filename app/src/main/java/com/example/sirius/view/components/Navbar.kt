@@ -24,35 +24,29 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import com.example.sirius.view.screens.AnimalsGallery
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.sirius.navigation.Destinations
 import com.example.sirius.navigation.Routes
 import com.example.sirius.navigation.createDestinations
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import com.example.sirius.model.News
 import com.example.sirius.ui.theme.Green3
-import com.example.sirius.view.screens.HomeScreen
-import com.example.sirius.viewmodel.NewsViewModel
-import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.view.screens.AnimalInfo
+import com.example.sirius.view.screens.AnimalsGallery
 import com.example.sirius.view.screens.ChatScreen
+import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
@@ -61,10 +55,11 @@ import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SettingsScreen
 import com.example.sirius.view.screens.SignupScreen
 import com.example.sirius.view.screens.SignupShelterScreen
+import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
+import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
-import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -119,7 +114,7 @@ fun NavigationContent(
                     val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())
                     val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
 
-                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel)
+                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel, animalViewModel = animalViewModel, newsViewmodel = newsViewModel)
                 }
                 composable(route = Routes.ANIMALS) {
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())

@@ -5,11 +5,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sirius.AnimalApplication
-import com.example.sirius.model.Animal
 import com.example.sirius.data.dao.AnimalDao
+import com.example.sirius.model.Animal
 import com.example.sirius.model.LikedAnimal
-import com.example.sirius.model.News
-import com.example.sirius.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +16,10 @@ class AnimalViewModel(private val animalDao: AnimalDao) : ViewModel() {
     private val _currentAnimal = MutableStateFlow<Animal?>(null)
     val currentUser: StateFlow<Animal?> = _currentAnimal
     fun getAllAnimals(): Flow<List<Animal>> = animalDao.getAllAnimals()
+
+    suspend fun insertAnimal(animal: Animal) {
+        animalDao.insertAnimal(animal)
+    }
 
     fun getAllAnimalsOrderedByDaysEntryDate(): Flow<List<Animal>> = animalDao.getAllAnimals()
 

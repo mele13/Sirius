@@ -7,7 +7,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sirius.AnimalApplication
 import com.example.sirius.data.dao.NewsDao
 import com.example.sirius.model.News
-import com.example.sirius.model.User
 import kotlinx.coroutines.flow.Flow
 
 class NewsViewModel(private val newsDao: NewsDao) : ViewModel() {
@@ -20,6 +19,10 @@ class NewsViewModel(private val newsDao: NewsDao) : ViewModel() {
 
     suspend fun getWhatNews(): Flow<List<News>> {
         return newsDao.getWhatNews()
+    }
+
+    suspend fun inserNews(news: News) {
+        newsDao.insertNews(news)
     }
 
     fun getNewsByTitle(title: String): Flow<List<News>> = newsDao.getNewsByTitle(title)
