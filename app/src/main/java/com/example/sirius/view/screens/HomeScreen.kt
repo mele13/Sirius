@@ -10,7 +10,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,7 +32,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerFormatter
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,14 +43,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,17 +74,14 @@ import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
-import com.example.sirius.tools.calculateAgeCategory
 import com.example.sirius.tools.formatDate
 import com.example.sirius.tools.stringToEnumTypeAnimal
-import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green4
+import com.example.sirius.view.components.BarSearch
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
-import java.util.Date
-import com.example.sirius.view.components.BarSearch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
@@ -362,6 +356,7 @@ private fun AnimalFormDialog(
                         }?.let { animalViewmodel.insertAnimal(it) }
 
                     }
+                    animalFormState.clear()
                 }
             ) {
                 Text("Agregar")
@@ -417,7 +412,10 @@ private fun NewsFormDialog(
                     newsViewmodel?.viewModelScope?.launch {
                         newsViewmodel.inserNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
                     }
+
+                    newsFormState.clear()
                 }
+
             ) {
                 Text("Agregar")
 
@@ -484,7 +482,7 @@ private fun AnimalFormFields(
         item {
             DatePickerItem(
                 state = dateState,
-                selectedDate = animalFormState.birthDate,
+                selectedDate = "Birth Date" , //animalFormState.birthDate,
                 onDateSelected = { date ->
                     animalFormState.birthDate = date
                 }
@@ -560,19 +558,21 @@ private fun AnimalFormFields(
             }
         }
         item {
-            var selectedType by remember { mutableStateOf("") }
-            Text("Type animal")
+            var selectedType by rememberSaveable { mutableStateOf("") }
+           // Text("Type animal")
+
             DropdownFiltersHome(
                 typeList,
                 animalViewmodel,
                 onTypeSelected = { selectedType = it }
             )
+
             animalFormState.typeAnimal = selectedType
         }
         item {
             DatePickerItem(
                 state = dateState,
-                selectedDate = animalFormState.entryDate,
+                selectedDate = "Entry Date", // animalFormState.entryDate,
                 onDateSelected = { date ->
                     animalFormState.entryDate = date
                 }
@@ -612,17 +612,17 @@ private fun AnimalFormFields(
     }
     return formData
 }
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DropdownFiltersHome(
-        typeList: List<String>,
-        animalViewModel: AnimalViewModel,
-        onTypeSelected: (String) -> Unit
+    typeList: List<String>,
+    animalViewModel: AnimalViewModel,
+    onTypeSelected: (String) -> Unit
 ){
     var typeDropdownExpanded by remember { mutableStateOf(false) }
 
-    var selectedType by remember { mutableStateOf("") }
+    // Utilizamos remember para mantener el estado de selectedType
+    var selectedType by rememberSaveable { mutableStateOf("") }
 
     DropdownButtonHome(
         text = "Type",
@@ -639,9 +639,9 @@ fun DropdownFiltersHome(
         viewModel = animalViewModel,
         originalText = "Type",
         color = Color.White,
+        updateSelectedType = { selectedType = it }
     )
 }
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DropdownButtonHome(
@@ -655,6 +655,7 @@ fun DropdownButtonHome(
     originalText: String,
     color: Color,
     aux: Boolean = false,
+    updateSelectedType: (String) -> Unit
 ) {
     Box {
         Button(
@@ -672,16 +673,8 @@ fun DropdownButtonHome(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) },
         ) {
-            val uniqueOptions = if (aux) {
-                val ageCategories = options.map { calculateAgeCategory(it) }.distinct()
-                ageCategories.map { it }
-            } else {
-                options.distinct()
-            }
-            uniqueOptions.forEachIndexed { index, option ->
-                if (index > 0) {
-                    Divider(color = Color.Black, thickness = 1.dp)
-                }
+
+            options.distinct().forEach { option ->
                 DropdownMenuItem(
                     {
                         Text(text = option)
@@ -694,14 +687,20 @@ fun DropdownButtonHome(
                                 }
                             }
                         }
+                        updateSelectedType(option)
                         onOptionSelected(option)
                         onExpandedChange(false)
                     }
                 )
             }
+
+
         }
     }
 }
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -763,7 +762,7 @@ private fun NewsFormFields(
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = newsFormState.publishedDate,
+                selectedDate = "Published Date", //newsFormState.publishedDate,
                 onDateSelected = { date ->
                     newsFormState.publishedDate = date
                 }
@@ -772,7 +771,7 @@ private fun NewsFormFields(
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = newsFormState.createdAt,
+                selectedDate = "Created At", //newsFormState.createdAt,
                 onDateSelected = { date ->
                     newsFormState.createdAt = date
                 }
@@ -781,7 +780,7 @@ private fun NewsFormFields(
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = newsFormState.untilDate,
+                selectedDate =  "Until date", //newsFormState.untilDate,
                 onDateSelected = { date ->
                     newsFormState.untilDate = date
                 }
@@ -851,10 +850,8 @@ fun DatePickerItem(
     onDateSelected: (String) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(state)
-    var selectedDate by remember { mutableStateOf(selectedDate) }
-    LaunchedEffect(selectedDate) {
-        onDateSelected(selectedDate)
-    }
+   // var selectedDate by remember { mutableStateOf(selectedDate) }
+
     DatePicker(
         state = datePickerState,
         showModeToggle = true,
@@ -866,10 +863,11 @@ fun DatePickerItem(
         title = {
             Text("${selectedDate}", fontWeight = FontWeight.Bold)
         },
+
     )
-    println("selectedDate")
-    println(selectedDate)
-    onDateSelected(selectedDate)
+
+    onDateSelected(formatDate(datePickerState.selectedDateMillis!!))
+
 }
 
 
@@ -880,7 +878,8 @@ fun PhotoPicker(
     onImageSelected: (Uri) -> Unit
 ) {
     Column {
-        var imageUri: Uri? by remember { mutableStateOf(null) }
+        var imageUri: Uri? by rememberSaveable  { mutableStateOf(null) }
+
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument()) {
             it?.let { uri ->

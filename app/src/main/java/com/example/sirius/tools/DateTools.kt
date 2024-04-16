@@ -1,6 +1,7 @@
 package com.example.sirius.tools
 
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 /**
@@ -16,4 +17,10 @@ fun formatDate(inputDate: String): String {
     val date = inputFormat.parse(inputDate)
 
     return outputFormat.format(date)
+}
+
+fun formatDate(inputTimestamp: Long): String {
+    val inputDate = Date(inputTimestamp)
+    val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+    return outputFormat.format(inputDate)
 }
