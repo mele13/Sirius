@@ -73,6 +73,8 @@ class AnimalViewModel(private val animalDao: AnimalDao) : ViewModel() {
         animalDao.updateAnimal(animal)
     }
 
+
+
     suspend fun deleteAnimal(animal: Animal) {
         animalDao.deleteAnimal(animal)
     }

@@ -690,8 +690,3 @@ fun getDrawableResourceId(imagePath: String, firstImage: Boolean = false): Int {
         0
     }
 }
-
-@Composable
-fun CreateOutlinedFieldText(textId: Int, newValue: String) {
-
-}

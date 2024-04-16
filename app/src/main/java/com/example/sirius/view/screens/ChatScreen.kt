@@ -30,8 +30,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -60,11 +65,13 @@ import java.util.Locale
 
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
-fun ChatScreen(NavController: NavHostController,chatViewModel: ChatViewModel, userViewModel : UserViewModel){
-
+fun ChatScreen(
+    NavController: NavHostController,
+    chatViewModel: ChatViewModel,
+    userViewModel: UserViewModel
+) {
     var userList by remember { mutableStateOf<List<User?>>(emptyList()) }
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
-
 
     LaunchedEffect(Unit) {
         try {
@@ -77,46 +84,44 @@ fun ChatScreen(NavController: NavHostController,chatViewModel: ChatViewModel, us
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-
         Column(modifier = Modifier.fillMaxHeight()) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(10.dp)) {
+            UserList(userList = userList, user = user, chatViewModel = chatViewModel, NavController = NavController)
+        }
+    }
+}
 
-            //    user?.let { myProfile(person = it) { NavController.navigate(route = Routes.PROFILE)} }
+@Composable
+fun UserList(
+    userList: List<User?>,
+    user: User?,
+    chatViewModel: ChatViewModel,
+    NavController: NavHostController
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(10.dp)
+    ) {
+        LazyColumn(modifier = Modifier.padding(10.dp)) {
+            items(items = userList, key = { it?.id ?: "" }) { item ->
+                if (item != null) {
+                    var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
 
-                LazyColumn(modifier = Modifier.padding(10.dp)) {
-                    items(items = userList, key = { it?.id ?: "" }) { item ->
-                        if (item != null) {
-                            var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
-
-                            LaunchedEffect(Unit) {
-                                try {
-                                    val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
-                                    lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
-                                } catch (e: Exception) {
-                                    Log.e("Firestore", "Error en ChildList", e)
-                                }
-                            }
-
-
-
-
-                                UserEachRow(person = item, lastMessage = lastMessage) {
-                                    NavController.navigate(Routes.CHAT + "/${item.id}")
-                                }
-
+                    LaunchedEffect(Unit) {
+                        try {
+                            val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
+                            lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
+                        } catch (e: Exception) {
+                            Log.e("Firestore", "Error en ChildList", e)
                         }
                     }
+
+                    UserEachRow(person = item, lastMessage = lastMessage) {
+                        NavController.navigate(Routes.CHAT + "/${item.id}")
+                    }
                 }
-
             }
-
         }
-
     }
-
-
-
 }
 
 
@@ -253,7 +258,7 @@ fun UserEachRow(
 }
 
 
-@SuppressLint("UnnecessaryComposedModifier")
+@SuppressLint("UnnecessaryComposedModifier", "ModifierFactoryUnreferencedReceiver")
 fun Modifier.noRippleEffect(onClick: () -> Unit) = composed {
     clickable(
         interactionSource = MutableInteractionSource(),

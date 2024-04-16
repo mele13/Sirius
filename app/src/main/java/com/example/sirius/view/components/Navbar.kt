@@ -250,6 +250,12 @@ fun NavigationContent(
 }
 
 @Composable
+private fun selectColor(destination : Destinations, selectedDestination : String) : Color {
+    val selected = selectedDestination == destination.route
+    val textColor = if (selected) Green3 else if (!isSystemInDarkTheme()) Color.Black else Color.White
+    return  textColor
+}
+@Composable
 fun Navbar(
     selectedDestination: String,
     navigateDestination: (Destinations) -> Unit,
@@ -264,8 +270,7 @@ fun Navbar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         destinations.forEach { destination ->
-            val selected = selectedDestination == destination.route
-            val textColor = if (selected) Green3 else if (!isSystemInDarkTheme()) Color.Black else Color.White
+
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -275,27 +280,27 @@ fun Navbar(
                         navigateDestination(destination)
                     }
                     .weight(1f)
-                    .background(if (selected) Green3.copy(alpha = 0.2f) else Color.Transparent)
+                    .background(if (selectedDestination == destination.route) Green3.copy(alpha = 0.2f) else Color.Transparent)
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Icon(
                     painter = painterResource(
-                        id = if (selected) {
+                        id = if (selectedDestination == destination.route) {
                             destination.selectedIcon
                         } else {
                             destination.unselectedIcon
                         }
                     ),
                     contentDescription = stringResource(id = destination.iconTextId),
-                    tint = if (selected) Green3 else if (!isSystemInDarkTheme()) Color.Black else Color.White,
+                    tint = if (selectedDestination == destination.route) Green3 else if (!isSystemInDarkTheme()) Color.Black else Color.White,
                     modifier = Modifier.size(24.dp),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = stringResource(id = destination.iconTextId),
-                    color = textColor,
+                    color = selectColor(destination = destination, selectedDestination = selectedDestination),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }

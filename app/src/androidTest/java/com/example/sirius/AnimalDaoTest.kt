@@ -23,11 +23,15 @@ class AnimalDaoTest {
     private lateinit var animalDao: AnimalDao
     private lateinit var siriusDatabase: SiriusDatabase
 
+    companion object {
+        const val date = "2023-11-27"
+
+    }
     //name, birt_name(yyyy-mm-dd), sex, waiting_adoption, foster_care, short_info, long_info, breed, type_animal, entry_date, photo_animal
     private var animal1 = Animal(
         1,
         "Thor",
-        "2023-11-27",
+        date,
         "M",
         0,
         0,
@@ -35,13 +39,14 @@ class AnimalDaoTest {
         "a",
         "a",
         TypeAnimal.DOG,
-        "2023-11-27",
+        date,
         "res/drawable/goldenretriever1.jpg",
+        0,1
     )
     private var animal2 = Animal(
         2,
         "X",
-        "2023-11-27",
+        date,
         "M",
         0,
         0,
@@ -49,8 +54,9 @@ class AnimalDaoTest {
         "a",
         "a",
         TypeAnimal.DOG,
-        "2023-11-27",
+        date,
         "res/drawable/goldenretriever1.jpg",
+        0,1
     )
 
     @Before

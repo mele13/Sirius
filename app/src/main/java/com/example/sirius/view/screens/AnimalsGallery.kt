@@ -105,13 +105,15 @@ fun DropdownFilters(ageList: List<String>,
     var selectedBreed by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("") }
 
+    val ageRange  = "Age range"
+
     Row(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) { // es algo aqui TODO
         DropdownButton(
-            text = "Age range",
+            text = ageRange,
             options = ageList.map { it.toString() },
             selectedOption = selectedCategory,
             onOptionSelected = {
@@ -123,7 +125,7 @@ fun DropdownFilters(ageList: List<String>,
                 ageDropdownExpanded = expanded
             },
             viewModel = viewModel,
-            originalText = "Age range",
+            originalText =ageRange,
             color = Color.White,
             aux = true,
         )
