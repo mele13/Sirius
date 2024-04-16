@@ -123,7 +123,7 @@ fun EditDialog(onDismissRequest: () -> Unit, item : Any, animalViewModel : Anima
 
     var nameAnimal by remember { mutableStateOf("") }
     var shortInfoAnimal by remember { mutableStateOf("") }
-    var longInfoAnimal by remember { mutableStateOf("") }
+    val longInfoAnimal by remember { mutableStateOf("") }
     var waitingAdoptionAnimal by remember { mutableStateOf("") }
     var fosterCareAnimal by remember { mutableStateOf("") }
     var photoAnimal by remember { mutableStateOf("") }
@@ -175,7 +175,7 @@ fun EditDialog(onDismissRequest: () -> Unit, item : Any, animalViewModel : Anima
         },
         text = {
             Column {
-                when (val currentItem = item) {
+                when (item) {
                     is Animal -> {
                         TextField(
                             value = editedName,
@@ -213,7 +213,7 @@ fun EditDialog(onDismissRequest: () -> Unit, item : Any, animalViewModel : Anima
                             state = rememberDatePickerState(),
                             modifier = Modifier.padding(16.dp),
                             dateFormatter = DatePickerFormatter(),
-                            dateValidator = { date ->
+                            dateValidator = {
                                 true
                             },
                             title = {
@@ -316,7 +316,7 @@ fun EditDialog(onDismissRequest: () -> Unit, item : Any, animalViewModel : Anima
                             photoAnimal = editedPhotoAnimal
                             //longInfoAnimal = editedLongInfo
                             animalViewModel.viewModelScope.launch {
-                                animalViewModel.updateAnimal(animal = Animal(item.id, nameAnimal, item.birthDate, item.sexAnimal, waitingAdoptionAnimal.toInt(), fosterCareAnimal.toInt(), shortInfoAnimal, longInfoAnimal, item.breedAnimal, item.typeAnimal, item.entryDate, photoAnimal, item.in_shelter, item.lost))
+                                animalViewModel.updateAnimal(animal = Animal(item.id, nameAnimal, item.birthDate, item.sexAnimal, waitingAdoptionAnimal.toInt(), fosterCareAnimal.toInt(), shortInfoAnimal, longInfoAnimal, item.breedAnimal, item.typeAnimal, item.entryDate, photoAnimal, item.inShelter, item.lost))
 
                             }
                         }

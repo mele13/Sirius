@@ -13,26 +13,16 @@ class NewsViewModel(private val newsDao: NewsDao) : ViewModel() {
 
     fun getNews(): Flow<List<News>> = newsDao.getNews()
 
-    suspend fun getGoodNews(): Flow<List<News>> {
+    fun getGoodNews(): Flow<List<News>> {
         return newsDao.getGoodNews()
     }
 
-    suspend fun getWhatNews(): Flow<List<News>> {
+    fun getWhatNews(): Flow<List<News>> {
         return newsDao.getWhatNews()
     }
 
     suspend fun inserNews(news: News) {
         newsDao.insertNews(news)
-    }
-
-    fun getNewsByTitle(title: String): Flow<List<News>> = newsDao.getNewsByTitle(title)
-
-//    fun getNewsById(newsId: Int): News? = viewModelScope.launch {
-//        newsDao.getNewsById(newsId)
-//    }
-
-    suspend fun deleteAllNews() {
-        newsDao.deleteAllNews()
     }
 
     suspend fun updateNew(newNew: News) {

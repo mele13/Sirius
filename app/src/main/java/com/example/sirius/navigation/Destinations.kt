@@ -1,9 +1,6 @@
 package com.example.sirius.navigation
 
-import android.content.res.Configuration
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import com.example.sirius.R
 
 @Composable

@@ -91,32 +91,28 @@ fun Cards (
     ) {
         items(items.size) { index ->
             val item = items.getOrNull(index)
-            item?.let { item ->
+            item?.let {
                 if (item is Animal && type == "Animal" || type == null) {
-                    if (animalViewModel != null) {
-                        if (newsViewModel != null) {
-                            Card(
-                                item = item,
-                                navController = navController,
-                                animalViewModel = animalViewModel,
-                                userViewModel = userViewModel,
-                                newsViewModel = newsViewModel,
-                                type = type,
-                            )
-                        }
+                    if (animalViewModel != null && newsViewModel != null) {
+                        Card(
+                            item = item,
+                            navController = navController,
+                            animalViewModel = animalViewModel,
+                            userViewModel = userViewModel,
+                            newsViewModel = newsViewModel,
+                            type = type,
+                        )
                     }
                 } else if (item is News && type == "News") {
-                    if (animalViewModel != null) {
-                        if (newsViewModel != null) {
-                            Card(
-                                item = item,
-                                navController = navController,
-                                animalViewModel = animalViewModel,
-                                userViewModel = userViewModel,
-                                newsViewModel = newsViewModel,
-                                type = type,
-                            )
-                        }
+                    if (animalViewModel != null && newsViewModel != null) {
+                        Card(
+                            item = item,
+                            navController = navController,
+                            animalViewModel = animalViewModel,
+                            userViewModel = userViewModel,
+                            newsViewModel = newsViewModel,
+                            type = type,
+                        )
                     }
                 }
             }
@@ -201,12 +197,16 @@ fun Card(
                     .padding(4.dp)
             ) {
                 val context = LocalContext.current
-                val photoPath = if (item is Animal) {
-                    item.photoAnimal
-                } else if (item is News) {
-                    item.photoNews
-                } else {
-                    null
+                val photoPath = when (item) {
+                    is Animal -> {
+                        item.photoAnimal
+                    }
+                    is News -> {
+                        item.photoNews
+                    }
+                    else -> {
+                        null
+                    }
                 }
                 val firstImagePath = photoPath?.split(", ")?.get(0)?.trim()
                 val resourceName = firstImagePath?.substringAfterLast("/")
@@ -510,7 +510,7 @@ fun Card(
                                                                     item.typeAnimal,
                                                                     item.entryDate,
                                                                     photoAnimal,
-                                                                    item.in_shelter,
+                                                                    item.inShelter,
                                                                     item.lost
                                                                 )
                                                             )
@@ -659,8 +659,6 @@ private fun determineFavorite(userViewModel: UserViewModel, item: Any, type: Str
 private fun navigateToDetails(item: Any, navController: NavController) {
     if (item is Animal) {
         navController.navigate(route = Routes.ANIMALINFO + "/" + item.id)
-    } else if (item is News) {
-        // Navegar a la pantalla de detalles de la noticia
     }
 }
 

@@ -42,8 +42,8 @@ private fun formatPluralizedAge(value: Comparable<*>, singular: String, plural: 
  */
 @Composable
 fun buildAnAgeText(age: Comparable<*>, birthDate: String, isShorten: Boolean = false): String {
-    return when {
-        age == 0 -> formatPluralizedAge(birthDate.substring(6, 7).toInt(), if (!isShorten) "month" else "(mo)", if (!isShorten) "months" else "(mo)")
+    return when (age) {
+        0 -> formatPluralizedAge(birthDate.substring(6, 7).toInt(), if (!isShorten) "month" else "(mo)", if (!isShorten) "months" else "(mo)")
         else -> formatPluralizedAge(age, if (!isShorten) "year" else "", if (!isShorten) "years" else "")
     }
 }
@@ -62,8 +62,7 @@ fun calculateAgeCategory(birthDate: String): String {
         age <= 1 -> "Puppy" // Menos de un año
         age in 2..3 -> "Young" // De 2 a 3 años
         age in 4..7 -> "Adult" // De 4 a 7 años
-        age >= 8 -> "Senior" // Mayores de 7 años
-        else -> "Not defined"
+        else -> "Senior"
     }
 }
 

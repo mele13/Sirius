@@ -56,7 +56,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
 import com.example.sirius.tools.buildAnAgeText
@@ -166,11 +165,11 @@ fun AnimalInfo(
                                     textAlign = TextAlign.Start,
                                 )
                             } else {
-                                var editedName_ by remember { mutableStateOf(animal?.nameAnimal ?: "") }
-                                editedName = editedName_
+                                var editedNameAux by remember { mutableStateOf(animal?.nameAnimal ?: "") }
+                                editedName = editedNameAux
                                 TextField(
-                                    value = editedName_,
-                                    onValueChange = { editedName_ = it },
+                                    value = editedNameAux,
+                                    onValueChange = { editedNameAux = it },
                                     label = { Text("Name animal") },
                                 )
                             }
@@ -258,12 +257,12 @@ fun AnimalInfo(
                                         .padding(start = 20.dp, end = 20.dp)
                                 )
                             } else {
-                                var editedLongInfo_ by remember { mutableStateOf(animal?.longInfoAnimal ?: "") }
-                                editedLongInfo = editedLongInfo_
+                                var editedLongInfoAux by remember { mutableStateOf(animal?.longInfoAnimal ?: "") }
+                                editedLongInfo = editedLongInfoAux
                                 TextField(
-                                    value = editedLongInfo_,
-                                    onValueChange = { editedLongInfo_ = it },
-                                    label = { Text("Información larga del animal") },
+                                    value = editedLongInfoAux,
+                                    onValueChange = { editedLongInfoAux = it },
+                                    label = { Text("Long animal information") },
                                 )
                             }
                         }

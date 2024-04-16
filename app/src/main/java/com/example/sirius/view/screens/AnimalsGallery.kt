@@ -39,7 +39,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -86,7 +85,6 @@ import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import java.time.Year
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DropdownFilters(ageList: List<String>,
@@ -111,10 +109,10 @@ fun DropdownFilters(ageList: List<String>,
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
-    ) { // es algo aqui TODO
+    ) {
         DropdownButton(
             text = ageRange,
-            options = ageList.map { it.toString() },
+            options = ageList.map { it },
             selectedOption = selectedCategory,
             onOptionSelected = {
                 selectedCategory = it
@@ -256,14 +254,14 @@ fun AnimalsGallery(
                     }
                 }
             } else if (type == "LostAnimals"){
-                userViewModel?.viewModelScope?.launch {
+                userViewModel.viewModelScope.launch {
                     animalViewModel?.getLostAnimals()?.collect { animals ->
                         items = animals
                     }
 
                 }
             } else {
-                userViewModel?.viewModelScope?.launch {
+                userViewModel.viewModelScope.launch {
                     animalViewModel?.getAllAnimals()?.collect { animals ->
                         items = animals
                     }
@@ -295,7 +293,7 @@ fun AnimalsGallery(
             ) {
             items(items.size) { index ->
                 val item = items.getOrNull(index)
-                item?.let { item ->
+                item?.let {
                     if (newsViewModel != null) {
                         AnimalCard(
                             item = item,
@@ -304,7 +302,6 @@ fun AnimalsGallery(
                             userViewModel = userViewModel,
                             newsViewModel = newsViewModel,
                             type = type,
-                            isAnimal = isAnimal,
                         )
                     }
                 }
@@ -340,7 +337,7 @@ fun ClearFilterIconButton(
 
 @Composable
 fun TextWithSplit(text: String, color: Color) {
-    val texto = if (text.isBlank()) "Texto Vacío" else text
+    val texto = text.ifBlank { "Texto Vacío" }
     val espacioIndex = texto.indexOf(' ')
 
     if (espacioIndex != -1) {
@@ -446,7 +443,6 @@ fun DropdownButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
@@ -457,7 +453,6 @@ fun AnimalCard(
     userViewModel: UserViewModel,
     newsViewModel: NewsViewModel,
     type: String?,
-    isAnimal: Boolean,
 ) {
     var isFavorite by remember { mutableStateOf(false) }
     val age = if (item is Animal) calculateAge(item.birthDate) else ""
@@ -467,12 +462,10 @@ fun AnimalCard(
     var showDialogEdit by remember { mutableStateOf(false) }
 
 
-    if (user != null) {
-        if (type == "AnimalsInShelter" || type == "LostAnimals"|| type == null) {
-            userViewModel.viewModelScope.launch {
-                userViewModel.getLikedAnimals(user.id).collect { likedAnimals ->
-                    isFavorite = likedAnimals.any { it.id == (item as Animal).id }
-                }
+    if (user != null && (type == "AnimalsInShelter" || type == "LostAnimals"|| type == null)) {
+        userViewModel.viewModelScope.launch {
+            userViewModel.getLikedAnimals(user.id).collect { likedAnimals ->
+                isFavorite = likedAnimals.any { it.id == (item as Animal).id }
             }
         }
     }
@@ -485,7 +478,6 @@ fun AnimalCard(
             .clickable {
                 if (item is Animal) {
                     navController.navigate(route = Routes.ANIMALINFO + "/" + item.id)
-                } else if (item is News) {
                 }
             },
         colors = CardDefaults.cardColors(
@@ -507,12 +499,16 @@ fun AnimalCard(
                     .padding(4.dp)
             ) {
                 val context = LocalContext.current
-                val photoPath = if (item is Animal) {
-                    item.photoAnimal
-                } else if (item is News) {
-                    item.photoNews
-                } else {
-                    null
+                val photoPath = when (item) {
+                    is Animal -> {
+                        item.photoAnimal
+                    }
+                    is News -> {
+                        item.photoNews
+                    }
+                    else -> {
+                        null
+                    }
                 }
                 val firstImagePath = photoPath?.split(", ")?.get(0)?.trim()
                 val resourceName = firstImagePath?.substringAfterLast("/")
@@ -574,12 +570,8 @@ fun AnimalCard(
                     Log.e("AnimalImage", "Recurso no encontrado para $photoPath")
                 }
                 if (user != null) {
-                        if (user!!.role.trim() != "admin") {
-
-
-
+                        if (user.role.trim() != "admin") {
                             if (isFavorite) {
-                                // Mostrar ícono de favorito
                                 Icon(
                                     imageVector = Icons.Default.Favorite,
                                     contentDescription = null,
@@ -621,7 +613,7 @@ fun AnimalCard(
                                 modifier = Modifier
                                     .align(Alignment.TopEnd))  {
 
-                                OutlinedIcon(Icons.Default.Edit, {showDialogEdit = true})
+                                OutlinedIcon(Icons.Default.Edit) { showDialogEdit = true }
                             }
 
                             if (showDialogEdit) {

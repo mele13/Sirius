@@ -34,15 +34,6 @@ interface NewsDao {
     @Query("SELECT * FROM News WHERE good_news = 0 ORDER BY published_date DESC")
     fun getWhatNews(): Flow<List<News>>
 
-//    @Query("SELECT * FROM News WHERE published_date > :startDateMillis")
-//    suspend fun getNewsPublishedAfter(startDateMillis: Long): List<News>
-//
-//    @Query("SELECT * FROM News WHERE published_date <= :endDateMillis ORDER BY published_date DESC")
-//    suspend fun getNewsPublishedBefore(endDateMillis: Long): List<News>
-//
-//    @Query("SELECT * FROM News WHERE published_date BETWEEN :startDateMillis AND :endDateMillis ORDER BY published_date DESC")
-//    fun getNewsBetweenDates(startDateMillis: Long, endDateMillis: Long): Flow<List<News>>
-
     @Query("DELETE FROM News")
     suspend fun deleteAllNews()
 

@@ -46,7 +46,7 @@ data class Animal (
     var photoAnimal: String,
     @NonNull
     @ColumnInfo(name = "in_shelter")
-    var in_shelter: Int,
+    var inShelter: Int,
     @NonNull
     @ColumnInfo(name = "lost")
     var lost: Int,

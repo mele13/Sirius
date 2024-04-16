@@ -8,7 +8,6 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.sirius.model.Animal
 import com.example.sirius.model.LikedAnimal
-import com.example.sirius.model.News
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -50,7 +49,7 @@ interface AnimalDao {
     fun getAnimalsByAgeASC(birthDate: Int): Flow<List<Animal>>
 
     @Query("SELECT * FROM Animal WHERE SUBSTR(birth_date, 1, 4) = :year ORDER BY birth_date DESC")
-    fun getAnimalsByAgeDesc(year: String): Flow<List<Animal>>;
+    fun getAnimalsByAgeDesc(year: String): Flow<List<Animal>>
 
     @Query("SELECT DISTINCT SUBSTR(birth_date, 1, 4) AS birth_year FROM Animal ORDER BY birth_year ASC")
     fun getBirthYears(): Flow<List<String>>

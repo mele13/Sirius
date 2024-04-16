@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.example.sirius.model.User
 import com.example.sirius.ui.theme.SiriusTheme
 import com.example.sirius.navigation.NavigationController
-import com.example.sirius.view.screens.OwnerScreen
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
@@ -56,8 +55,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             SiriusTheme {
                 NavigationController(userViewModel, animalViewModel, newsViewModel, chatViewModel, shelterViewModel)
-                //LandingPage()
-                //MyComposable(viewModel = viewModel)
             }
         }
 
@@ -71,19 +68,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    /*private val userViewModel: UserViewModel by lazy {
-        val animalApplication = application as AnimalApplication
-        animalApplication.initContext(applicationContext)
-        UserViewModel((application as AnimalApplication).userDao)
-    }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Establece el contenido de la actividad utilizando Jetpack Compose
-        setContent {
-            // Llama a la función que contiene la vista principal
-            OwnerScreen(viewModel = userViewModel)
-        }
-    }*/
 }

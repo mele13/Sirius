@@ -47,10 +47,9 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavController){
     val textState = remember { mutableStateOf(TextFieldValue("")) }
 
-    var shelters = shelterViewModel.getAllShelters().collectAsState(emptyList()).value
+    val shelters = shelterViewModel.getAllShelters().collectAsState(emptyList()).value
 
     val showDialogAdd = remember { mutableStateOf(false) }
-    var dialogType = ""
 
     Column {
         BarSearch(state = textState, placeHolder = "Search here..." , modifier = Modifier.fillMaxWidth() )
@@ -61,17 +60,14 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
 
         LazyColumn(modifier = Modifier.padding(10.dp)) {
             items(items = shelters.filter {
-                it?.name?.contains(searchedText, ignoreCase = true) ?: false
-            }, key = { it?.id ?: "" }) { item ->
-                if (item != null) {
-                   com.example.sirius.view.screens.Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel )
-                }
+                it.name.contains(searchedText, ignoreCase = true)
+            }, key = { it.id }) { item ->
+                Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel )
             }
         }
 
         AddButton(
             showDialogAdd,
-            dialogType,
             Modifier.align(End)
         )
 
@@ -145,20 +141,10 @@ fun ShelterFormDialog(
     shelterViewModel: ShelterViewModel
 ) {
 
-    var name by mutableStateOf("")
-    var about_us by mutableStateOf("")
-    var latitude by mutableStateOf("")
-    var longitude by mutableStateOf("")
-    var schedule by mutableStateOf("")
-    var shelters_data by mutableStateOf("")
-    var email by mutableStateOf("")
-    var phone by mutableStateOf("")
-
-
     var editedName by remember {
         mutableStateOf((item as? Shelter)?.name ?: "")
     }
-    var editedAbout_us by remember {
+    var editedAboutUs by remember {
         mutableStateOf((item as? Shelter)?.aboutUs ?: "")
     }
     var editedLatitude by remember {
@@ -172,7 +158,7 @@ fun ShelterFormDialog(
     var editedSchedule by remember {
         mutableStateOf((item as? Shelter)?.schedule ?: "")
     }
-    var editedShelters_data by remember {
+    var editedSheltersData by remember {
         mutableStateOf((item as? Shelter)?.sheltersData ?: "")
     }
     var editedEmail by remember {
@@ -200,8 +186,8 @@ fun ShelterFormDialog(
                 }
                 item {
                     CustomTextField(
-                        value = editedAbout_us,
-                        onValueChange = { editedAbout_us = it },
+                        value = editedAboutUs,
+                        onValueChange = { editedAboutUs = it },
                         label = "About us"
                     )
                 }
@@ -228,8 +214,8 @@ fun ShelterFormDialog(
                 }
                 item {
                     CustomTextField(
-                        value = editedShelters_data,
-                        onValueChange = { editedShelters_data = it },
+                        value = editedSheltersData,
+                        onValueChange = { editedSheltersData = it },
                         label = "Shelters data"
                     )
                 }
@@ -254,7 +240,7 @@ fun ShelterFormDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val shelter = Shelter(editedName, editedAbout_us, "$editedLatitude;$editedLongitude",editedSchedule, editedShelters_data, editedEmail, editedPhone )
+                    val shelter = Shelter(editedName, editedAboutUs, "$editedLatitude;$editedLongitude",editedSchedule, editedSheltersData, editedEmail, editedPhone )
                     if(item == null){
 
                         shelterViewModel.viewModelScope.launch {
@@ -264,13 +250,20 @@ fun ShelterFormDialog(
                         }
                     }else {
 
-                        val updatedShelter = (item as Shelter)?.copy(item.id, editedName, editedAbout_us, "$editedLatitude;$editedLongitude",editedSchedule, editedShelters_data, editedEmail, editedPhone)
+                        val updatedShelter = (item as Shelter).copy(
+                            id = item.id,
+                            name = editedName,
+                            aboutUs = editedAboutUs,
+                            location = "$editedLatitude;$editedLongitude",
+                            schedule = editedSchedule,
+                            sheltersData = editedSheltersData,
+                            email = editedEmail,
+                            phone = editedPhone
+                        )
 
                         println(shelter.toString())
                         shelterViewModel.viewModelScope.launch {
-                            if (updatedShelter != null) {
-                                shelterViewModel.updateShelter(updatedShelter)
-                            }
+                            shelterViewModel.updateShelter(updatedShelter)
                         }
                     }
 
@@ -289,35 +282,4 @@ fun ShelterFormDialog(
             }
         }
     )
-}
-
-
-@SuppressLint("UnrememberedMutableState")
-@Composable
-private fun ShelterFormFields(shelterViewModel: ShelterViewModel) {
-
-    var name by mutableStateOf("")
-    var about_us by mutableStateOf("")
-    var latitude by mutableStateOf("")
-    var longitude by mutableStateOf("")
-    var schedule by mutableStateOf("")
-    var shelters_data by mutableStateOf("")
-    var email by mutableStateOf("")
-    var phone by mutableStateOf("")
-
-
-
-
-    /*
-    val shelter = Shelter(
-        name = name,
-        aboutUs = about_us,
-        location = (latitude.toDoubleOrNull() ?: 0.0).toString() + ";" + (longitude.toDoubleOrNull() ?: 0.0).toString(),
-        schedule = schedule,
-        sheltersData = shelters_data,
-        email = email,
-        phone = phone
-    )
-    */
-
 }

@@ -120,15 +120,6 @@ fun LoadingPage (navController: NavHostController, id: Int = -1){
                     .align(Alignment.TopEnd)
                     .offset(y = 85.dp, x = (-85).dp),
             )
-            /*Image(
-                painter = painterResource(id = R.drawable.loading_page_image7),
-                contentDescription = "Logo",
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .align(Alignment.TopEnd)
-            )*/
             Column(
                 modifier = Modifier
                     .fillMaxSize()

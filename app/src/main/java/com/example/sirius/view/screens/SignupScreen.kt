@@ -22,12 +22,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -37,7 +34,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,7 +63,6 @@ import com.example.sirius.tools.isEmailValid
 import com.example.sirius.tools.isPasswordValid
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
     var username by remember { mutableStateOf("") }
@@ -256,7 +251,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                         .size(230.dp)
                         .zIndex(-1f)
                         .size(230.dp)
-                        .offset(x = 16.dp, y = -100.dp)
+                        .offset(x = 16.dp, y = (-100).dp)
                         .clickable {
                             userViewModel.viewModelScope.launch {
                                 signUpButtonClicked = true
@@ -283,51 +278,12 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                     fontSize = 25.sp,
                     modifier = Modifier
                         .constrainAs(text) {
-                            // Centrar el texto en el centro de la imagen
-                            //top.linkTo(image.top)
                             centerTo(parent)
                             //  centerTo(image)
                         }
-                        .offset(x = 6.dp, y = -80.dp)
+                        .offset(x = 6.dp, y = (-80).dp)
                 )
             }
-            /*
-            // Sign Up button
-            TextButton(
-                onClick = {
-                    userViewModel.viewModelScope.launch {
-                        signUpButtonClicked = true
-                        if (isEmailValid(email) && isPasswordValid(password)) {
-                            val success = userViewModel.registerUser(username, email, password)
-                            if (success) {
-                                delay(2000)
-                                navController.navigate(Routes.HOME)
-                            } else {
-                                errorMessage = "Oops! Something went wrong during user creation"
-                            }
-                        } else if (!isPasswordValid(password)) {
-                            errorMessage = "Invalid password format.\nPassword must have at least 6 characters, 1 uppercase letter, and 1 special symbol\n"
-                        } else {
-                            errorMessage = "Invalid email format.\nExpected format: name@example.com\n"
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .offset(y = 23.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White)
-            ) {
-                Text(
-                    stringResource(id = R.string.signup),
-                    color = Color.White,
-                    fontSize = 25.sp
-                )
-            }
-
-             */
             // Error Snackbar
             errorMessage?.let { message ->
                 CustomSnackbar(
@@ -346,19 +302,6 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                 .absoluteOffset((-6).dp)
                 .zIndex(-1f)
         )
-        // Center - Log In button
-        /*
-        Image(
-            painter = painterResource(id = R.drawable.paw2),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(230.dp)
-                .offset(x = 16.dp, y = 130.dp)
-                .zIndex(-1f)
-        )
-
-         */
         // Top right big
         Image(
             painter = painterResource(id = R.drawable.paw3),

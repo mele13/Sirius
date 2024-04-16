@@ -17,8 +17,6 @@ import com.example.sirius.ui.theme.Green4
 
 @Composable
 fun SingleMessage(message: String, isCurrentUser: Boolean) {
-    val alignment = if (isCurrentUser) Alignment.End else Alignment.Start
-
     Card(
         shape = RoundedCornerShape(16.dp),
         backgroundColor = if (isCurrentUser) Green4 else Green3 ,

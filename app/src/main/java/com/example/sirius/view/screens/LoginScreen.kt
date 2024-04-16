@@ -18,16 +18,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -43,38 +40,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
 import com.example.sirius.R
 import com.example.sirius.navigation.Routes
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.CustomSnackbar
 import com.example.sirius.viewmodel.UserViewModel
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.NonDisposableHandle
-import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
 
 @Composable
@@ -205,37 +188,6 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
-            // Log In button
-            /*
-            TextButton(
-                onClick = {
-                    userViewModel.viewModelScope.launch {
-                        logInButtonClicked = true
-                        val success = userViewModel.login(username, password)
-                        if (success) {
-                            navController.navigate(Routes.HOME)
-                        } else {
-                            errorMessage = "Invalid username or password"
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .offset(y = 35.dp)
-                    .focusTarget(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White)
-            ) {
-                Text(
-                    stringResource(id = R.string.login),
-                    color = Color.White,
-                    fontSize = 25.sp
-                )
-            }
-
-             */
 
             ConstraintLayout(
                 modifier = Modifier.fillMaxSize()
@@ -253,7 +205,7 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
                         .size(230.dp)
                         .zIndex(-1f)
                         .size(230.dp)
-                        .offset(x = 16.dp, y = -100.dp)
+                        .offset(x = 16.dp, y = (-100).dp)
                         .clickable {
                             userViewModel.viewModelScope.launch {
                                 logInButtonClicked = true
@@ -273,12 +225,10 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
                     fontSize = 25.sp,
                     modifier = Modifier
                         .constrainAs(text) {
-                            // Centrar el texto en el centro de la imagen
-                            //top.linkTo(image.top)
                             centerTo(parent)
                             //  centerTo(image)
                         }
-                        .offset(x = 6.dp, y = -80.dp)
+                        .offset(x = 6.dp, y = (-80).dp)
                 )
             }
 
@@ -299,19 +249,6 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
                 .size(230.dp)
                 .absoluteOffset((-6).dp)
         )
-        /*
-                // Center - Log In button
-                Image(
-                    painter = painterResource(id = R.drawable.paw2),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(230.dp)
-                        .offset(x = 16.dp, y = 130.dp)
-                        .zIndex(-1f)
-                )
-
-         */
 
         // Top right big
         Image(

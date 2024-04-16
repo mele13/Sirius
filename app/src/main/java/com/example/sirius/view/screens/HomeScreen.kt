@@ -36,6 +36,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
@@ -61,6 +62,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -77,11 +79,11 @@ import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.formatDate
 import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.ui.theme.Green4
-import com.example.sirius.view.components.BarSearch
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+import com.example.sirius.view.components.BarSearch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
@@ -118,7 +120,7 @@ fun HomeScreen(
                 )
                 Section(
                     title = stringResource(id = R.string.animalsIntro),
-                    list = animalList.filter { it.in_shelter == 1 },
+                    list = animalList.filter { it.inShelter == 1 },
                     isAnimalSection = true,
                     navController = navController,
                     userViewModel = userViewModel,
@@ -263,24 +265,23 @@ private fun BoxWithContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(list) { item ->
-                if (isAnimalSection) {
+                dialogType = if (isAnimalSection) {
                     AnimalItem(animal = item as Animal, navController = navController)
-                    dialogType = "animal"
+                    "animal"
                 } else {
                     NewsItem(news = item as News)
-                    dialogType = "news"
+                    "news"
                 }
             }
         }
-        AddButton(showDialogAdd, dialogType, Modifier.align(Alignment.BottomEnd))
+        AddButton(showDialogAdd, Modifier.align(Alignment.BottomEnd))
     }
 }
 
 @Composable
 fun AddButton(
     showDialogAdd: MutableState<Boolean>,
-    dialogType: String,
-    align: Modifier,
+    modifier: Modifier,
     icon : ImageVector? = Icons.Default.Add) {
     SmallFloatingActionButton(
         onClick = {
@@ -288,7 +289,7 @@ fun AddButton(
         },
         modifier = Modifier
             .padding(5.dp)
-            .then(align),
+            .then(modifier),
         shape = CircleShape
     ) {
         if (icon != null) {
@@ -314,25 +315,30 @@ private fun AnimalFormDialog(
     onAddClick: () -> Unit,
     ) {
 
-    var formData = AnimalFormData("", "", "", false, false, "", "", "", "", "", "", false, false)
+    var formData = AnimalFormData("", "", "",
+        waitingAdoption = false,
+        fosterCare = false,
+        shortInfo = "",
+        longInfo = "",
+        breed = "",
+        type = "",
+        entryDate = "",
+        photoAnimal = "",
+        inShelter = false,
+        lost = false
+    )
 
-    when (sectionType) {
-        SectionType.LOST -> {
+    if (sectionType ==  SectionType.LOST) {
             animalFormState.lost = true
-        }
-        SectionType.IN_SHELTER, SectionType.LOST -> {
+    } else if (sectionType ==  SectionType.IN_SHELTER){
             animalFormState.inShelter = true
-        }
-        else -> {
-            // No hacer nada para otros tipos de sección
-        }
     }
 
     AlertDialog(
         onDismissRequest = { showDialogAdd.value = false },
         title = { Text("Agregar Nuevo") },
         text = {
-            formData = AnimalFormFields(
+            formData = animalFormFields(
                 animalFormState = animalFormState,
                 dateState = dateState,
                 animalViewmodel = animalViewmodel,
@@ -344,29 +350,46 @@ private fun AnimalFormDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    println("formData")
-                    println(formData)
-                    println(formData.birthDate)
-                    onAddClick()
-                    showDialogAdd.value = false
-                    animalViewmodel?.viewModelScope?.launch {
-                        stringToEnumTypeAnimal(formData.type)?.let {
-                            Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
-                                it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter))
-                        }?.let { animalViewmodel.insertAnimal(it) }
+                    /*if (formData.name.isNotBlank() &&
+                        formData.sex.isNotBlank() &&
+                        formData.shortInfo.isNotBlank() &&
+                        formData.longInfo.isNotBlank() &&
+                        formData.breed.isNotBlank() &&
+                        formData.type.isNotBlank()
+                    ) {*/
+                        onAddClick()
+                        showDialogAdd.value = false
+                        animalViewmodel?.viewModelScope?.launch {
+                            stringToEnumTypeAnimal(formData.type)?.let {
+                                Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
+                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter))
+                            }?.let { animalViewmodel.insertAnimal(it) }
 
+                        //}
+                        animalFormState.clear()
                     }
-                    animalFormState.clear()
-                }
+                    println("formData")
+                    println(formData.name)
+                    println(formData.shortInfo)
+                    println(formData.longInfo)
+                    println(formatDate(formData.birthDate))
+                    println(formData.breed)
+                },
+                /*enabled = formData.name.isNotBlank() &&
+                        formData.sex.isNotBlank() &&
+                        formData.shortInfo.isNotBlank() &&
+                        formData.longInfo.isNotBlank() &&
+                        formData.breed.isNotBlank() &&
+                        formData.type.isNotBlank()*/
             ) {
-                Text("Agregar")
+                Text("Add")
             }
         },
         dismissButton = {
             Button(
                 onClick = { showDialogAdd.value = false }
             ) {
-                Text("Cancelar")
+                Text("Cancel")
             }
         }
     )
@@ -384,40 +407,46 @@ private fun NewsFormDialog(
 ) {
     var formData = NewsFormData("", "", "", "", "", "", "", false)
 
-    when (sectionType) {
-        SectionType.GOOD_NEWS -> {
-            newsFormState.goodNews = true
-        }
-        SectionType.WHATS_NEW -> {
-            newsFormState.goodNews = false
-        }
-        else -> {
-            // No hacer nada para otros tipos de sección
-        }
+    if (sectionType ==  SectionType.GOOD_NEWS) {
+        newsFormState.goodNews = true
+    } else if (sectionType ==  SectionType.WHATS_NEW){
+        newsFormState.goodNews = false
     }
 
     AlertDialog(
         onDismissRequest = { showDialogAdd.value = false },
-        title = { Text("Agregar Nuevo") },
+        title = { Text("Add New") },
         text = {
-            formData = NewsFormFields(state = dateState, newsFormState = newsFormState, sectionType = sectionType)
+            formData = newsFormFields(state = dateState, newsFormState = newsFormState)
         },
         confirmButton = {
             Button(
                 onClick = {
+                    /*if (formData.title.isNotBlank() &&
+                        formData.shortInfo.isNotBlank() &&
+                        formData.longInfo.isNotBlank()
+                    ) {*/
+                        onAddClick()
+                        showDialogAdd.value = false
+                        newsViewmodel?.viewModelScope?.launch {
+                            newsViewmodel.inserNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
+                        }
+
+                        newsFormState.clear()
+                    //}
                     println("formData")
-                    println(formData)
-                    onAddClick()
-                    showDialogAdd.value = false
-                    newsViewmodel?.viewModelScope?.launch {
-                        newsViewmodel.inserNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
-                    }
-
-                    newsFormState.clear()
-                }
-
+                    println(formData.title)
+                    println(formData.shortInfo)
+                    println(formData.longInfo)
+                    println(formatDate(formData.createdAt))
+                    println(formatDate(formData.publishedDate))
+                    println(formatDate(formData.untilDate))
+                },
+                /*enabled = formData.title.isNotBlank() &&
+                        formData.shortInfo.isNotBlank() &&
+                        formData.longInfo.isNotBlank()*/
             ) {
-                Text("Agregar")
+                Text("Add")
 
             }
         },
@@ -425,7 +454,7 @@ private fun NewsFormDialog(
             Button(
                 onClick = { showDialogAdd.value = false }
             ) {
-                Text("Cancelar")
+                Text("Cancel")
             }
         }
     )
@@ -433,25 +462,13 @@ private fun NewsFormDialog(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun AnimalFormFields(
+private fun animalFormFields(
     animalFormState: AnimalFormState,
     dateState: Long,
     animalViewmodel: AnimalViewModel,
     typeList: List<String>,
     sectionType: SectionType
 ): AnimalFormData {
-    val predefinedImageList = listOf(
-        "res/drawable/user_image1",
-        "res/drawable/user_image2",
-        "res/drawable/user_image3",
-        "res/drawable/user_image4",
-        "res/drawable/user_image5",
-        "res/drawable/user_image6",
-        "res/drawable/user_image7",
-        "res/drawable/user_image8",
-        "res/drawable/user_image9",
-        "res/drawable/user_image10"
-    )
 
     val formData = AnimalFormData(
         name = animalFormState.name,
@@ -482,10 +499,11 @@ private fun AnimalFormFields(
         item {
             DatePickerItem(
                 state = dateState,
-                selectedDate = "Birth Date" , //animalFormState.birthDate,
+                selectedDate = animalFormState.birthDate,
                 onDateSelected = { date ->
                     animalFormState.birthDate = date
-                }
+                },
+                title = "Birth Date"
             )
             println("animalFormState.birthDate")
             println(animalFormState.birthDate)
@@ -532,7 +550,7 @@ private fun AnimalFormFields(
 
             val searchedText = textState.value.text
             val filteredBreed = breedList.filter {
-                it?.contains(searchedText, ignoreCase = true) ?: false
+                it.contains(searchedText, ignoreCase = true)
             }
 
             if (filteredBreed.isEmpty() && searchedText.isNotEmpty()) {
@@ -558,30 +576,27 @@ private fun AnimalFormFields(
             }
         }
         item {
-            var selectedType by rememberSaveable { mutableStateOf("") }
-           // Text("Type animal")
-
+            var selectedType by remember { mutableStateOf("") }
+            Text("Type animal")
             DropdownFiltersHome(
                 typeList,
                 animalViewmodel,
                 onTypeSelected = { selectedType = it }
             )
-
             animalFormState.typeAnimal = selectedType
         }
         item {
             DatePickerItem(
                 state = dateState,
-                selectedDate = "Entry Date", // animalFormState.entryDate,
+                selectedDate = animalFormState.entryDate,
                 onDateSelected = { date ->
                     animalFormState.entryDate = date
-                }
+                },
+                title = "Entry Date"
             )
         }
         item {
             PhotoPicker(
-                predefinedImageList = predefinedImageList,
-                selectedImage = animalFormState.photoAnimal,
                 onImageSelected = { imagePath ->
                     animalFormState.photoAnimal = imagePath.toString()
                 }
@@ -612,16 +627,16 @@ private fun AnimalFormFields(
     }
     return formData
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DropdownFiltersHome(
-    typeList: List<String>,
-    animalViewModel: AnimalViewModel,
-    onTypeSelected: (String) -> Unit
+        typeList: List<String>,
+        animalViewModel: AnimalViewModel,
+        onTypeSelected: (String) -> Unit
 ){
     var typeDropdownExpanded by remember { mutableStateOf(false) }
 
-    // Utilizamos remember para mantener el estado de selectedType
     var selectedType by rememberSaveable { mutableStateOf("") }
 
     DropdownButtonHome(
@@ -642,6 +657,7 @@ fun DropdownFiltersHome(
         updateSelectedType = { selectedType = it }
     )
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DropdownButtonHome(
@@ -693,36 +709,16 @@ fun DropdownButtonHome(
                     }
                 )
             }
-
-
         }
     }
 }
 
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NewsFormFields(
+private fun newsFormFields(
     state: Long,
     newsFormState: NewsFormState,
-    sectionType: SectionType,
     ): NewsFormData {
-    val predefinedImageList = listOf(
-        "res/drawable/user_image1",
-        "res/drawable/user_image2",
-        "res/drawable/user_image3",
-        "res/drawable/user_image4",
-        "res/drawable/user_image5",
-        "res/drawable/user_image6",
-        "res/drawable/user_image7",
-        "res/drawable/user_image8",
-        "res/drawable/user_image9",
-        "res/drawable/user_image10"
-    )
-
-    val dateState = rememberDatePickerState()
 
     val formData = NewsFormData(
         title = newsFormState.title,
@@ -762,57 +758,49 @@ private fun NewsFormFields(
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = "Published Date", //newsFormState.publishedDate,
+                selectedDate = newsFormState.publishedDate,
                 onDateSelected = { date ->
                     newsFormState.publishedDate = date
-                }
+                },
+                title = "Published Date"
             )
         }
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = "Created At", //newsFormState.createdAt,
+                selectedDate = newsFormState.createdAt,
                 onDateSelected = { date ->
                     newsFormState.createdAt = date
-                }
+                },
+                title = "Create At"
             )
         }
         item {
             DatePickerItem(
                 state = state,
-                selectedDate =  "Until date", //newsFormState.untilDate,
+                selectedDate = newsFormState.untilDate,
                 onDateSelected = { date ->
                     newsFormState.untilDate = date
-                }
+                },
+                title = "Until Date"
             )
         }
         item {
             PhotoPicker(
-                predefinedImageList = predefinedImageList,
-                selectedImage = newsFormState.photoNews,
                 onImageSelected = { imagePath ->
                     newsFormState.photoNews = imagePath.toString()
                 }
             )
         }
-
-        /*item {
-            StatusCheckbox(
-                labelText = "Good News",
-                checked = newsFormState.goodNews,
-                onCheckedChange = { isChecked ->
-                    newsFormState.goodNews = isChecked
-                }
-            )
-        }*/
     }
-    println("return formData")
-    println(formData)
     return formData
 }
 
 @Composable
 private fun SexCheckbox(animalFormState: AnimalFormState) {
+    val bothEmpty = animalFormState.sex.isEmpty()
+    val textColor = if (bothEmpty) Color.Red else LocalContentColor.current
+
     Text("Select Sex")
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -820,7 +808,7 @@ private fun SexCheckbox(animalFormState: AnimalFormState) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("M")
+            Text("M", color = textColor)
             Checkbox(
                 checked = animalFormState.sex == "M",
                 onCheckedChange = { isChecked ->
@@ -831,7 +819,7 @@ private fun SexCheckbox(animalFormState: AnimalFormState) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("F")
+            Text("F", color = textColor)
             Checkbox(
                 checked = animalFormState.sex == "F",
                 onCheckedChange = { isChecked ->
@@ -847,10 +835,10 @@ private fun SexCheckbox(animalFormState: AnimalFormState) {
 fun DatePickerItem(
     state: Long,
     selectedDate: String,
+    title: String,
     onDateSelected: (String) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(state)
-   // var selectedDate by remember { mutableStateOf(selectedDate) }
 
     DatePicker(
         state = datePickerState,
@@ -861,9 +849,8 @@ fun DatePickerItem(
             true
         },
         title = {
-            Text("${selectedDate}", fontWeight = FontWeight.Bold)
+            Text(title, fontWeight = FontWeight.Bold)
         },
-
     )
 
     onDateSelected(formatDate(datePickerState.selectedDateMillis!!))
@@ -873,8 +860,6 @@ fun DatePickerItem(
 
 @Composable
 fun PhotoPicker(
-    predefinedImageList: List<String>,
-    selectedImage: String,
     onImageSelected: (Uri) -> Unit
 ) {
     Column {
@@ -914,10 +899,13 @@ fun CustomTextField(
     label: String,
     modifier: Modifier = Modifier
 ) {
+    val textColor = if (value.isEmpty()) Color.Red else LocalContentColor.current
+    val textStyle = TextStyle(color = textColor)
+
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
+        label = { Text(label, style = textStyle) },
         modifier = modifier.padding(bottom = 8.dp)
     )
 }
@@ -1123,7 +1111,7 @@ data class AnimalFormData(
 @Composable
 fun determineSectionType(title: String): SectionType {
     return when (title) {
-        stringResource(id = R.string.newsIntro) -> SectionType.GOOD_NEWS
+        stringResource(id = R.string.goodNewsIntro) -> SectionType.GOOD_NEWS
         stringResource(id = R.string.animalsIntro) -> SectionType.IN_SHELTER
         stringResource(id = R.string.lostIntro) -> SectionType.LOST
         stringResource(id = R.string.newsIntro) -> SectionType.WHATS_NEW

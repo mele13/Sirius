@@ -17,13 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -53,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.navigation.Routes
@@ -61,16 +57,13 @@ import com.example.sirius.tools.isEmailValid
 import com.example.sirius.tools.isPasswordValid
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.CustomSnackbar
-import com.example.sirius.viewmodel.UserViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
-fun SignupShelterScreen (navController: NavController, userViewModel: UserViewModel) {
+fun SignupShelterScreen (navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var signUpButtonClicked by remember { mutableStateOf(false) }
+    val signUpButtonClicked by remember { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
     var passwordVisibility by remember { mutableStateOf(false) }
 
@@ -239,7 +232,7 @@ fun SignupShelterScreen (navController: NavController, userViewModel: UserViewMo
                         .size(230.dp)
                         .zIndex(-1f)
                         .size(230.dp)
-                        .offset(x = 16.dp, y = -100.dp)
+                        .offset(x = 16.dp, y = (-100).dp)
                         .clickable {
 
                         }
@@ -251,12 +244,10 @@ fun SignupShelterScreen (navController: NavController, userViewModel: UserViewMo
                     fontSize = 25.sp,
                     modifier = Modifier
                         .constrainAs(text) {
-                            // Centrar el texto en el centro de la imagen
-                            //top.linkTo(image.top)
                             centerTo(parent)
                             //  centerTo(image)
                         }
-                        .offset(x = 6.dp, y = -80.dp)
+                        .offset(x = 6.dp, y = (-80).dp)
                 )
             }
 
@@ -278,19 +269,6 @@ fun SignupShelterScreen (navController: NavController, userViewModel: UserViewMo
                 .absoluteOffset((-6).dp)
                 .zIndex(-1f)
         )
-        // Center - Log In button
-        /*
-        Image(
-            painter = painterResource(id = R.drawable.paw2),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(230.dp)
-                .offset(x = 16.dp, y = 130.dp)
-                .zIndex(-1f)
-        )
-
-         */
         // Top right big
         Image(
             painter = painterResource(id = R.drawable.paw3),

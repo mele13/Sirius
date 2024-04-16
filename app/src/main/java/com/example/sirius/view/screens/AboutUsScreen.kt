@@ -123,13 +123,12 @@ fun AddGoogleMap(location : String) {
 @SuppressLint("DiscouragedApi")
 @Composable
 fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
-    val shelterImages = listOf<String>("shelter1", "shelter2", "shelter3", "shelter4")
+    val shelterImages = listOf("shelter1", "shelter2", "shelter3", "shelter4")
     val context = LocalContext.current
 
     val shelter by shelterViewModel.getShelterById(id ?: 0).collectAsState(initial = null)
 
     val showDialogAdd = remember { mutableStateOf(false) }
-    var dialogType = ""
 
     LazyColumn(
         modifier = Modifier
@@ -138,7 +137,6 @@ fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
     ) {
         item {
             SectionTitle("About Us")
-            //JustifiedText("Welcome to our shelter! We are dedicated to providing a safe and caring environment for animals in need.")
             shelter?.let { JustifiedText(it.aboutUs) }
         }
 
@@ -170,20 +168,17 @@ fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
 
         item {
             SectionTitle("Schedule")
-          //  JustifiedText("Monday - Friday: 9 AM - 6 PM\nSaturday - Sunday: 10 AM - 4 PM")
             shelter?.let { JustifiedText(it.schedule) }
 
         }
 
         item {
             SectionTitle("Shelter's Data")
-            //JustifiedText("Established in 2010, our shelter has rescued and rehomed thousands of animals. We prioritize their well-being and work towards a future with no homeless pets.")
             shelter?.let { JustifiedText(it.sheltersData) }
         }
 
         item {
             SectionTitle("Contact Information")
-          //  JustifiedText("Email: sirius@shelter.org\nPhone: +1 123 456 7890")
             JustifiedText("Email: " + (shelter?.email ?: "") +"\nPhone: " + (shelter?.phone ?: ""))
 
         }
@@ -191,7 +186,6 @@ fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         AddButton(
             showDialogAdd,
-            dialogType,
             Modifier.align(Alignment.BottomEnd),
             Icons.Default.Edit
         )

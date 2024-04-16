@@ -28,7 +28,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarSearch(
     state: MutableState<TextFieldValue>,
@@ -63,8 +62,10 @@ fun BarSearch(
             placeholder = {
                 Text(text = placeHolder)
             },
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.White
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
             ),
             maxLines = 1,
             singleLine = true,

@@ -4,7 +4,6 @@ package com.example.sirius.view.screens
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,29 +24,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,17 +55,15 @@ import java.util.Locale
 
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
-fun ChatScreen(
-    NavController: NavHostController,
-    chatViewModel: ChatViewModel,
-    userViewModel: UserViewModel
-) {
+fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, userViewModel : UserViewModel){
+
     var userList by remember { mutableStateOf<List<User?>>(emptyList()) }
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
 
+
     LaunchedEffect(Unit) {
         try {
-            userList = userViewModel.getAllUsers()!!
+            userList = userViewModel.getAllUsers()
         } catch (e: Exception) {
             Log.e("Error : ", "Error al acceder a la BBDD", e)
         }
@@ -84,50 +72,50 @@ fun ChatScreen(
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
+
         Column(modifier = Modifier.fillMaxHeight()) {
-            UserList(userList = userList, user = user, chatViewModel = chatViewModel, NavController = NavController)
-        }
-    }
-}
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(10.dp)) {
 
-@Composable
-fun UserList(
-    userList: List<User?>,
-    user: User?,
-    chatViewModel: ChatViewModel,
-    NavController: NavHostController
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(10.dp)
-    ) {
-        LazyColumn(modifier = Modifier.padding(10.dp)) {
-            items(items = userList, key = { it?.id ?: "" }) { item ->
-                if (item != null) {
-                    var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
+                LazyColumn(modifier = Modifier.padding(10.dp)) {
+                    items(items = userList, key = { it?.id ?: "" }) { item ->
+                        if (item != null) {
+                            var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
 
-                    LaunchedEffect(Unit) {
-                        try {
-                            val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
-                            lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
-                        } catch (e: Exception) {
-                            Log.e("Firestore", "Error en ChildList", e)
+                            LaunchedEffect(Unit) {
+                                try {
+                                    val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
+                                    lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
+                                } catch (e: Exception) {
+                                    Log.e("Firestore", "Error en ChildList", e)
+                                }
+                            }
+
+
+
+
+                                UserEachRow(person = item, lastMessage = lastMessage) {
+                                    navController.navigate(Routes.CHAT + "/${item.id}")
+                                }
+
                         }
                     }
-
-                    UserEachRow(person = item, lastMessage = lastMessage) {
-                        NavController.navigate(Routes.CHAT + "/${item.id}")
-                    }
                 }
+
             }
+
         }
+
     }
+
+
+
 }
 
 
 
 @Composable
-fun myProfile(
+fun MyProfile(
     person: User,
     onClick: () -> Unit = {}
 )
@@ -151,8 +139,7 @@ fun myProfile(
                     .size(40.dp))
 
             Text(
-                text  = person.username.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
-                    ?: "",
+                text  = person.username.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
                 style = TextStyle(
                     fontSize = 20.sp,
                     color = Color.Black
@@ -181,7 +168,7 @@ fun myProfile(
 
 
 }
-@OptIn(InternalPlatformTextApi::class)
+
 @Composable
 fun UserEachRow(
     person: User,
@@ -212,8 +199,7 @@ fun UserEachRow(
 
             Column {
                 Text(
-                    text  = person.username.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
-                        ?: "",
+                    text  = person.username.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
                     style = TextStyle(
                         fontSize = 20.sp,
                         color =  Color.Black
@@ -225,8 +211,7 @@ fun UserEachRow(
 
                 if(lastMessage != null){
                     Text(
-                        text = lastMessage?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
-                            ?: "",
+                        text = lastMessage.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
                         style = TextStyle(
                             fontSize = 20.sp,
                             color = Green1
@@ -257,27 +242,13 @@ fun UserEachRow(
     }
 }
 
-
-@SuppressLint("UnnecessaryComposedModifier", "ModifierFactoryUnreferencedReceiver")
-fun Modifier.noRippleEffect(onClick: () -> Unit) = composed {
-    clickable(
-        interactionSource = MutableInteractionSource(),
-        indication = null
-    ) {
-        onClick()
-    }
-}
-
-
-
 @SuppressLint("SuspiciousIndentation")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun Messages(NavController: NavController, recipientUserId: Int, userViewModel : UserViewModel, chatViewModel : ChatViewModel) {
+fun Messages(navController: NavController, recipientUserId: Int, userViewModel : UserViewModel, chatViewModel : ChatViewModel) {
 
     val userState = remember { mutableStateOf<User?>(null) }
 
-    LaunchedEffect(UserViewModel) {
+    LaunchedEffect(userViewModel) {
         val user = userViewModel.getUserById(recipientUserId)
 
         userState.value = user
@@ -287,7 +258,7 @@ fun Messages(NavController: NavController, recipientUserId: Int, userViewModel :
 
     val message: String by chatViewModel.message.observeAsState(initial = "")
     val messages: List<Chat> by chatViewModel.messages.observeAsState(
-        initial = emptyList<Chat>()
+        initial = emptyList()
     )
 
     Box(
@@ -302,7 +273,7 @@ fun Messages(NavController: NavController, recipientUserId: Int, userViewModel :
         ) {
 
 
-            userState.value?.let { myProfile(person = it) { NavController.navigate(route = Routes.PROFILE) } }
+            userState.value?.let { MyProfile(person = it) { navController.navigate(route = Routes.PROFILE) } }
 
             LazyColumn(
                 modifier = Modifier
@@ -315,7 +286,8 @@ fun Messages(NavController: NavController, recipientUserId: Int, userViewModel :
                 items(messages) { message ->
                     SingleMessage(
                         message = message.message,
-                        isCurrentUser = message.sentBy == userViewModel.getAuthenticatedUser()?.id ?: 0
+                        isCurrentUser = message.sentBy == (userViewModel.getAuthenticatedUser()?.id
+                            ?: 0)
                     )
                 }
             }

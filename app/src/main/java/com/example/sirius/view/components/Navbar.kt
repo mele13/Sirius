@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -75,35 +74,36 @@ fun NavigationContent(
     shelterViewModel: ShelterViewModel
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-
-        val currentRoute = navController.currentBackStackEntry?.destination?.route
-        if (currentRoute !in listOf(
-                Routes.LOGIN,
-                Routes.SIGNUP,
-                Routes.LANDINGPAGE,
-                Routes.LOADING,
-                Routes.ANIMALINFO,
-                Routes.ANIMALINFO + "/{id}",
-                Routes.PROFILE,
-                Routes.SIGNUPSHELTER
-        )) {
-            ProfileButton(
-                onClick = {
-                    if (userViewModel.getAuthenticatedUser() != null)
-                        navController.navigate(Routes.PROFILE)
-                    else {
-                        navController.navigate(Routes.LOGIN)
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .zIndex(99f),
-            )
-        }
         Column(
-            modifier = modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.End
         ) {
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            if (currentRoute !in listOf(
+                    Routes.LOGIN,
+                    Routes.SIGNUP,
+                    Routes.LANDINGPAGE,
+                    Routes.LOADING,
+                    Routes.ANIMALINFO,
+                    Routes.ANIMALINFO + "/{id}",
+                    Routes.PROFILE,
+                    Routes.SIGNUPSHELTER
+                )
+            ) {
+                ProfileButton(
+                    onClick = {
+                        if (userViewModel.getAuthenticatedUser() != null)
+                            navController.navigate(Routes.PROFILE)
+                        else {
+                            navController.navigate(Routes.LOGIN)
+                        }
+                    },
+                    modifier = Modifier
+                        //.align(Alignment.TopEnd)
+                        .padding(top = 16.dp, end = 16.dp)
+                        //.zIndex(99f),
+                )
+            }
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = navController,
@@ -157,7 +157,7 @@ fun NavigationContent(
                     )
                 }
                 composable(route = Routes.DONATIONS) {
-                    DonationsScreen(navController = navController)
+                    DonationsScreen()
                 }
                 composable(route = Routes.ABOUTUS) {
                     AboutUsScreen(shelterViewModel = shelterViewModel)
@@ -189,8 +189,8 @@ fun NavigationContent(
                         defaultValue = -1
                     })
                 ) { navBackStackEntry ->
-                    val recipient_user = navBackStackEntry.arguments?.getInt("recipient_user") ?: -1
-                    Messages(navController, recipient_user, userViewModel, chatViewModel)
+                    val recipientUser = navBackStackEntry.arguments?.getInt("recipient_user") ?: -1
+                    Messages(navController, recipientUser, userViewModel, chatViewModel)
                 }
                 composable(route = Routes.ANIMALINFO + "/{id}",
                     arguments = listOf(navArgument(name = "id") {
@@ -210,7 +210,7 @@ fun NavigationContent(
                     SignupScreen(navController = navController, userViewModel = userViewModel)
                 }
                 composable(route = Routes.SIGNUPSHELTER) {
-                    SignupShelterScreen(navController, userViewModel)
+                    SignupShelterScreen(navController)
                 }
                 composable(route = Routes.LANDINGPAGE) {
                     LandingPage(navController = navController)
@@ -231,7 +231,6 @@ fun NavigationContent(
                     ProfileScreen(
                         navController = navController,
                         userViewModel = userViewModel,
-                        animalViewModel = animalViewModel
                     )
                 }
             }
@@ -250,10 +249,9 @@ fun NavigationContent(
 }
 
 @Composable
-private fun selectColor(destination : Destinations, selectedDestination : String) : Color {
+private fun selectColor(destination: Destinations, selectedDestination: String): Color {
     val selected = selectedDestination == destination.route
-    val textColor = if (selected) Green3 else if (!isSystemInDarkTheme()) Color.Black else Color.White
-    return  textColor
+    return if (selected) Green3 else if (!isSystemInDarkTheme()) Color.Black else Color.White
 }
 @Composable
 fun Navbar(

@@ -1,10 +1,7 @@
 package com.example.sirius.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sirius.AnimalApplication
 import com.example.sirius.data.dao.UserDao
 import com.example.sirius.model.User
@@ -14,11 +11,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LiveData
-import com.example.sirius.model.Animal
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.Flow
 import java.lang.Exception
 
 class UserViewModel(private val userDao: UserDao) : ViewModel() {
@@ -88,12 +81,12 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return false
     }
 
-    suspend fun logout() {
+    fun logout() {
         _currentUser.value = null
         saveAuthenticationState(null)
     }
 
-    suspend fun checkIfUserExists(username: String): Boolean {
+    private suspend fun checkIfUserExists(username: String): Boolean {
         if (getUserByUsername(username) != null) return true
         return false
     }
@@ -153,27 +146,23 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return userDao.getUserById(userId)
     }
 
-    suspend fun getUserByUsername(username: String): User? {
+    private suspend fun getUserByUsername(username: String): User? {
         return userDao.getUserByUsername(username)
     }
 
-    suspend fun getUserByEmail(email: String): User? {
+    private suspend fun getUserByEmail(email: String): User? {
         return userDao.getUserByEmail(email)
     }
 
-    suspend fun getUserByCredentials(username: String, password: String): User? {
+    private suspend fun getUserByCredentials(username: String, password: String): User? {
         return userDao.getUserByCredentials(username, password)
     }
 
-    suspend fun getAllUsers(): List<User>? {
+    suspend fun getAllUsers(): List<User> {
         return userDao.getAllUsers()
     }
 
-    suspend fun deleteAllUsers() {
-        userDao.deleteAllUsers()
-    }
-
-    suspend fun insertUser(user: User) {
+    private suspend fun insertUser(user: User) {
         userDao.insertUser(user)
     }
 
@@ -185,12 +174,4 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         userDao.update(user)
     }
 
-    companion object {
-        val factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AnimalApplication)
-                UserViewModel(application.database.userDao())
-            }
-        }
-    }
 }

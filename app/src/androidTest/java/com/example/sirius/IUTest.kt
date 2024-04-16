@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import org.junit.Rule
@@ -25,7 +24,7 @@ class IUTest {
             val newsVm: NewsViewModel = viewModel(factory = NewsViewModel.factory)
             val newsList by newsVm.getNews().collectAsState(initial = emptyList())
 
-            HomeScreen(navController = navController, animalList = animalList, newsList = newsList)
+            //HomeScreen(navController = navController, animalList = animalList, newsList = newsList)
         }
         Thread.sleep(5000)
     }

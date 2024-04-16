@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -46,13 +45,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun OwnerScreen(viewModel: UserViewModel) {
     var workers by remember { mutableStateOf(emptyList<User>()) }
-    //var volunteers by remember { mutableStateOf(emptyList<User>()) }
+    var volunteers by remember { mutableStateOf(emptyList<User>()) }
 
     LaunchedEffect(key1 = Unit) {
         workers = viewModel.getAllWorkers()
         println("workers")
         println(workers)
-        //volunteers = viewModel.getAllVolunteers()
+        volunteers = viewModel.getAllVolunteers()
     }
 
     val textState = remember { mutableStateOf(TextFieldValue(""))}
@@ -61,7 +60,7 @@ fun OwnerScreen(viewModel: UserViewModel) {
         BarSearch(state= textState, placeHolder= "Search here...", modifier = Modifier)
         val searchedText = textState.value.text
         val filteredWorkers = workers.filter {
-            it?.username?.contains(searchedText, ignoreCase = true) ?: false
+            it.username.contains(searchedText, ignoreCase = true)
         }
         if (filteredWorkers.isEmpty()) {
             Text(
@@ -70,10 +69,8 @@ fun OwnerScreen(viewModel: UserViewModel) {
             )
         } else {
             LazyColumn(modifier = Modifier.padding(10.dp)) {
-                items(items = filteredWorkers, key = { it?.id ?: "" }) { item ->
-                    if (item != null) {
-                        UserListItem(item, viewModel)
-                    }
+                items(items = filteredWorkers, key = { it.id }) { item ->
+                    UserListItem(item, viewModel)
                 }
             }
         }
@@ -84,7 +81,6 @@ fun OwnerScreen(viewModel: UserViewModel) {
 fun UserListItem(user: User, viewModel: UserViewModel) {
     val expanded = remember { mutableStateOf(false) }
     val dropdownItems = listOf("admin", "user")
-    val context = LocalContext.current
 
     Column(
         modifier = Modifier.padding(8.dp)
@@ -145,7 +141,7 @@ fun UserListItem(user: User, viewModel: UserViewModel) {
                             onClick = {
                                 expanded.value = false
                                 viewModel.viewModelScope.launch {
-                                    user?.let { viewModel.updateRole(it, item) }
+                                    user.let { viewModel.updateRole(it, item) }
                                 }
                             }
                         )

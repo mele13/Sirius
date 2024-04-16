@@ -85,7 +85,7 @@ class AnimalDaoTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoInsert_insertsItemIntoDB() = runBlocking {
+    fun daoInsertsItemIntoDB() = runBlocking {
         addOneItemToDb()
         val allItems = animalDao.getAllAnimals().first()
         assertEquals(allItems[0], animal1)
@@ -93,7 +93,7 @@ class AnimalDaoTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoGetAllItems_returnsAllItemsFromDB() = runBlocking {
+    fun daoGetAllItemsFromDB() = runBlocking {
         addTwoItemsToDb()
         val allItems = animalDao.getAllAnimals().first()
         assertEquals(allItems[0], animal1)
@@ -102,7 +102,7 @@ class AnimalDaoTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoUpdate_updatesItemInDB() = runBlocking {
+    fun daoUpdateItemInDB() = runBlocking {
         addOneItemToDb()
 
         // Modify some properties of the animal
@@ -115,7 +115,7 @@ class AnimalDaoTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoDelete_deletesItemFromDB() = runBlocking {
+    fun daoDeleteItemFromDB() = runBlocking {
         addOneItemToDb()
 
         // Delete the animal
@@ -127,7 +127,7 @@ class AnimalDaoTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoQueryById_returnsCorrectItem() = runBlocking {
+    fun daoQueryByIdCorrectItem() = runBlocking {
         addTwoItemsToDb()
 
         // Query an animal by ID
@@ -142,7 +142,7 @@ class AnimalDaoTest {
 
     @Test
     @Throws(Exception::class)
-    fun daoQueryByName_returnsCorrectItems() = runBlocking {
+    fun daoQueryByNameCorrectItems() = runBlocking {
         addTwoItemsToDb()
 
         // Query animals by name

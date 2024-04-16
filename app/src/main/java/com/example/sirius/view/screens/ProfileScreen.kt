@@ -79,7 +79,6 @@ import com.example.sirius.tools.isPasswordValid
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.CustomSnackbar
-import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -88,7 +87,6 @@ import kotlinx.coroutines.launch
 fun ProfileScreen(
     navController: NavController,
     userViewModel: UserViewModel,
-    animalViewModel: AnimalViewModel
 ) {
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
     val username by remember { mutableStateOf(user?.username ?: "") }
@@ -159,9 +157,8 @@ fun ProfileScreen(
                 }
                 item {
                     if (showUpdateImageDialog) {
-                        user?.let { it ->
+                        user?.let {
                             ShowAlertDialog(
-                                user = it,
                                 predefinedImageList = predefinedImageList,
                                 onImageSelected = { newImage ->
                                     userViewModel.viewModelScope.launch {
@@ -198,7 +195,7 @@ fun ProfileScreen(
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     if (likedAnimals.isNotEmpty()) {
-                        LikedAnimalsSection(likedAnimals, animalViewModel, navController)
+                        LikedAnimalsSection(likedAnimals, navController)
                     } else {
                         Text(
                             text = stringResource(id = R.string.no_liked_friends),
@@ -217,7 +214,6 @@ fun ProfileScreen(
 
 @Composable
 fun ShowAlertDialog(
-    user: User,
     predefinedImageList: List<String>,
     onImageSelected: (String) -> Unit,
     onDismiss: () -> Unit
@@ -561,10 +557,10 @@ fun UserImage(imageUrl: String,
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun LikedAnimalsSection(likedAnimals: List<Animal>, animalViewModel: AnimalViewModel, navController: NavController) {
+fun LikedAnimalsSection(likedAnimals: List<Animal>, navController: NavController) {
     Text(text = stringResource(id = R.string.liked_friends))
     Column {
-        likedAnimals.forEach() { likedAnimal ->
+        likedAnimals.forEach { likedAnimal ->
             AnimalCardGallery(navController, likedAnimal)
         }
     }
@@ -655,16 +651,6 @@ fun AnimalCardGallery(navController: NavController, likedAnimal: Animal) {
                     )
                 }
             }
-//            Button(
-//                onClick = {
-//                    navController.navigate(route = Routes.ANIMALINFO + "/" + likedAnimal.id)
-//                },
-//                modifier = Modifier
-//                    .align(Alignment.End),
-//                colors = ButtonDefaults.buttonColors(Orange)
-//            ) {
-//                Text(text = stringResource(id = R.string.details), color = Color.White)
-//            }
         }
     }
 }
