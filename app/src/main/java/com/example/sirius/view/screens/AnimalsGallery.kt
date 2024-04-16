@@ -484,7 +484,6 @@ fun AnimalCard(
                 if (item is Animal) {
                     navController.navigate(route = Routes.ANIMALINFO + "/" + item.id)
                 } else if (item is News) {
-                    // Navegar a la pantalla de detalles de la noticia
                 }
             },
         colors = CardDefaults.cardColors(

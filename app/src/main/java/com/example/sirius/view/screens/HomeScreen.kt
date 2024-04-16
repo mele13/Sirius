@@ -1,8 +1,11 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -42,9 +45,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,13 +65,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.sirius.R
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
+import com.example.sirius.model.SectionType
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.calculateAgeCategory
@@ -79,9 +87,9 @@ import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
+import com.example.sirius.view.components.BarSearch
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
 @Composable
 fun HomeScreen(
@@ -153,7 +161,6 @@ fun HomeScreen(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Section(
     title: String,
@@ -188,6 +195,8 @@ fun Section(
                 dateState = dateState,
                 animalViewmodel = animalViewModel,
                 typeList = typeList,
+                sectionType = determineSectionType(title),
+                onDialogDismiss = { animalFormState.clear() }
             ) {
             }
         } else {
@@ -196,6 +205,8 @@ fun Section(
                 newsFormState = newsFormState,
                 dateState = dateState,
                 newsViewmodel = newsViewmodel,
+                sectionType = determineSectionType(title),
+                onDialogDismiss = { newsFormState.clear() }
             ) {
             }
         }
@@ -297,7 +308,6 @@ fun AddButton(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AnimalFormDialog(
     showDialogAdd: MutableState<Boolean>,
@@ -305,11 +315,24 @@ private fun AnimalFormDialog(
     dateState: Long,
     animalViewmodel: AnimalViewModel,
     typeList: List<String>,
+    sectionType: SectionType,
+    onDialogDismiss: () -> Unit,
     onAddClick: () -> Unit,
     ) {
 
     var formData = AnimalFormData("", "", "", false, false, "", "", "", "", "", "", false, false)
 
+    when (sectionType) {
+        SectionType.LOST -> {
+            animalFormState.lost = true
+        }
+        SectionType.IN_SHELTER, SectionType.LOST -> {
+            animalFormState.inShelter = true
+        }
+        else -> {
+            // No hacer nada para otros tipos de sección
+        }
+    }
 
     AlertDialog(
         onDismissRequest = { showDialogAdd.value = false },
@@ -320,12 +343,16 @@ private fun AnimalFormDialog(
                 dateState = dateState,
                 animalViewmodel = animalViewmodel,
                 typeList = typeList,
+                sectionType = sectionType,
             )
         },
 
         confirmButton = {
             Button(
                 onClick = {
+                    println("formData")
+                    println(formData)
+                    println(formData.birthDate)
                     onAddClick()
                     showDialogAdd.value = false
                     animalViewmodel?.viewModelScope?.launch {
@@ -350,32 +377,45 @@ private fun AnimalFormDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NewsFormDialog(
     showDialogAdd: MutableState<Boolean>,
     newsFormState: NewsFormState,
     dateState: Long,
     newsViewmodel: NewsViewModel,
+    sectionType: SectionType,
+    onDialogDismiss: () -> Unit,
     onAddClick: () -> Unit,
 ) {
     var formData = NewsFormData("", "", "", "", "", "", "", false)
+
+    when (sectionType) {
+        SectionType.GOOD_NEWS -> {
+            newsFormState.goodNews = true
+        }
+        SectionType.WHATS_NEW -> {
+            newsFormState.goodNews = false
+        }
+        else -> {
+            // No hacer nada para otros tipos de sección
+        }
+    }
 
     AlertDialog(
         onDismissRequest = { showDialogAdd.value = false },
         title = { Text("Agregar Nuevo") },
         text = {
-            formData = NewsFormFields(state = dateState, newsFormState = newsFormState)
+            formData = NewsFormFields(state = dateState, newsFormState = newsFormState, sectionType = sectionType)
         },
-
         confirmButton = {
             Button(
                 onClick = {
+                    println("formData")
+                    println(formData)
                     onAddClick()
                     showDialogAdd.value = false
                     newsViewmodel?.viewModelScope?.launch {
                         newsViewmodel.inserNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
-
                     }
                 }
             ) {
@@ -394,13 +434,13 @@ private fun NewsFormDialog(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AnimalFormFields(
     animalFormState: AnimalFormState,
     dateState: Long,
     animalViewmodel: AnimalViewModel,
-    typeList: List<String>
+    typeList: List<String>,
+    sectionType: SectionType
 ): AnimalFormData {
     val predefinedImageList = listOf(
         "res/drawable/user_image1",
@@ -449,6 +489,8 @@ private fun AnimalFormFields(
                     animalFormState.birthDate = date
                 }
             )
+            println("animalFormState.birthDate")
+            println(animalFormState.birthDate)
         }
         item {
             SexCheckbox(animalFormState)
@@ -486,11 +528,36 @@ private fun AnimalFormFields(
             )
         }
         item {
-            CustomTextField(
-                value = animalFormState.breed,
-                onValueChange = { animalFormState.breed = it },
-                label = "Breed"
-            )
+            val breedList by animalViewmodel.getBreed().collectAsState(emptyList())
+            val textState = remember { mutableStateOf(TextFieldValue("")) }
+            BarSearch(state = textState, placeHolder = "Breed", modifier = Modifier)
+
+            val searchedText = textState.value.text
+            val filteredBreed = breedList.filter {
+                it?.contains(searchedText, ignoreCase = true) ?: false
+            }
+
+            if (filteredBreed.isEmpty() && searchedText.isNotEmpty()) {
+                Text(
+                    text = searchedText,
+                    modifier = Modifier.padding(10.dp)
+                )
+                animalFormState.breed = searchedText
+            } else {
+                Column {
+                    filteredBreed.forEach { breed ->
+                        Text(
+                            text = breed,
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .clickable {
+                                    textState.value = TextFieldValue(breed)
+                                    animalFormState.breed = breed
+                                }
+                        )
+                    }
+                }
+            }
         }
         item {
             var selectedType by remember { mutableStateOf("") }
@@ -516,31 +583,33 @@ private fun AnimalFormFields(
                 predefinedImageList = predefinedImageList,
                 selectedImage = animalFormState.photoAnimal,
                 onImageSelected = { imagePath ->
-                    animalFormState.photoAnimal = imagePath
+                    animalFormState.photoAnimal = imagePath.toString()
                 }
             )
         }
-
-        item {
-            StatusCheckbox(
-                labelText = "In shelter",
-                checked = animalFormState.inShelter,
-                onCheckedChange = { isChecked ->
-                    animalFormState.inShelter = isChecked
-                }
-            )
+        if (sectionType != SectionType.IN_SHELTER){
+            item {
+                StatusCheckbox(
+                    labelText = "In shelter",
+                    checked = animalFormState.inShelter,
+                    onCheckedChange = { isChecked ->
+                        animalFormState.inShelter = isChecked
+                    }
+                )
+            }
         }
-        item {
-            StatusCheckbox(
-                labelText = "Lost",
-                checked = animalFormState.lost,
-                onCheckedChange = { isChecked ->
-                    animalFormState.lost = isChecked
-                }
-            )
+        if (sectionType != SectionType.LOST) {
+            item {
+                StatusCheckbox(
+                    labelText = "Lost",
+                    checked = animalFormState.lost,
+                    onCheckedChange = { isChecked ->
+                        animalFormState.lost = isChecked
+                    }
+                )
+            }
         }
     }
-
     return formData
 }
 
@@ -638,7 +707,9 @@ fun DropdownButtonHome(
 @Composable
 private fun NewsFormFields(
     state: Long,
-    newsFormState: NewsFormState,): NewsFormData {
+    newsFormState: NewsFormState,
+    sectionType: SectionType,
+    ): NewsFormData {
     val predefinedImageList = listOf(
         "res/drawable/user_image1",
         "res/drawable/user_image2",
@@ -721,11 +792,12 @@ private fun NewsFormFields(
                 predefinedImageList = predefinedImageList,
                 selectedImage = newsFormState.photoNews,
                 onImageSelected = { imagePath ->
-                    newsFormState.photoNews = imagePath
+                    newsFormState.photoNews = imagePath.toString()
                 }
             )
         }
-        item {
+
+        /*item {
             StatusCheckbox(
                 labelText = "Good News",
                 checked = newsFormState.goodNews,
@@ -733,12 +805,10 @@ private fun NewsFormFields(
                     newsFormState.goodNews = isChecked
                 }
             )
-        }
-
+        }*/
     }
-
-
-
+    println("return formData")
+    println(formData)
     return formData
 }
 
@@ -759,7 +829,6 @@ private fun SexCheckbox(animalFormState: AnimalFormState) {
                 }
             )
         }
-
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -783,7 +852,6 @@ fun DatePickerItem(
 ) {
     val datePickerState = rememberDatePickerState(state)
     var selectedDate by remember { mutableStateOf(selectedDate) }
-
     LaunchedEffect(selectedDate) {
         onDateSelected(selectedDate)
     }
@@ -792,17 +860,16 @@ fun DatePickerItem(
         showModeToggle = true,
         modifier = Modifier.fillMaxWidth(),
         dateFormatter = DatePickerFormatter(),
-        dateValidator = { date ->
-            selectedDate = formatDate(Date(date).toString())
-            true // Indica que todas las fechas son válidas
-
+        dateValidator = {
+            true
         },
         title = {
-            Text("${datePickerState.selectedDateMillis?.let { Date(it) }}", fontWeight = FontWeight.Bold)
-
+            Text("${selectedDate}", fontWeight = FontWeight.Bold)
         },
     )
-    onDateSelected(formatDate(datePickerState.selectedDateMillis?.let { Date(it) }.toString()))
+    println("selectedDate")
+    println(selectedDate)
+    onDateSelected(selectedDate)
 }
 
 
@@ -810,38 +877,32 @@ fun DatePickerItem(
 fun PhotoPicker(
     predefinedImageList: List<String>,
     selectedImage: String,
-    onImageSelected: (String) -> Unit
+    onImageSelected: (Uri) -> Unit
 ) {
     Column {
-        Text("Change Photo")
-        val chunkedImages = predefinedImageList.chunked(5)
-        chunkedImages.forEach { rowImages ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                rowImages.forEach { imagePath ->
-                    val isSelected = selectedImage == imagePath
-                    Image(
-                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(4.dp)
-                            .clip(MaterialTheme.shapes.extraSmall)
-                            .clickable {
-                                onImageSelected(imagePath)
-                            }
-                            .border(
-                                width = 2.dp,
-                                color = if (isSelected) Green1 else Color.Transparent,
-                                shape = MaterialTheme.shapes.extraSmall
-                            )
-                    )
-                }
+        var imageUri: Uri? by remember { mutableStateOf(null) }
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()) {
+            it?.let { uri ->
+                imageUri = uri
+                onImageSelected(imageUri!!)
             }
+        }
+        if (imageUri != null) {
+            AsyncImage(
+                model = imageUri,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(200.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Button(
+            onClick = {
+                launcher.launch(arrayOf("image/*"))
+            }
+        ) {
+            Text(text = "Pick Image")
         }
     }
 }
@@ -881,6 +942,22 @@ fun StatusCheckbox(
 
 @Stable
 class AnimalFormState {
+    fun clear() {
+        name = ""
+        birthDate = ""
+        sex = ""
+        waitingAdoption = false
+        fosterCare = false
+        shortInfo = ""
+        longInfo = ""
+        breed = ""
+        typeAnimal = ""
+        entryDate = ""
+        photoAnimal = ""
+        inShelter = false
+        lost = false
+    }
+
     var name by mutableStateOf("")
     var sex by mutableStateOf("")
     var waitingAdoption by mutableStateOf(false)
@@ -898,6 +975,17 @@ class AnimalFormState {
 
 @Stable
 class NewsFormState {
+    fun clear() {
+        title = ""
+        shortInfo = ""
+        longInfo = ""
+        publishedDate = ""
+        createdAt = ""
+        untilDate = ""
+        photoNews = ""
+        goodNews = false
+    }
+
     var title by mutableStateOf("")
     var shortInfo by mutableStateOf("")
     var longInfo by mutableStateOf("")
@@ -966,7 +1054,6 @@ private fun AnimalItem(animal: Animal, navController: NavController) {
             SquareImage(painter = painter, onClick = {
                 navController.navigate(route = Routes.ANIMALINFO + "/" + animal.id)
             })
-
             Text(
                 text = animal.nameAnimal,
                 style = MaterialTheme.typography.labelLarge,
@@ -1008,28 +1095,39 @@ fun SquareImage(
 }
 
 data class NewsFormData(
-    val title: String,
-    val shortInfo: String,
-    val longInfo: String,
-    val publishedDate: String,
-    val createdAt: String,
-    val untilDate: String,
-    val photoNews: String,
-    val goodNews: Boolean
+    var title: String,
+    var shortInfo: String,
+    var longInfo: String,
+    var publishedDate: String,
+    var createdAt: String,
+    var untilDate: String,
+    var photoNews: String,
+    var goodNews: Boolean
 )
 
 data class AnimalFormData(
-    val name: String,
-    val birthDate: String,
-    val sex: String,
-    val waitingAdoption: Boolean,
-    val fosterCare: Boolean,
-    val shortInfo: String,
-    val longInfo: String,
-    val breed: String,
-    val type: String,
-    val entryDate: String,
-    val photoAnimal: String,
-    val inShelter: Boolean,
-    val lost: Boolean
+    var name: String,
+    var birthDate: String,
+    var sex: String,
+    var waitingAdoption: Boolean,
+    var fosterCare: Boolean,
+    var shortInfo: String,
+    var longInfo: String,
+    var breed: String,
+    var type: String,
+    var entryDate: String,
+    var photoAnimal: String,
+    var inShelter: Boolean,
+    var lost: Boolean
 )
+
+@Composable
+fun determineSectionType(title: String): SectionType {
+    return when (title) {
+        stringResource(id = R.string.newsIntro) -> SectionType.GOOD_NEWS
+        stringResource(id = R.string.animalsIntro) -> SectionType.IN_SHELTER
+        stringResource(id = R.string.lostIntro) -> SectionType.LOST
+        stringResource(id = R.string.newsIntro) -> SectionType.WHATS_NEW
+        else -> SectionType.OTHER
+    }
+}

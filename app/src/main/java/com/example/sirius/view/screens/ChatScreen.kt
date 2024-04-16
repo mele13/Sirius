@@ -299,7 +299,6 @@ fun Messages(NavController: NavController, recipientUserId: Int, userViewModel :
 
             userState.value?.let { myProfile(person = it) { NavController.navigate(route = Routes.PROFILE) } }
 
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

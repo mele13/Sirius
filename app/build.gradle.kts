@@ -112,6 +112,8 @@ dependencies {
 
     implementation("androidx.compose.material:material:1.0.0")
 
+    //image
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     // Accompanist
 //    implementation ("com.google.accompanist:accompanist-permissions:0.31.3-beta")
