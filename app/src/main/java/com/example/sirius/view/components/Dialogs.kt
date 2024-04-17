@@ -142,6 +142,15 @@ fun EditDialog(
     var editedPhotoAnimal by remember { mutableStateOf((item as? Animal)?.photoAnimal ?: "") }
     var editedBirthDateAnimal by remember { mutableStateOf((item as? Animal)?.birthDate ?: "") }
 
+    val animalData = AnimalData(
+        editedName = editedName,
+        editedShortInfoAnimal = editedShortInfoAnimal,
+        editedBirthDateAnimal = editedBirthDateAnimal,
+        editedWaitingAdoption = editedWaitingAdoption,
+        editedFosterCare = editedFosterCare,
+        editedPhotoAnimal = editedPhotoAnimal
+    )
+
     //News
     var editedTitle by remember { mutableStateOf((item as? News)?.titleNews ?: "") }
     var editedShortInfoNew by remember { mutableStateOf((item as? News)?.shortInfoNews ?: "") }
@@ -153,7 +162,6 @@ fun EditDialog(
         is News -> "Editar Datos ${item.titleNews}"
         else -> ""
     }
-
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
         title = {
@@ -163,7 +171,7 @@ fun EditDialog(
             LazyColumn {
                 when (item) {
                     is Animal -> item {
-                        animalEditState = RenderAnimalContent(editedName, editedShortInfoAnimal, editedBirthDateAnimal, editedWaitingAdoption, editedFosterCare, editedPhotoAnimal, predefinedImageList, animalEditState)
+                        animalEditState = RenderAnimalContent(predefinedImageList, animalData)
                         println("animalEditState")
                         println(animalEditState.name)
                         println(animalEditState.shortInfo)
@@ -281,21 +289,16 @@ fun RenderNewsContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RenderAnimalContent(
-    editedName: String,
-    editedShortInfoAnimal: String,
-    editedBirthDateAnimal: String,
-    editedWaitingAdoption: Boolean,
-    editedFosterCare: Boolean,
-    editedPhotoAnimal: String,
     predefinedImageList: List<String>,
-    animalEditState: AnimalEditState
+   animalData: AnimalData,
 ):AnimalEditState {
-    var name by remember(editedName) { mutableStateOf(editedName) }
-    var shortInfo by remember(editedShortInfoAnimal) { mutableStateOf(editedShortInfoAnimal) }
-    var waitingAdoption by remember(editedWaitingAdoption) { mutableStateOf(editedWaitingAdoption) }
-    var fosterCare by remember(editedFosterCare) { mutableStateOf(editedFosterCare) }
-    var photo by remember(editedPhotoAnimal) { mutableStateOf(editedPhotoAnimal) }
-    var birthDate by remember(editedPhotoAnimal) { mutableStateOf(editedBirthDateAnimal) }
+    var name by remember(animalData.editedName) { mutableStateOf(animalData.editedName) }
+    var shortInfo by remember(animalData.editedShortInfoAnimal) { mutableStateOf(animalData.editedShortInfoAnimal) }
+    var waitingAdoption by remember(animalData.editedWaitingAdoption) { mutableStateOf(animalData.editedWaitingAdoption) }
+    var fosterCare by remember(animalData.editedFosterCare) { mutableStateOf(animalData.editedFosterCare) }
+    var photo by remember(animalData.editedPhotoAnimal) { mutableStateOf(animalData.editedPhotoAnimal) }
+    var birthDate by remember(animalData.editedBirthDateAnimal) { mutableStateOf(animalData.editedBirthDateAnimal) }
+
     val datePickerState = rememberDatePickerState(parseDateStringToLong(birthDate))
     TextField(
         value = name,
@@ -375,13 +378,14 @@ fun RenderAnimalContent(
             }
         }
     }
-    animalEditState.name = name
-    animalEditState.photo = photo
-    animalEditState.fosterCare = fosterCare.toString()
-    animalEditState.waitingAdoption = waitingAdoption.toString()
-    animalEditState.shortInfo = shortInfo
-    animalEditState.birthDate = birthDate
-    return animalEditState
+    return AnimalEditState(
+        name = name,
+        shortInfo = shortInfo,
+        waitingAdoption = waitingAdoption.toString(),
+        fosterCare = fosterCare.toString(),
+        photo = photo,
+        birthDate = birthDate
+    )
 }
 
 class AnimalEditState(
@@ -391,6 +395,15 @@ class AnimalEditState(
     var waitingAdoption: String = "",
     var fosterCare: String = "",
     var photo: String = ""
+)
+
+data class AnimalData(
+    val editedName: String,
+    val editedShortInfoAnimal: String,
+    val editedBirthDateAnimal: String,
+    val editedWaitingAdoption: Boolean,
+    val editedFosterCare: Boolean,
+    val editedPhotoAnimal: String
 )
 
 class NewsEditState(

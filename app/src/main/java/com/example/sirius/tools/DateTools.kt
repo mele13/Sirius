@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+const val DATE_FORMAT = "yyyy-MM-dd"
+
 /**
  * Formats the input date string to the specified output format.
  *
@@ -12,7 +14,7 @@ import java.util.Locale
  */
 fun formatDate(inputDate: String): String {
     val inputFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
-    val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+    val outputFormat = SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH)
 
     val date = inputFormat.parse(inputDate)
 
@@ -21,12 +23,12 @@ fun formatDate(inputDate: String): String {
 
 fun formatDate(inputTimestamp: Long): String {
     val inputDate = Date(inputTimestamp)
-    val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+    val outputFormat = SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH)
     return outputFormat.format(inputDate)
 }
 
 fun parseDateStringToLong(dateString: String): Long {
-    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val inputFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
     val date: Date = inputFormat.parse(dateString) ?: Date()
     return date.time
 }
