@@ -1,6 +1,10 @@
 package com.example.sirius.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.sirius.AnimalApplication
 import com.example.sirius.data.dao.ShelterDao
 import com.example.sirius.model.Shelter
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +26,15 @@ class ShelterViewModel(private val shelterDao: ShelterDao) : ViewModel() {
         shelterDao.updateShelter(shelter)
     }
 
+
+    companion object {
+        val factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AnimalApplication)
+                ShelterViewModel(application.database.shelterDao())
+            }
+        }
+    }
 
 }
 

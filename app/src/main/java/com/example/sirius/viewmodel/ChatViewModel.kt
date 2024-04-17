@@ -4,7 +4,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.sirius.AnimalApplication
 import com.example.sirius.data.dao.ChatDao
 import com.example.sirius.model.Chat
 import kotlinx.coroutines.flow.launchIn
@@ -91,6 +95,16 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
     suspend fun getLastMessage(chatId: String): String {
 
         return chatDao.getLastMessage(chatId)
+    }
+
+    companion object {
+        val factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AnimalApplication)
+                val userViewModel = UserViewModel(application.database.userDao()) // Crear una instancia de UserViewModel aquí
+                ChatViewModel(application.database.chatDao(), userViewModel)
+            }
+        }
     }
 
 
