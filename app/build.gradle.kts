@@ -52,51 +52,66 @@ android {
     }
 }
 
+val coilCompose = "2.4.0"
+val activityCompose = "2.4.0"
+val activityCompose2 = "1.8.0"
+val activityCompose3 = "1.7.2"
+val activityCompose4 = "1.3.0"
+val coreKtx = "1.10.1"
+val lifecycleBase = "2.6.1"
+val viewmodelCompose = "2.6.0"
+val lifecycle = "2.6.2"
+val benchmark = "1.2.0"
+val buildTools = "2.9.9"
+val recyclerView = "1.3.2"
+val livedata = "1.3.2"
+val fragment = "1.6.2"
+val splashScreen = "1.0.1"
+val gson = "2.8.9"
+val location = "21.0.1"
+val mapsCompose = "2.9.0"
+val mapsService = "18.1.0"
+val material = "1.0.0"
+val constraintLayout = "1.0.0-alpha07"
 dependencies {
 
     implementation(platform("androidx.compose:compose-bom:2023.05.01"))
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.activity:activity-compose:$activityCompose3")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
-
-    // Hilt
-//    implementation("com.google.dagger:hilt-android:2.x.x")
-//    kapt("com.google.dagger:hilt-android-compiler:2.x.x")
-//    implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
-//    kapt("androidx.hilt:hilt-compiler:1.0.0-alpha03")
-
+    implementation("androidx.core:core-ktx:$coreKtx")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleBase")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleBase")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelCompose")
+    implementation("androidx.activity:activity-compose:$activityCompose4")
     // Nav
     implementation("androidx.navigation:navigation-compose:${rootProject.extra["nav_version"]}")
 
     // Room
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
-    implementation("androidx.benchmark:benchmark-macro:1.2.0")
-    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.benchmark:benchmark-macro:$benchmark")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:$buildTools")
+    implementation("androidx.recyclerview:recyclerview:$recyclerView")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
     // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle")
 
     // LiveData
-    implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
-    implementation("androidx.compose.runtime:runtime-livedata:1.3.2")
+    implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycle")
+    implementation("androidx.compose.runtime:runtime-livedata:$livedata")
 
     // Fragment
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("androidx.fragment:fragment-ktx:$fragment")
 
     // Activity
-    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.activity:activity-compose:$activityCompose2")
 
     //Splash
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.core:core-splashscreen:$splashScreen")
 
     // Testing
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -105,17 +120,17 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
 
     // JSON
-    implementation("com.google.code.gson:gson:2.8.9")
+    implementation("com.google.code.gson:gson:$gson")
 
     // Google Services & Maps
-    implementation("com.google.android.gms:play-services-location:21.0.1")
-    implementation("com.google.maps.android:maps-compose:2.9.0")
-    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:$location")
+    implementation("com.google.maps.android:maps-compose:$mapsCompose")
+    implementation("com.google.android.gms:play-services-maps:$mapsService")
 
-    implementation("androidx.compose.material:material:1.0.0")
+    implementation("androidx.compose.material:material:$material")
 
     //image
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:$coilCompose")
 
     // Accompanist
 //    implementation ("com.google.accompanist:accompanist-permissions:0.31.3-beta")
@@ -123,7 +138,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
-    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha07")
+    implementation ("androidx.constraintlayout:constraintlayout-compose:$constraintLayout")
 
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:$coilCompose")
 }

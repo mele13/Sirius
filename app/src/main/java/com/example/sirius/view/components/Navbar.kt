@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -68,11 +69,14 @@ fun NavigationContent(
     userViewModel: UserViewModel,
     selectedDestination: String,
     navigateDestination: (Destinations) -> Unit,
-    animalViewModel: AnimalViewModel,
-    newsViewModel: NewsViewModel,
-    chatViewModel: ChatViewModel,
-    shelterViewModel: ShelterViewModel
 ) {
+
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+    val newsViewModel : NewsViewModel = viewModel(factory = NewsViewModel.factory)
+    val chatViewModel : ChatViewModel = viewModel(factory = ChatViewModel.factory)
+    val shelterViewModel : ShelterViewModel = viewModel(factory = ShelterViewModel.factory)
+
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier.fillMaxSize(),
@@ -115,7 +119,7 @@ fun NavigationContent(
                     val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
                     val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
 
-                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel, animalViewModel = animalViewModel, newsViewmodel = newsViewModel, typeList = typeList)
+                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel, typeList = typeList)
                 }
                 composable(route = Routes.ANIMALS) {
                     val ageList by animalViewModel.getBirthYears().collectAsState(emptyList())
@@ -127,9 +131,6 @@ fun NavigationContent(
                         breedList = breedList,
                         typeList = typeList,
                         userViewModel = userViewModel,
-                        viewModel = animalViewModel,
-                        animalViewModel =  animalViewModel,
-                        newsViewModel =  newsViewModel,
                         type = null,
                         isAnimal = true,
                     )
@@ -149,9 +150,6 @@ fun NavigationContent(
                         breedList = breedList,
                         typeList = typeList,
                         userViewModel = userViewModel,
-                        viewModel = animalViewModel,
-                        animalViewModel =  animalViewModel,
-                        newsViewModel =  newsViewModel,
                         type = it.arguments?.getString("type"),
                         isAnimal = isAnimal,
                     )

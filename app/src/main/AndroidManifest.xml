@@ -9,8 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.Sirius"
         tools:targetApi="33"
-        tools:ignore="ExtraText">
-        android:usesCleartextTraffic="false">
+        tools:ignore="ExtraText"
+        android:usesCleartextTraffic="false"
         android:allowBackup="false">
         <activity
             android:name=".MainActivity"

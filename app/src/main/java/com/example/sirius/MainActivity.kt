@@ -8,8 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
 import com.example.sirius.model.User
-import com.example.sirius.ui.theme.SiriusTheme
 import com.example.sirius.navigation.NavigationController
+import com.example.sirius.ui.theme.SiriusTheme
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SiriusTheme {
-                NavigationController(userViewModel, animalViewModel, newsViewModel, chatViewModel, shelterViewModel)
+                NavigationController(userViewModel)
             }
         }
 

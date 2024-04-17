@@ -54,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
@@ -77,12 +78,14 @@ fun Cards (
     items: List<Any>,
     columns: Int,
     navController: NavController,
-    animalViewModel: AnimalViewModel?,
-    newsViewModel: NewsViewModel?,
     userViewModel: UserViewModel,
     type: String?,
     modifier: Modifier = Modifier,
 ) {
+
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+    val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier,
@@ -92,8 +95,7 @@ fun Cards (
         items(items.size) { index ->
             val item = items.getOrNull(index)
             item?.let {
-                if (item is Animal && type == "Animal" || type == null) {
-                    if (animalViewModel != null && newsViewModel != null) {
+                if ((item is Animal && type == "Animal" || type == null) || (item is News && type == "News") && (animalViewModel != null && newsViewModel != null) ) {
                         Card(
                             item = item,
                             navController = navController,
@@ -102,18 +104,7 @@ fun Cards (
                             newsViewModel = newsViewModel,
                             type = type,
                         )
-                    }
-                } else if (item is News && type == "News") {
-                    if (animalViewModel != null && newsViewModel != null) {
-                        Card(
-                            item = item,
-                            navController = navController,
-                            animalViewModel = animalViewModel,
-                            userViewModel = userViewModel,
-                            newsViewModel = newsViewModel,
-                            type = type,
-                        )
-                    }
+
                 }
             }
         }

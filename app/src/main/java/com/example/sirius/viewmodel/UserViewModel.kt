@@ -1,18 +1,20 @@
 package com.example.sirius.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sirius.AnimalApplication
 import com.example.sirius.data.dao.UserDao
 import com.example.sirius.model.User
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import android.content.Context
-import com.google.gson.Gson
-import java.lang.Exception
 
 class UserViewModel(private val userDao: UserDao) : ViewModel() {
     private val _currentUser = MutableStateFlow<User?>(null)
@@ -172,6 +174,15 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
     suspend fun updateRole(user: User, newRole: String) {
         user.role = newRole
         userDao.update(user)
+    }
+
+    companion object {
+        val factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AnimalApplication)
+                UserViewModel(application.database.userDao())
+            }
+        }
     }
 
 }

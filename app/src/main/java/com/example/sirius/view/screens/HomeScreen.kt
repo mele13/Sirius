@@ -68,6 +68,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.sirius.R
@@ -79,11 +80,11 @@ import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.formatDate
 import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.ui.theme.Green4
+import com.example.sirius.view.components.BarSearch
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
-import com.example.sirius.view.components.BarSearch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
@@ -93,8 +94,6 @@ fun HomeScreen(
     animalList: List<Animal>,
     newsList: List<News>,
     userViewModel: UserViewModel,
-    animalViewModel: AnimalViewModel,
-    newsViewmodel: NewsViewModel,
     typeList: List<String>,
 ) {
     val dateState = System.currentTimeMillis()
@@ -114,8 +113,7 @@ fun HomeScreen(
                     navController = navController,
                     userViewModel = userViewModel,
                     dateState = dateState,
-                    animalViewModel = animalViewModel,
-                    newsViewmodel = newsViewmodel,
+
                     typeList = typeList,
                 )
                 Section(
@@ -125,8 +123,7 @@ fun HomeScreen(
                     navController = navController,
                     userViewModel = userViewModel,
                     dateState = dateState,
-                    animalViewModel = animalViewModel,
-                    newsViewmodel = newsViewmodel,
+
                     typeList = typeList,
                 )
                 Section(
@@ -136,8 +133,7 @@ fun HomeScreen(
                     navController = navController,
                     userViewModel = userViewModel,
                     dateState = dateState,
-                    animalViewModel = animalViewModel,
-                    newsViewmodel = newsViewmodel,
+
                     typeList = typeList,
                 )
                 Section(
@@ -147,8 +143,7 @@ fun HomeScreen(
                     navController = navController,
                     userViewModel = userViewModel,
                     dateState = dateState,
-                    animalViewModel = animalViewModel,
-                    newsViewmodel = newsViewmodel,
+
                     typeList = typeList,
                 )
             }
@@ -165,9 +160,12 @@ fun Section(
     navController: NavController,
     userViewModel: UserViewModel,
     dateState: Long,
-    animalViewModel: AnimalViewModel,
-    newsViewmodel: NewsViewModel,
     typeList: List<String>) {
+
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+    val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
+
+
     val typeRuta = determineRoute(isAnimalSection, title)
 
     val showDialogAdd = remember { mutableStateOf(false) }
@@ -189,10 +187,8 @@ fun Section(
                 showDialogAdd = showDialogAdd,
                 animalFormState = animalFormState,
                 dateState = dateState,
-                animalViewmodel = animalViewModel,
                 typeList = typeList,
-                sectionType = determineSectionType(title),
-                onDialogDismiss = { animalFormState.clear() }
+                sectionType = determineSectionType(title)
             ) {
             }
         } else {
@@ -200,9 +196,8 @@ fun Section(
                 showDialogAdd = showDialogAdd,
                 newsFormState = newsFormState,
                 dateState = dateState,
-                newsViewmodel = newsViewmodel,
-                sectionType = determineSectionType(title),
-                onDialogDismiss = { newsFormState.clear() }
+                newsViewmodel = newsViewModel,
+                sectionType = determineSectionType(title)
             ) {
             }
         }
@@ -308,12 +303,12 @@ private fun AnimalFormDialog(
     showDialogAdd: MutableState<Boolean>,
     animalFormState: AnimalFormState,
     dateState: Long,
-    animalViewmodel: AnimalViewModel,
     typeList: List<String>,
     sectionType: SectionType,
-    onDialogDismiss: () -> Unit,
     onAddClick: () -> Unit,
     ) {
+
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
 
     var formData = AnimalFormData("", "", "",
         waitingAdoption = false,
@@ -341,7 +336,7 @@ private fun AnimalFormDialog(
             formData = animalFormFields(
                 animalFormState = animalFormState,
                 dateState = dateState,
-                animalViewmodel = animalViewmodel,
+                animalViewmodel = animalViewModel,
                 typeList = typeList,
                 sectionType = sectionType,
             )
@@ -359,11 +354,11 @@ private fun AnimalFormDialog(
                     ) {*/
                         onAddClick()
                         showDialogAdd.value = false
-                        animalViewmodel?.viewModelScope?.launch {
+                    animalViewModel?.viewModelScope?.launch {
                             stringToEnumTypeAnimal(formData.type)?.let {
                                 Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
                                     it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter))
-                            }?.let { animalViewmodel.insertAnimal(it) }
+                            }?.let { animalViewModel.insertAnimal(it) }
 
                         //}
                         animalFormState.clear()
@@ -402,7 +397,6 @@ private fun NewsFormDialog(
     dateState: Long,
     newsViewmodel: NewsViewModel,
     sectionType: SectionType,
-    onDialogDismiss: () -> Unit,
     onAddClick: () -> Unit,
 ) {
     var formData = NewsFormData("", "", "", "", "", "", "", false)
@@ -499,7 +493,6 @@ private fun animalFormFields(
         item {
             DatePickerItem(
                 state = dateState,
-                selectedDate = animalFormState.birthDate,
                 onDateSelected = { date ->
                     animalFormState.birthDate = date
                 },
@@ -580,7 +573,6 @@ private fun animalFormFields(
             Text("Type animal")
             DropdownFiltersHome(
                 typeList,
-                animalViewmodel,
                 onTypeSelected = { selectedType = it }
             )
             animalFormState.typeAnimal = selectedType
@@ -588,7 +580,6 @@ private fun animalFormFields(
         item {
             DatePickerItem(
                 state = dateState,
-                selectedDate = animalFormState.entryDate,
                 onDateSelected = { date ->
                     animalFormState.entryDate = date
                 },
@@ -632,7 +623,6 @@ private fun animalFormFields(
 @Composable
 fun DropdownFiltersHome(
         typeList: List<String>,
-        animalViewModel: AnimalViewModel,
         onTypeSelected: (String) -> Unit
 ){
     var typeDropdownExpanded by remember { mutableStateOf(false) }
@@ -651,9 +641,6 @@ fun DropdownFiltersHome(
         onExpandedChange = { expanded ->
             typeDropdownExpanded = expanded
         },
-        viewModel = animalViewModel,
-        originalText = "Type",
-        color = Color.White,
         updateSelectedType = { selectedType = it }
     )
 }
@@ -667,12 +654,11 @@ fun DropdownButtonHome(
     onOptionSelected: (String) -> Unit,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    viewModel: AnimalViewModel,
-    originalText: String,
-    color: Color,
-    aux: Boolean = false,
     updateSelectedType: (String) -> Unit
 ) {
+
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+
     Box {
         Button(
             onClick = { onExpandedChange(!expanded) },
@@ -681,8 +667,8 @@ fun DropdownButtonHome(
             contentPadding = PaddingValues(5.dp)
         ) {
             TextWithSplit(
-                text = selectedOption.ifBlank { originalText },
-                color = color
+                text = selectedOption.ifBlank { text },
+                color = Color.White
             )
         }
         DropdownMenu(
@@ -699,7 +685,7 @@ fun DropdownButtonHome(
                         when (text) {
                             "Type" -> {
                                 if (option.isNotBlank()) {
-                                    viewModel.getAnimalsByTypeAnimal(option)
+                                    animalViewModel.getAnimalsByTypeAnimal(option)
                                 }
                             }
                         }
@@ -758,7 +744,6 @@ private fun newsFormFields(
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = newsFormState.publishedDate,
                 onDateSelected = { date ->
                     newsFormState.publishedDate = date
                 },
@@ -768,7 +753,6 @@ private fun newsFormFields(
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = newsFormState.createdAt,
                 onDateSelected = { date ->
                     newsFormState.createdAt = date
                 },
@@ -778,7 +762,6 @@ private fun newsFormFields(
         item {
             DatePickerItem(
                 state = state,
-                selectedDate = newsFormState.untilDate,
                 onDateSelected = { date ->
                     newsFormState.untilDate = date
                 },
@@ -834,7 +817,6 @@ private fun SexCheckbox(animalFormState: AnimalFormState) {
 @Composable
 fun DatePickerItem(
     state: Long,
-    selectedDate: String,
     title: String,
     onDateSelected: (String) -> Unit
 ) {

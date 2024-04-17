@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
@@ -90,7 +91,7 @@ import java.time.Year
 fun DropdownFilters(ageList: List<String>,
                     breedList: List<String>,
                     typeList: List<String>,
-                    viewModel: AnimalViewModel,
+                   // viewModel: AnimalViewModel,
                     onCategorySelected: (String) -> Unit,
                     onBreedSelected: (String) -> Unit,
                     onTypeSelected: (String) -> Unit
@@ -122,9 +123,6 @@ fun DropdownFilters(ageList: List<String>,
             onExpandedChange = { expanded ->
                 ageDropdownExpanded = expanded
             },
-            viewModel = viewModel,
-            originalText =ageRange,
-            color = Color.White,
             aux = true,
         )
         ClearFilterIconButton(
@@ -144,9 +142,7 @@ fun DropdownFilters(ageList: List<String>,
             onExpandedChange = { expanded ->
                 breedDropdownExpanded = expanded
             },
-            viewModel = viewModel,
-            originalText = "Breed",
-            color = Color.White,
+
         )
         ClearFilterIconButton(
             onClick = { selectedBreed = "" },
@@ -165,9 +161,7 @@ fun DropdownFilters(ageList: List<String>,
             onExpandedChange = { expanded ->
                 typeDropdownExpanded = expanded
             },
-            viewModel = viewModel,
-            originalText = "Type",
-            color = Color.White,
+
         )
         ClearFilterIconButton(
             onClick = { selectedType = "" },
@@ -187,12 +181,16 @@ fun AnimalsGallery(
     breedList: List<String>,
     typeList: List<String>,
     userViewModel: UserViewModel,
-    viewModel: AnimalViewModel,
-    animalViewModel: AnimalViewModel? = null,
-    newsViewModel: NewsViewModel? = null,
     type: String?,
     isAnimal: Boolean
 ) {
+
+
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+    val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
+
+
+
     var selectedCategory by remember { mutableStateOf("") }
     var selectedBreed by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("") }
@@ -207,7 +205,7 @@ fun AnimalsGallery(
             DropdownFilters(ageList,
                 breedList,
                 typeList,
-                viewModel,
+               // animalViewModel,
                 onCategorySelected = { selectedCategory = it },
                 onBreedSelected = { selectedBreed = it },
                 onTypeSelected = { selectedType = it }
@@ -223,21 +221,21 @@ fun AnimalsGallery(
             val startBirthYear = currentYear - endYear
             val endBirthYear = currentYear - startYear
 
-            viewModel.getAnimalsByBirthYearRange(startBirthYear.toString().takeLast(4), endBirthYear.toString().takeLast(4)).collectAsState(emptyList()).value
+            animalViewModel.getAnimalsByBirthYearRange(startBirthYear.toString().takeLast(4), endBirthYear.toString().takeLast(4)).collectAsState(emptyList()).value
         } else {
-            viewModel.getAllAnimals().collectAsState(emptyList()).value
+            animalViewModel.getAllAnimals().collectAsState(emptyList()).value
         }
 
         val animalsByBreed = if (selectedBreed.isNotBlank()) {
-            viewModel.getAnimalsByBreed(selectedBreed).collectAsState(emptyList()).value
+            animalViewModel.getAnimalsByBreed(selectedBreed).collectAsState(emptyList()).value
         } else {
-            viewModel.getAllAnimals().collectAsState(emptyList()).value
+            animalViewModel.getAllAnimals().collectAsState(emptyList()).value
         }
 
         val animalsByType = if (selectedType.isNotBlank()) {
-            viewModel.getAnimalsByTypeAnimal(selectedType).collectAsState(emptyList()).value
+            animalViewModel.getAnimalsByTypeAnimal(selectedType).collectAsState(emptyList()).value
         } else {
-            viewModel.getAllAnimals().collectAsState(emptyList()).value
+            animalViewModel.getAllAnimals().collectAsState(emptyList()).value
         }
 
         val filteredAnimals = animalsByAgeCategory.intersect(animalsByBreed.toSet()).intersect(animalsByType.toSet())
@@ -298,7 +296,7 @@ fun AnimalsGallery(
                         AnimalCard(
                             item = item,
                             navController = navController,
-                            animalViewModel = viewModel,
+                            animalViewModel = animalViewModel,
                             userViewModel = userViewModel,
                             newsViewModel = newsViewModel,
                             type = type,
@@ -371,11 +369,10 @@ fun DropdownButton(
     onOptionSelected: (String) -> Unit,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    viewModel: AnimalViewModel,
-    originalText: String,
-    color: Color,
     aux: Boolean = false,
 ) {
+
+    val viewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     Box {
         Button(
             onClick = { onExpandedChange(!expanded) },
@@ -386,8 +383,8 @@ fun DropdownButton(
             contentPadding = PaddingValues(5.dp)
         ) {
             TextWithSplit(
-                text = selectedOption.ifBlank { originalText },
-                color = color
+                text = selectedOption.ifBlank { text },
+                color = Color.White
             )
         }
         DropdownMenu(
@@ -454,6 +451,8 @@ fun AnimalCard(
     newsViewModel: NewsViewModel,
     type: String?,
 ) {
+
+
     var isFavorite by remember { mutableStateOf(false) }
     val age = if (item is Animal) calculateAge(item.birthDate) else ""
     val user = userViewModel.getAuthenticatedUser()
