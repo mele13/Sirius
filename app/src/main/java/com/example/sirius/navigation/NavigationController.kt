@@ -46,10 +46,6 @@ fun NavigationController(
             userViewModel = userViewModel,
             selectedDestination = selectedDestination,
             navigateDestination = navigateAction::navigateTo,
-          //  animalViewModel = animalViewModel,
-         //   newsViewModel = newsViewModel,
-          //  chatViewModel = chatViewModel,
-          //  shelterViewModel = shelterViewModel
         )
     }
 }

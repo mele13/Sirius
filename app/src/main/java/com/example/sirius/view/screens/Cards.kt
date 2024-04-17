@@ -95,8 +95,7 @@ fun Cards (
         items(items.size) { index ->
             val item = items.getOrNull(index)
             item?.let {
-                if ((item is Animal && type == "Animal" || type == null) || (item is News && type == "News")) {
-                    if (animalViewModel != null && newsViewModel != null) {
+                if ((item is Animal && type == "Animal" || type == null) || (item is News && type == "News") && (animalViewModel != null && newsViewModel != null) ) {
                         Card(
                             item = item,
                             navController = navController,
@@ -105,7 +104,7 @@ fun Cards (
                             newsViewModel = newsViewModel,
                             type = type,
                         )
-                    }
+
                 }
             }
         }

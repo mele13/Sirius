@@ -94,8 +94,6 @@ fun HomeScreen(
     animalList: List<Animal>,
     newsList: List<News>,
     userViewModel: UserViewModel,
-    animalViewModel: AnimalViewModel,
-    newsViewmodel: NewsViewModel,
     typeList: List<String>,
 ) {
     val dateState = System.currentTimeMillis()
@@ -575,7 +573,6 @@ private fun animalFormFields(
             Text("Type animal")
             DropdownFiltersHome(
                 typeList,
-                animalViewmodel,
                 onTypeSelected = { selectedType = it }
             )
             animalFormState.typeAnimal = selectedType
@@ -626,7 +623,6 @@ private fun animalFormFields(
 @Composable
 fun DropdownFiltersHome(
         typeList: List<String>,
-        animalViewModel: AnimalViewModel,
         onTypeSelected: (String) -> Unit
 ){
     var typeDropdownExpanded by remember { mutableStateOf(false) }

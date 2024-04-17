@@ -56,6 +56,7 @@ val coilCompose = "2.4.0"
 val activityCompose = "2.4.0"
 val activityCompose2 = "1.8.0"
 val activityCompose3 = "1.7.2"
+val activityCompose4 = "1.3.0"
 val coreKtx = "1.10.1"
 val lifecycleBase = "2.6.1"
 val viewmodelCompose = "2.6.0"
@@ -84,7 +85,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleBase")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleBase")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelCompose")
-    implementation("androidx.activity:activity-compose:1.3.0")
+    implementation("androidx.activity:activity-compose:$activityCompose4")
     // Nav
     implementation("androidx.navigation:navigation-compose:${rootProject.extra["nav_version"]}")
 
