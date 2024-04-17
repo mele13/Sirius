@@ -19,3 +19,10 @@ fun stringToBoolean(value: String): Boolean {
 fun booleanToInt(value: Boolean): Int {
     return if (value) 1 else 0
 }
+
+fun stringToInt(value: String): Int {
+    if (value == "true"){
+        return 1
+    }
+    return 0
+}

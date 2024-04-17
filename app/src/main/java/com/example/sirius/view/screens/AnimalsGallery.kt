@@ -184,7 +184,8 @@ fun AnimalsGallery(
     type: String?,
     isAnimal: Boolean
 ) {
-
+    println("type route")
+    println(type)
 
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
@@ -246,6 +247,7 @@ fun AnimalsGallery(
             if (type == "AnimalsInShelter"){
                 if (animalViewModel != null) {
                     userViewModel.viewModelScope.launch {
+                        println("AnimalsInShelter uwu")
                         animalViewModel.getOurFriends().collect { animals ->
                             items = animals
                         }
@@ -253,6 +255,7 @@ fun AnimalsGallery(
                 }
             } else if (type == "LostAnimals"){
                 userViewModel.viewModelScope.launch {
+                    println("LostAnimals uwu")
                     animalViewModel?.getLostAnimals()?.collect { animals ->
                         items = animals
                     }
@@ -260,6 +263,7 @@ fun AnimalsGallery(
                 }
             } else {
                 userViewModel.viewModelScope.launch {
+                    println("getAllAnimals uwu")
                     animalViewModel?.getAllAnimals()?.collect { animals ->
                         items = animals
                     }
@@ -269,26 +273,26 @@ fun AnimalsGallery(
         } else {
             if (type == "GoodNews"){
                 newsViewModel?.viewModelScope?.launch {
+                    println("GoodNews uwu")
                     newsViewModel.getGoodNews().collect { news ->
                         items = news
                     }
                 }
             } else if (type == "AllNews"){
                 newsViewModel?.viewModelScope?.launch {
+                    println("AllNews uwu")
                     newsViewModel.getWhatNews().collect { news ->
                         items = news
                     }
                 }
             }
         }
-
-
         LazyVerticalGrid(
-                    columns = GridCells.Fixed(columns),
+            columns = GridCells.Fixed(columns),
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+        ) {
             items(items.size) { index ->
                 val item = items.getOrNull(index)
                 item?.let {
@@ -451,15 +455,16 @@ fun AnimalCard(
     newsViewModel: NewsViewModel,
     type: String?,
 ) {
-
-
     var isFavorite by remember { mutableStateOf(false) }
+    if (item is Animal){
+        println("age")
+        println(item.birthDate)
+    }
     val age = if (item is Animal) calculateAge(item.birthDate) else ""
     val user = userViewModel.getAuthenticatedUser()
 
     var showDialogDelete by remember { mutableStateOf(false) }
     var showDialogEdit by remember { mutableStateOf(false) }
-
 
     if (user != null && (type == "AnimalsInShelter" || type == "LostAnimals"|| type == null)) {
         userViewModel.viewModelScope.launch {
@@ -468,7 +473,6 @@ fun AnimalCard(
             }
         }
     }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -517,7 +521,6 @@ fun AnimalCard(
                     resourceName?.replace(".jpg", "") ?: defaultResourceName, "drawable", context.packageName
                 )
 
-
                 if (resourceId != 0) {
                     val painter = painterResource(id = resourceId)
                     Box(
@@ -545,16 +548,14 @@ fun AnimalCard(
                                             showDialogDelete = true
                                         }
                                     }
-
                             )
                             if (showDialogDelete) {
                                 var titleDialog = ""
                                 if (item is Animal){
-                                    titleDialog = "Eliminar ${item.nameAnimal}"
+                                    titleDialog = "Delete ${item.nameAnimal}"
                                 } else if (item is News){
-                                    titleDialog = "Eliminar ${item.titleNews}"
+                                    titleDialog = "Delete ${item.titleNews}"
                                 }
-
                                 DeleteDialog(
                                     onDismissRequest = { showDialogDelete = false} ,
                                     titleDialog = titleDialog,
@@ -588,7 +589,6 @@ fun AnimalCard(
                                         }
                                 )
                             } else {
-                                // Mostrar ícono de no favorito
                                 Icon(
                                     imageVector = Icons.Default.FavoriteBorder,
                                     contentDescription = null,
@@ -596,7 +596,6 @@ fun AnimalCard(
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
                                         .clickable {
-                                            // Lógica para cambiar la favorabilidad del animal
                                             isFavorite = !isFavorite
                                             userViewModel.viewModelScope.launch {
                                                 animalViewModel.insertLikedAnimal(
@@ -621,8 +620,6 @@ fun AnimalCard(
                             }
 
                         }
-
-
                 }
             }
             Spacer(Modifier.padding(4.dp))

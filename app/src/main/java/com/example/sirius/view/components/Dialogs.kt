@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -36,7 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
+import com.example.sirius.tools.formatDate
+import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.tools.stringToBoolean
+import com.example.sirius.tools.stringToInt
 import com.example.sirius.ui.theme.Black
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.screens.getDrawableResourceId
@@ -58,7 +62,7 @@ fun DeleteDialog(
                 Text(text = titleDialog)
             },
             text = {
-                Text(text = "¿Estás seguro de eliminarlo?")
+                Text(text = "Are you sure?")
             },
             confirmButton = {
                 Button(
@@ -79,18 +83,17 @@ fun DeleteDialog(
                         }
                     }
                 ) {
-                    Text("Aceptar")
+                    Text("Accept")
                 }
             },
             dismissButton = {
                 Button(
                     onClick = onDismissRequest
                 ) {
-                    Text("Cancelar")
+                    Text("Cancel")
                 }
             }
         )
-
 }
 
 @Composable
@@ -116,47 +119,28 @@ fun OutlinedIcon( icon : ImageVector, onClick: (() -> Unit)? = null){
     )
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditDialog(onDismissRequest: () -> Unit, item : Any, animalViewModel : AnimalViewModel, newsViewModel : NewsViewModel){
+fun EditDialog(
+    onDismissRequest: () -> Unit,
+    item : Any,
+    animalViewModel : AnimalViewModel,
+    newsViewModel : NewsViewModel
+){
+    var animalEditState by remember { mutableStateOf(AnimalEditState()) }
+    var newsEditState by remember { mutableStateOf(NewsEditState()) }
 
-    var nameAnimal by remember { mutableStateOf("") }
-    var shortInfoAnimal by remember { mutableStateOf("") }
-    val longInfoAnimal by remember { mutableStateOf("") }
-    var waitingAdoptionAnimal by remember { mutableStateOf("") }
-    var fosterCareAnimal by remember { mutableStateOf("") }
-    var photoAnimal by remember { mutableStateOf("") }
-    var photoNews by remember { mutableStateOf("") }
-    var titleNews by remember { mutableStateOf("") }
-    var shortInfoNews by remember { mutableStateOf("") }
-
-    val predefinedImageList = listOf(
-        "res/drawable/user_image1",
-        "res/drawable/user_image2",
-        "res/drawable/user_image3",
-        "res/drawable/user_image4",
-        "res/drawable/user_image5",
-        "res/drawable/user_image6",
-        "res/drawable/user_image7",
-        "res/drawable/user_image8",
-        "res/drawable/user_image9",
-        "res/drawable/user_image10"
-    )
-
-    if (item is Animal) {
-        nameAnimal = item.nameAnimal
-        shortInfoAnimal = item.shortInfoAnimal
-        waitingAdoptionAnimal = item.waitingAdoption.toString()
-        fosterCareAnimal = item.fosterCare.toString()
+    var predefinedImageList = (1..10).map { index ->
+        "res/drawable/user_image$index"
     }
+
+    handleAnimalItem(item, animalEditState)
 
     var editedName by remember { mutableStateOf((item as? Animal)?.nameAnimal ?: "") }
     var editedShortInfoAnimal by remember { mutableStateOf((item as? Animal)?.shortInfoAnimal ?: "") }
-    var editedWaitingAdoption by remember { mutableStateOf(stringToBoolean(waitingAdoptionAnimal)) }
-    var editedFosterCare by remember { mutableStateOf(stringToBoolean( fosterCareAnimal)) }
+    var editedWaitingAdoption by remember { mutableStateOf(stringToBoolean(animalEditState.waitingAdoption)) }
+    var editedFosterCare by remember { mutableStateOf(stringToBoolean( animalEditState.fosterCare)) }
     var editedPhotoAnimal by remember { mutableStateOf((item as? Animal)?.photoAnimal ?: "") }
-
+    var editedBirthDateAnimal by remember { mutableStateOf((item as? Animal)?.birthDate ?: "") }
 
     //News
     var editedTitle by remember { mutableStateOf((item as? News)?.titleNews ?: "") }
@@ -164,142 +148,32 @@ fun EditDialog(onDismissRequest: () -> Unit, item : Any, animalViewModel : Anima
     var editedPhotoNews by remember { mutableStateOf((item as? News)?.photoNews ?: "") }
 
 
+    var titleText = when (item) {
+        is Animal -> "Editar Datos ${item.nameAnimal}"
+        is News -> "Editar Datos ${item.titleNews}"
+        else -> ""
+    }
+
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
         title = {
-            Text(when (item) {
-                is Animal -> "Editar Datos ${item.nameAnimal}"
-                is News -> "Editar Datos ${item.titleNews}"
-                else -> ""
-            })
+            Text(titleText)
         },
         text = {
-            Column {
+            LazyColumn {
                 when (item) {
-                    is Animal -> {
-                        TextField(
-                            value = editedName,
-                            onValueChange = { editedName = it },
-                            label = { Text("Nombre") }
-                        )
-                        TextField(
-                            value = editedShortInfoAnimal,
-                            onValueChange = { editedShortInfoAnimal = it },
-                            label = { Text("Short Info") }
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Waiting Adoption")
-                            Checkbox(
-                                checked = editedWaitingAdoption,
-                                onCheckedChange = {
-                                    editedWaitingAdoption = it
-                                },
-                            )
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Foster Care")
-                            Checkbox(
-                                checked = editedFosterCare,
-                                onCheckedChange = {
-                                    editedFosterCare = it
-                                },
-                            )
-                        }
-                        DatePicker(
-                            state = rememberDatePickerState(),
-                            modifier = Modifier.padding(16.dp),
-                            dateFormatter = DatePickerFormatter(),
-                            dateValidator = {
-                                true
-                            },
-                            title = {
-                                Text("Seleccione una fecha", fontWeight = FontWeight.Bold)
-                            }
-                        )
-                        Text("Change Photo")
-                        Column {
-                            val chunkedImages = predefinedImageList.chunked(5)
-                            chunkedImages.forEach { rowImages ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
-                                ) {
-                                    rowImages.forEach { imagePath ->
-                                        val isSelected = editedPhotoAnimal == imagePath
-                                        Image(
-                                            painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(50.dp)
-                                                .padding(4.dp)
-                                                .clip(MaterialTheme.shapes.extraSmall)
-                                                .clickable {
-                                                    editedPhotoAnimal =
-                                                        imagePath
-                                                }
-                                                .border(
-                                                    width = 2.dp,
-                                                    color = if (isSelected) Green1 else Color.Transparent,
-                                                    shape = MaterialTheme.shapes.extraSmall
-                                                )
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
+                    is Animal -> item {
+                        animalEditState = RenderAnimalContent(editedName, editedShortInfoAnimal, editedBirthDateAnimal, editedWaitingAdoption, editedFosterCare, editedPhotoAnimal, predefinedImageList, animalEditState)
+                        println("animalEditState")
+                        println(animalEditState.name)
+                        println(animalEditState.shortInfo)
+                        println(animalEditState.birthDate)
+                        println(animalEditState.photo)
+                        println(animalEditState.fosterCare)
+                        println(animalEditState.waitingAdoption)
                     }
-                    is News -> {
-                        // Texto editable para News
-                        TextField(
-                            value = editedTitle,
-                            onValueChange = { editedTitle = it },
-                            label = { Text("Título") }
-                        )
-                        TextField(
-                            value = editedShortInfoNew,
-                            onValueChange = { editedShortInfoNew = it },
-                            label = { Text("Short Info") }
-                        )
-                        Text("Change Photo")
-                        Column {
-                            val chunkedImages = predefinedImageList.chunked(5)
-                            chunkedImages.forEach { rowImages ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
-                                ) {
-                                    rowImages.forEach { imagePath ->
-                                        val isSelected = editedPhotoNews == imagePath
-                                        Image(
-                                            painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(50.dp)
-                                                .padding(4.dp)
-                                                .clip(MaterialTheme.shapes.extraSmall)
-                                                .clickable {
-                                                    editedPhotoNews =
-                                                        imagePath
-                                                }
-                                                .border(
-                                                    width = 2.dp,
-                                                    color = if (isSelected) Green1 else Color.Transparent,
-                                                    shape = MaterialTheme.shapes.extraSmall
-                                                )
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                    is News -> item {
+                        newsEditState = RenderNewsContent(editedTitle, editedShortInfoNew, editedPhotoAnimal, predefinedImageList, newsEditState)
                     }
                 }
             }
@@ -309,43 +183,229 @@ fun EditDialog(onDismissRequest: () -> Unit, item : Any, animalViewModel : Anima
                 onClick = {
                     when (item) {
                         is Animal -> {
-                            nameAnimal = editedName
-                            shortInfoAnimal = editedShortInfoAnimal
-                            waitingAdoptionAnimal = if (editedWaitingAdoption) "1" else "0"
-                            fosterCareAnimal = if (editedFosterCare) "1" else "0"
-                            photoAnimal = editedPhotoAnimal
-                            //longInfoAnimal = editedLongInfo
                             animalViewModel.viewModelScope.launch {
-                                animalViewModel.updateAnimal(animal = Animal(item.id, nameAnimal, item.birthDate, item.sexAnimal, waitingAdoptionAnimal.toInt(), fosterCareAnimal.toInt(), shortInfoAnimal, longInfoAnimal, item.breedAnimal, item.typeAnimal, item.entryDate, photoAnimal, item.inShelter, item.lost))
-
+                                animalViewModel.updateAnimal(animal = Animal(item.id, animalEditState.name, animalEditState.birthDate, item.sexAnimal, stringToInt(animalEditState.waitingAdoption), stringToInt(animalEditState.fosterCare), animalEditState.shortInfo, item.longInfoAnimal, item.breedAnimal, item.typeAnimal, item.entryDate, animalEditState.photo, item.inShelter, item.lost))
                             }
                         }
                         is News -> {
-                            titleNews = editedTitle
-                            shortInfoNews = editedShortInfoAnimal
-                            photoNews = editedPhotoNews
+                            newsEditState.title = editedTitle
+                            newsEditState.shortInfo = editedShortInfoAnimal
+                            newsEditState.photo = editedPhotoNews
                             newsViewModel.viewModelScope.launch {
-                                newsViewModel.updateNew(newNew = News(item.id, titleNews, shortInfoNews, item.longInfoNews, item.publishedDate, item.createdAt, item.untilDate, photoNews, item.goodNews))
+                                newsViewModel.updateNew(newNew = News(item.id, newsEditState.title, newsEditState.shortInfo, item.longInfoNews, item.publishedDate, item.createdAt, item.untilDate, newsEditState.photo, item.goodNews))
                             }
 
                         }
                     }
-                    // Cerrar el diálogo
                      onDismissRequest()
                 }
             ) {
-                Text("Aceptar")
+                Text("Accept")
             }
         },
         dismissButton = {
             Button(
                 onClick = {
-                    // Cerrar el diálogo sin guardar cambios
                     onDismissRequest()
                 }
             ) {
-                Text("Cancelar")
+                Text("Canceler")
             }
         }
     )
+}
+
+@Composable
+fun RenderNewsContent(
+    editedTitle: String,
+    editedShortInfoNew: String,
+    editedPhotoNews: String,
+    predefinedImageList: List<String>,
+    newsEditState: NewsEditState
+): NewsEditState {
+    var title by remember { mutableStateOf(editedTitle) }
+    var shortInfo by remember { mutableStateOf(editedShortInfoNew) }
+    var photo by remember { mutableStateOf(editedPhotoNews) }
+
+    TextField(
+        value = title,
+        onValueChange = { title = it },
+        label = { Text("Tittle") }
+    )
+    TextField(
+        value = shortInfo,
+        onValueChange = { shortInfo = it },
+        label = { Text("Short Info") }
+    )
+    Text("Change Photo")
+    Column {
+        val chunkedImages = predefinedImageList.chunked(5)
+        chunkedImages.forEach { rowImages ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                rowImages.forEach { imagePath ->
+                    val isSelected = photo == imagePath
+                    val borderColor = (if (isSelected) Green1 else Color.Transparent)
+                    Image(
+                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .padding(4.dp)
+                            .clip(MaterialTheme.shapes.extraSmall)
+                            .clickable {
+                                photo =
+                                    imagePath
+                            }
+                            .border(
+                                width = 2.dp,
+                                color = borderColor,
+                                shape = MaterialTheme.shapes.extraSmall
+                            )
+                    )
+                }
+            }
+        }
+    }
+    newsEditState.title = title
+    newsEditState.photo = photo
+    newsEditState.shortInfo = shortInfo
+
+    return newsEditState
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RenderAnimalContent(
+    editedName: String,
+    editedShortInfoAnimal: String,
+    editedBirthDateAnimal: String,
+    editedWaitingAdoption: Boolean,
+    editedFosterCare: Boolean,
+    editedPhotoAnimal: String,
+    predefinedImageList: List<String>,
+    animalEditState: AnimalEditState
+):AnimalEditState {
+    var name by remember(editedName) { mutableStateOf(editedName) }
+    var shortInfo by remember(editedShortInfoAnimal) { mutableStateOf(editedShortInfoAnimal) }
+    var waitingAdoption by remember(editedWaitingAdoption) { mutableStateOf(editedWaitingAdoption) }
+    var fosterCare by remember(editedFosterCare) { mutableStateOf(editedFosterCare) }
+    var photo by remember(editedPhotoAnimal) { mutableStateOf(editedPhotoAnimal) }
+    var birthDate by remember(editedPhotoAnimal) { mutableStateOf(editedBirthDateAnimal) }
+    val datePickerState = rememberDatePickerState(parseDateStringToLong(birthDate))
+    TextField(
+        value = name,
+        onValueChange = { name = it },
+        label = { Text("Name") }
+    )
+    TextField(
+        value = shortInfo,
+        onValueChange = { shortInfo = it },
+        label = { Text("Short Info") }
+    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Waiting Adoption")
+        Checkbox(
+            checked = waitingAdoption,
+            onCheckedChange = { newWaitingAdoption ->
+                waitingAdoption = newWaitingAdoption
+            },
+        )
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Foster Care")
+        Checkbox(
+            checked = fosterCare,
+            onCheckedChange = { newFosterCare ->
+                fosterCare = newFosterCare
+            },
+        )
+    }
+    DatePicker(
+        state = datePickerState,
+        modifier = Modifier.padding(16.dp),
+        dateFormatter = DatePickerFormatter(),
+        dateValidator = {
+            true
+        },
+        title = {
+            Text("Seleccione una fecha", fontWeight = FontWeight.Bold)
+        }
+    )
+    birthDate = formatDate(datePickerState.selectedDateMillis!!)
+    Text("Change Photo")
+    Column {
+        val chunkedImages = predefinedImageList.chunked(5)
+        chunkedImages.forEach { rowImages ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                rowImages.forEach { imagePath ->
+                    val isSelected = photo == imagePath
+                    val borderColor = (if (isSelected) Green1 else Color.Transparent)
+                    Image(
+                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .padding(4.dp)
+                            .clip(MaterialTheme.shapes.extraSmall)
+                            .clickable {
+                                photo =
+                                    imagePath
+                            }
+                            .border(
+                                width = 2.dp,
+                                color = borderColor,
+                                shape = MaterialTheme.shapes.extraSmall
+                            )
+                    )
+                }
+            }
+        }
+    }
+    animalEditState.name = name
+    animalEditState.photo = photo
+    animalEditState.fosterCare = fosterCare.toString()
+    animalEditState.waitingAdoption = waitingAdoption.toString()
+    animalEditState.shortInfo = shortInfo
+    animalEditState.birthDate = birthDate
+    return animalEditState
+}
+
+class AnimalEditState(
+    var name: String = "",
+    var shortInfo: String = "",
+    var birthDate: String = "",
+    var waitingAdoption: String = "",
+    var fosterCare: String = "",
+    var photo: String = ""
+)
+
+class NewsEditState(
+    var title: String = "",
+    var shortInfo: String = "",
+    var photo: String = ""
+)
+
+private fun handleAnimalItem(item: Any, animalEditState: AnimalEditState){
+    if (item is Animal){
+        animalEditState.apply {
+            animalEditState.name = item.nameAnimal
+            animalEditState.shortInfo = item.shortInfoAnimal
+            animalEditState.waitingAdoption = item.waitingAdoption.toString()
+            animalEditState.fosterCare = item.fosterCare.toString()
+        }
+    }
 }

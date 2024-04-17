@@ -306,7 +306,7 @@ private fun AnimalFormDialog(
     typeList: List<String>,
     sectionType: SectionType,
     onAddClick: () -> Unit,
-    ) {
+) {
 
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
 
@@ -324,9 +324,9 @@ private fun AnimalFormDialog(
     )
 
     if (sectionType ==  SectionType.LOST) {
-            animalFormState.lost = true
+        animalFormState.lost = true
     } else if (sectionType ==  SectionType.IN_SHELTER){
-            animalFormState.inShelter = true
+        animalFormState.inShelter = true
     }
 
     AlertDialog(
@@ -352,13 +352,13 @@ private fun AnimalFormDialog(
                         formData.breed.isNotBlank() &&
                         formData.type.isNotBlank()
                     ) {*/
-                        onAddClick()
-                        showDialogAdd.value = false
+                    onAddClick()
+                    showDialogAdd.value = false
                     animalViewModel?.viewModelScope?.launch {
-                            stringToEnumTypeAnimal(formData.type)?.let {
-                                Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
-                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter))
-                            }?.let { animalViewModel.insertAnimal(it) }
+                        stringToEnumTypeAnimal(formData.type)?.let {
+                            Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
+                                it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter))
+                        }?.let { animalViewModel.insertAnimal(it) }
 
                         //}
                         animalFormState.clear()
@@ -420,13 +420,13 @@ private fun NewsFormDialog(
                         formData.shortInfo.isNotBlank() &&
                         formData.longInfo.isNotBlank()
                     ) {*/
-                        onAddClick()
-                        showDialogAdd.value = false
-                        newsViewmodel?.viewModelScope?.launch {
-                            newsViewmodel.inserNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
-                        }
+                    onAddClick()
+                    showDialogAdd.value = false
+                    newsViewmodel?.viewModelScope?.launch {
+                        newsViewmodel.inserNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
+                    }
 
-                        newsFormState.clear()
+                    newsFormState.clear()
                     //}
                     println("formData")
                     println(formData.title)
@@ -622,8 +622,8 @@ private fun animalFormFields(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DropdownFiltersHome(
-        typeList: List<String>,
-        onTypeSelected: (String) -> Unit
+    typeList: List<String>,
+    onTypeSelected: (String) -> Unit
 ){
     var typeDropdownExpanded by remember { mutableStateOf(false) }
 
@@ -704,7 +704,7 @@ fun DropdownButtonHome(
 private fun newsFormFields(
     state: Long,
     newsFormState: NewsFormState,
-    ): NewsFormData {
+): NewsFormData {
 
     val formData = NewsFormData(
         title = newsFormState.title,

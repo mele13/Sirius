@@ -24,3 +24,9 @@ fun formatDate(inputTimestamp: Long): String {
     val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
     return outputFormat.format(inputDate)
 }
+
+fun parseDateStringToLong(dateString: String): Long {
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val date: Date = inputFormat.parse(dateString) ?: Date()
+    return date.time
+}
