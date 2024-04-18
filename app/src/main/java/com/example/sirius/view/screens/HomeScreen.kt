@@ -1,6 +1,7 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -18,12 +19,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -64,13 +65,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.example.sirius.R
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
@@ -85,6 +86,7 @@ import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
@@ -162,9 +164,7 @@ fun Section(
     dateState: Long,
     typeList: List<String>) {
 
-    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
-
 
     val typeRuta = determineRoute(isAnimalSection, title)
 
@@ -341,41 +341,30 @@ private fun AnimalFormDialog(
                 sectionType = sectionType,
             )
         },
-
         confirmButton = {
             Button(
+
                 onClick = {
-                    /*if (formData.name.isNotBlank() &&
-                        formData.sex.isNotBlank() &&
-                        formData.shortInfo.isNotBlank() &&
-                        formData.longInfo.isNotBlank() &&
-                        formData.breed.isNotBlank() &&
-                        formData.type.isNotBlank()
-                    ) {*/
+                    if (formData.photoAnimal.isEmpty()){
+                        formData.photoAnimal = "res/drawable/user_image1.jpg"
+                    }
                     onAddClick()
                     showDialogAdd.value = false
-                    animalViewModel?.viewModelScope?.launch {
+                    animalViewModel.viewModelScope.launch {
                         stringToEnumTypeAnimal(formData.type)?.let {
                             Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
                                 it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter))
                         }?.let { animalViewModel.insertAnimal(it) }
-
-                        //}
                         animalFormState.clear()
                     }
-                    println("formData")
-                    println(formData.name)
-                    println(formData.shortInfo)
-                    println(formData.longInfo)
-                    println(formatDate(formData.birthDate))
-                    println(formData.breed)
                 },
-                /*enabled = formData.name.isNotBlank() &&
-                        formData.sex.isNotBlank() &&
-                        formData.shortInfo.isNotBlank() &&
-                        formData.longInfo.isNotBlank() &&
-                        formData.breed.isNotBlank() &&
-                        formData.type.isNotBlank()*/
+
+                enabled = animalFormState.name.isNotEmpty() &&
+                        animalFormState.sex.isNotEmpty() &&
+                        animalFormState.shortInfo.isNotEmpty() &&
+                        animalFormState.longInfo.isNotEmpty() &&
+                        animalFormState.breed.isNotEmpty() &&
+                        animalFormState.typeAnimal.isNotBlank() 
             ) {
                 Text("Add")
             }
@@ -416,29 +405,19 @@ private fun NewsFormDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    /*if (formData.title.isNotBlank() &&
-                        formData.shortInfo.isNotBlank() &&
-                        formData.longInfo.isNotBlank()
-                    ) {*/
+                    if (formData.photoNews.isEmpty()){
+                        formData.photoNews = "res/drawable/user_image2.jpg"
+                    }
                     onAddClick()
                     showDialogAdd.value = false
-                    newsViewmodel?.viewModelScope?.launch {
+                    newsViewmodel.viewModelScope.launch {
                         newsViewmodel.inserNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
                     }
-
                     newsFormState.clear()
-                    //}
-                    println("formData")
-                    println(formData.title)
-                    println(formData.shortInfo)
-                    println(formData.longInfo)
-                    println(formatDate(formData.createdAt))
-                    println(formatDate(formData.publishedDate))
-                    println(formatDate(formData.untilDate))
                 },
-                /*enabled = formData.title.isNotBlank() &&
-                        formData.shortInfo.isNotBlank() &&
-                        formData.longInfo.isNotBlank()*/
+                enabled = formData.title.isNotEmpty() &&
+                        formData.shortInfo.isNotEmpty() &&
+                        formData.longInfo.isNotEmpty()
             ) {
                 Text("Add")
 
@@ -498,8 +477,6 @@ private fun animalFormFields(
                 },
                 title = "Birth Date"
             )
-            println("animalFormState.birthDate")
-            println(animalFormState.birthDate)
         }
         item {
             SexCheckbox(animalFormState)
@@ -551,6 +528,7 @@ private fun animalFormFields(
                     text = searchedText,
                     modifier = Modifier.padding(10.dp)
                 )
+                formData.breed = searchedText
                 animalFormState.breed = searchedText
             } else {
                 Column {
@@ -562,6 +540,7 @@ private fun animalFormFields(
                                 .clickable {
                                     textState.value = TextFieldValue(breed)
                                     animalFormState.breed = breed
+                                    formData.breed = breed
                                 }
                         )
                     }
@@ -699,7 +678,6 @@ fun DropdownButtonHome(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun newsFormFields(
     state: Long,
@@ -847,25 +825,20 @@ fun PhotoPicker(
     Column {
         var imageUri: Uri? by rememberSaveable  { mutableStateOf(null) }
 
+        val context = LocalContext.current
+
         val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.OpenDocument()) {
-            it?.let { uri ->
-                imageUri = uri
-                onImageSelected(imageUri!!)
+            contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                val savedUri = saveImageToDrawableFolder(context, uri, "nameAnimal.jpg")
+                savedUri?.let {
+                    onImageSelected(savedUri)
+                }
             }
-        }
-        if (imageUri != null) {
-            AsyncImage(
-                model = imageUri,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(200.dp),
-                contentScale = ContentScale.Crop
-            )
         }
         Button(
             onClick = {
-                launcher.launch(arrayOf("image/*"))
+                launcher.launch("image/*")
             }
         ) {
             Text(text = "Pick Image")
@@ -873,6 +846,23 @@ fun PhotoPicker(
     }
 }
 
+fun saveImageToDrawableFolder(context: Context, imageUri: Uri, fileName: String): Uri? {
+    val inputStream = context.contentResolver.openInputStream(imageUri)
+    val drawableFolder = context.getDrawableFolder()
+    val file = File(drawableFolder, fileName)
+    file.outputStream().use { outputStream ->
+        inputStream?.copyTo(outputStream)
+    }
+    return Uri.fromFile(file)
+}
+
+fun Context.getDrawableFolder(): File {
+    val drawableFolder = File(filesDir, "drawable")
+    if (!drawableFolder.exists()) {
+        drawableFolder.mkdirs()
+    }
+    return drawableFolder
+}
 
 @Composable
 fun CustomTextField(
@@ -888,7 +878,11 @@ fun CustomTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label, style = textStyle) },
-        modifier = modifier.padding(bottom = 8.dp)
+        modifier = modifier.padding(bottom = 8.dp),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text
+        ),
+        singleLine = true,
     )
 }
 
