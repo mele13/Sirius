@@ -10,10 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.example.sirius.model.User
 import com.example.sirius.navigation.NavigationController
 import com.example.sirius.ui.theme.SiriusTheme
-import com.example.sirius.viewmodel.AnimalViewModel
-import com.example.sirius.viewmodel.ChatViewModel
-import com.example.sirius.viewmodel.NewsViewModel
-import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import com.google.gson.Gson
 
@@ -24,29 +20,6 @@ class MainActivity : ComponentActivity() {
         UserViewModel((application as AnimalApplication).userDao)
     }
 
-    private val animalViewModel: AnimalViewModel by lazy {
-        val animalApplication = application as AnimalApplication
-        animalApplication.initContext(applicationContext)
-        AnimalViewModel((application as AnimalApplication).animalDao)
-    }
-
-    private val newsViewModel: NewsViewModel by lazy {
-        val animalApplication = application as AnimalApplication
-        animalApplication.initContext(applicationContext)
-        NewsViewModel((application as AnimalApplication).newsDao)
-    }
-
-    private val chatViewModel: ChatViewModel by lazy {
-        val animalApplication = application as AnimalApplication
-        animalApplication.initContext(applicationContext)
-        ChatViewModel((application as AnimalApplication).chatDao, userViewModel)
-    }
-
-    private val shelterViewModel: ShelterViewModel by lazy {
-        val animalApplication = application as AnimalApplication
-        animalApplication.initContext(applicationContext)
-        ShelterViewModel((application as AnimalApplication).shelterDao)
-    }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

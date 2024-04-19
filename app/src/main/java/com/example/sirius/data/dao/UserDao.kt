@@ -32,13 +32,8 @@ interface UserDao {
     @Query("SELECT * FROM user")
     suspend fun getAllUsers(): List<User>
 
-    //modificar el rol
-    @Query("SELECT * FROM user WHERE role = 'admin' OR role = 'user' ORDER BY username ASC")
-    suspend fun getAllWorkers(): List<User>
-
-    //modificar el rol
-    @Query("SELECT * FROM user WHERE role = 'user'")
-    suspend fun getAllVolunteers(): List<User>
+    @Query("SELECT * FROM user WHERE role = 'admin' OR role = 'owner' ORDER BY username ASC")
+    suspend fun getAllEmployers(): List<User>
 
     @Query("DELETE FROM User")
     fun deleteAllUsers()

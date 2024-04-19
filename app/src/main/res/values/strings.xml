@@ -43,6 +43,7 @@
     <string name="change_password" translatable="false">Change password</string>
     <string name="current_password" translatable="false">Current password</string>
     <string name="new_password" translatable="false">New password</string>
+    <string name="list_employees" translatable="false">Manage my employees</string>
 
     <!-- Home -->
     <string name="newsIntro" translatable="false">What\'s New</string>
