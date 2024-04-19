@@ -1,16 +1,13 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -65,6 +63,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -80,13 +79,13 @@ import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.formatDate
 import com.example.sirius.tools.stringToEnumTypeAnimal
+import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green4
 import com.example.sirius.view.components.BarSearch
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
-import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
@@ -307,7 +306,6 @@ private fun AnimalFormDialog(
     sectionType: SectionType,
     onAddClick: () -> Unit,
 ) {
-
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
 
     var formData = AnimalFormData("", "", "",
@@ -343,7 +341,6 @@ private fun AnimalFormDialog(
         },
         confirmButton = {
             Button(
-
                 onClick = {
                     if (formData.photoAnimal.isEmpty()){
                         formData.photoAnimal = "res/drawable/user_image1.jpg"
@@ -358,7 +355,6 @@ private fun AnimalFormDialog(
                         animalFormState.clear()
                     }
                 },
-
                 enabled = animalFormState.name.isNotEmpty() &&
                         animalFormState.sex.isNotEmpty() &&
                         animalFormState.shortInfo.isNotEmpty() &&
@@ -371,11 +367,14 @@ private fun AnimalFormDialog(
         },
         dismissButton = {
             Button(
-                onClick = { showDialogAdd.value = false }
+                onClick = {
+                    showDialogAdd.value = false
+                    animalFormState.clear()
+                }
             ) {
                 Text("Cancel")
             }
-        }
+        },
     )
 }
 
@@ -415,9 +414,9 @@ private fun NewsFormDialog(
                     }
                     newsFormState.clear()
                 },
-                enabled = formData.title.isNotEmpty() &&
-                        formData.shortInfo.isNotEmpty() &&
-                        formData.longInfo.isNotEmpty()
+                enabled = newsFormState.title.isNotEmpty() &&
+                        newsFormState.shortInfo.isNotEmpty() &&
+                        newsFormState.longInfo.isNotEmpty()
             ) {
                 Text("Add")
 
@@ -425,7 +424,10 @@ private fun NewsFormDialog(
         },
         dismissButton = {
             Button(
-                onClick = { showDialogAdd.value = false }
+                onClick = {
+                    showDialogAdd.value = false
+                    newsFormState.clear()
+                }
             ) {
                 Text("Cancel")
             }
@@ -515,7 +517,7 @@ private fun animalFormFields(
         }
         item {
             val breedList by animalViewmodel.getBreed().collectAsState(emptyList())
-            val textState = remember { mutableStateOf(TextFieldValue("")) }
+            val textState = remember { mutableStateOf(TextFieldValue(animalFormState.breed)) }
             BarSearch(state = textState, placeHolder = "Breed", modifier = Modifier)
 
             val searchedText = textState.value.text
@@ -540,7 +542,6 @@ private fun animalFormFields(
                                 .clickable {
                                     textState.value = TextFieldValue(breed)
                                     animalFormState.breed = breed
-                                    formData.breed = breed
                                 }
                         )
                     }
@@ -567,8 +568,9 @@ private fun animalFormFields(
         }
         item {
             PhotoPicker(
+                selectedImage = animalFormState.photoAnimal,
                 onImageSelected = { imagePath ->
-                    animalFormState.photoAnimal = imagePath.toString()
+                    animalFormState.photoAnimal = imagePath
                 }
             )
         }
@@ -747,9 +749,10 @@ private fun newsFormFields(
             )
         }
         item {
-            PhotoPicker(
+            PhotoPicker (
+                selectedImage = newsFormState.photoNews,
                 onImageSelected = { imagePath ->
-                    newsFormState.photoNews = imagePath.toString()
+                    newsFormState.photoNews = imagePath
                 }
             )
         }
@@ -820,48 +823,53 @@ fun DatePickerItem(
 
 @Composable
 fun PhotoPicker(
-    onImageSelected: (Uri) -> Unit
+    selectedImage: String,
+    onImageSelected: (String) -> Unit,
 ) {
+    val predefinedImageList = listOf(
+        "res/drawable/user_image1",
+        "res/drawable/user_image2",
+        "res/drawable/user_image3",
+        "res/drawable/user_image4",
+        "res/drawable/user_image5",
+        "res/drawable/user_image6",
+        "res/drawable/user_image7",
+        "res/drawable/user_image8",
+        "res/drawable/user_image9",
+        "res/drawable/user_image10"
+    )
+
     Column {
-        var imageUri: Uri? by rememberSaveable  { mutableStateOf(null) }
-
-        val context = LocalContext.current
-
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                val savedUri = saveImageToDrawableFolder(context, uri, "nameAnimal.jpg")
-                savedUri?.let {
-                    onImageSelected(savedUri)
+        val chunkedImages = predefinedImageList.chunked(5)
+        chunkedImages.forEach { rowImages ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                rowImages.forEach { imagePath ->
+                    val isSelected = selectedImage == imagePath
+                    Image(
+                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .padding(4.dp)
+                            .clip(MaterialTheme.shapes.extraSmall)
+                            .clickable {
+                                onImageSelected(imagePath)
+                            }
+                            .border(
+                                width = 2.dp,
+                                color = if (isSelected) Green1 else Color.Transparent,
+                                shape = MaterialTheme.shapes.extraSmall
+                            ),
+                    )
                 }
             }
         }
-        Button(
-            onClick = {
-                launcher.launch("image/*")
-            }
-        ) {
-            Text(text = "Pick Image")
-        }
     }
-}
-
-fun saveImageToDrawableFolder(context: Context, imageUri: Uri, fileName: String): Uri? {
-    val inputStream = context.contentResolver.openInputStream(imageUri)
-    val drawableFolder = context.getDrawableFolder()
-    val file = File(drawableFolder, fileName)
-    file.outputStream().use { outputStream ->
-        inputStream?.copyTo(outputStream)
-    }
-    return Uri.fromFile(file)
-}
-
-fun Context.getDrawableFolder(): File {
-    val drawableFolder = File(filesDir, "drawable")
-    if (!drawableFolder.exists()) {
-        drawableFolder.mkdirs()
-    }
-    return drawableFolder
 }
 
 @Composable
@@ -880,7 +888,8 @@ fun CustomTextField(
         label = { Text(label, style = textStyle) },
         modifier = modifier.padding(bottom = 8.dp),
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Next,
         ),
         singleLine = true,
     )
