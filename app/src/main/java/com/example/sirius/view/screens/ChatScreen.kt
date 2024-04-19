@@ -72,7 +72,6 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-
         Column(modifier = Modifier.fillMaxHeight()) {
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(10.dp)) {
@@ -90,29 +89,16 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
                                     Log.e("Firestore", "Error en ChildList", e)
                                 }
                             }
-
-
-
-
-                                UserEachRow(person = item, lastMessage = lastMessage) {
-                                    navController.navigate(Routes.CHAT + "/${item.id}")
-                                }
-
+                            UserEachRow(person = item, lastMessage = lastMessage) {
+                                navController.navigate(Routes.CHAT + "/${item.id}")
+                            }
                         }
                     }
                 }
-
             }
-
         }
-
     }
-
-
-
 }
-
-
 
 @Composable
 fun MyProfile(
@@ -128,7 +114,6 @@ fun MyProfile(
             containerColor = Color.Transparent
         )
     ){
-
         Row(
             modifier = Modifier
                 .padding(16.dp)
@@ -148,7 +133,6 @@ fun MyProfile(
                     .padding(start = 10.dp)
                     .align(CenterVertically)
             )
-
         }
 
         Box(
@@ -166,14 +150,11 @@ fun MyProfile(
         )
     }
 
-
 }
 
 @Composable
 fun UserEachRow(
     person: User,
-   // unseenMessages: List<String>,
-
     lastMessage: String?,
     onClick: () -> Unit = {},
 ) {
@@ -186,7 +167,6 @@ fun UserEachRow(
             containerColor = Color.Transparent
         )
     ){
-
         Row(
             modifier = Modifier
                 .padding(16.dp)
@@ -310,7 +290,6 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
                     modifier = Modifier
                         .padding(horizontal = 15.dp, vertical = 1.dp)
                         .fillMaxWidth(),
-                     //   .weight(weight = 0.09f, fill = true),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text
                     ),

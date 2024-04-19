@@ -1,6 +1,7 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -53,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -65,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
 import com.example.sirius.navigation.Routes
@@ -247,7 +250,6 @@ fun AnimalsGallery(
             if (type == "AnimalsInShelter"){
                 if (animalViewModel != null) {
                     userViewModel.viewModelScope.launch {
-                        println("AnimalsInShelter uwu")
                         animalViewModel.getOurFriends().collect { animals ->
                             items = animals
                         }
@@ -255,7 +257,6 @@ fun AnimalsGallery(
                 }
             } else if (type == "LostAnimals"){
                 userViewModel.viewModelScope.launch {
-                    println("LostAnimals uwu")
                     animalViewModel?.getLostAnimals()?.collect { animals ->
                         items = animals
                     }
@@ -263,7 +264,6 @@ fun AnimalsGallery(
                 }
             } else {
                 userViewModel.viewModelScope.launch {
-                    println("getAllAnimals uwu")
                     animalViewModel?.getAllAnimals()?.collect { animals ->
                         items = animals
                     }
@@ -273,14 +273,12 @@ fun AnimalsGallery(
         } else {
             if (type == "GoodNews"){
                 newsViewModel?.viewModelScope?.launch {
-                    println("GoodNews uwu")
                     newsViewModel.getGoodNews().collect { news ->
                         items = news
                     }
                 }
             } else if (type == "AllNews"){
                 newsViewModel?.viewModelScope?.launch {
-                    println("AllNews uwu")
                     newsViewModel.getWhatNews().collect { news ->
                         items = news
                     }
@@ -526,14 +524,34 @@ fun AnimalCard(
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Image(
-                            painter = painter,
-                            contentDescription = if (item is Animal) item.shortInfoAnimal else if (item is News) item.shortInfoNews else null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .aspectRatio(1f)
-                        )
+                        when (painter) {
+                            is Painter -> {
+                                Image(
+                                    painter = painter,
+                                    contentDescription = if (item is Animal) item.shortInfoAnimal else if (item is News) item.shortInfoNews else null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .aspectRatio(1f)
+                                )
+                            }
+
+                            is Uri -> {
+                                Image(
+                                    painter = rememberImagePainter(
+                                        data = painter,
+                                        builder = {
+                                            crossfade(true)
+                                        }
+                                    ),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(MaterialTheme.shapes.extraSmall)
+                                )
+                            }
+                        }
                         if (user!!.role.trim() == "admin") {
                             Icon(
                                 imageVector = Icons.Default.Delete,
