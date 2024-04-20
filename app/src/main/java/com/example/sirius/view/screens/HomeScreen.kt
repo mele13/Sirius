@@ -817,7 +817,6 @@ fun DatePickerItem(
     )
 
     onDateSelected(formatDate(datePickerState.selectedDateMillis!!))
-
 }
 
 

@@ -21,7 +21,6 @@ fun createDestinations(): List<Destinations> {
         createDestination(Routes.CHAT,R.drawable.chat_icon, R.string.chat),
         createDestination(Routes.DONATIONS, R.drawable.donations_icon, R.string.donations),
         createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
-
     )
 }
 
@@ -38,6 +37,7 @@ object Routes {
     const val DONATIONS = "donations"
     const val ABOUTUS = "about us"
     const val ANIMALINFO = "animal info"
+    const val CLINICALRECORD = "clinical record"
     const val LOGIN = "login"
     const val SIGNUP = "signup"
     const val SIGNUPSHELTER = "signup shelter"

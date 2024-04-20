@@ -6,18 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.sirius.data.dao.AnimalDao
 import com.example.sirius.data.dao.ChatDao
+import com.example.sirius.data.dao.ClinicalRecordDao
 import com.example.sirius.data.dao.NewsDao
 import com.example.sirius.data.dao.ShelterDao
 import com.example.sirius.data.dao.UserDao
 import com.example.sirius.model.Animal
 import com.example.sirius.model.Chat
+import com.example.sirius.model.ClinicalRecord
 import com.example.sirius.model.LikedAnimal
 import com.example.sirius.model.News
 import com.example.sirius.model.Shelter
 import com.example.sirius.model.User
 
 @Database(
-    entities = [Animal::class, News::class, User::class, LikedAnimal::class, Chat::class, Shelter::class],
+    entities = [Animal::class, News::class, User::class, LikedAnimal::class, Chat::class, Shelter::class, ClinicalRecord::class],
     version = 2,
     exportSchema = false
 )
@@ -28,6 +30,7 @@ abstract class SiriusDatabase: RoomDatabase() {
 
     abstract fun chatDao(): ChatDao
     abstract fun shelterDao(): ShelterDao
+    abstract fun clinicalRecordDao(): ClinicalRecordDao
 
     companion object {
         @Volatile

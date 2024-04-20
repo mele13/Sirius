@@ -50,6 +50,7 @@ import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
+import com.example.sirius.view.screens.ClinicalRecord
 import com.example.sirius.view.screens.Messages
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SettingsScreen
@@ -160,7 +161,6 @@ fun NavigationContent(
                 composable(route = Routes.ABOUTUS) {
                     AboutUsScreen(shelterViewModel = shelterViewModel)
                 }
-
                 composable(route = Routes.ABOUTUS + "/{id}",
                     arguments = listOf(navArgument(name = "id") {
                         type = NavType.IntType
@@ -171,16 +171,12 @@ fun NavigationContent(
                         shelterViewModel
                     )
                 }
-
                 composable(route = Routes.CHAT) {
                     ChatScreen(navController, chatViewModel, userViewModel)
                 }
-
                 composable(route = Routes.SETTIGNS) {
                     SettingsScreen(shelterViewModel, navController)
                 }
-
-
                 composable(route = Routes.CHAT + "/{recipient_user}",
                     arguments = listOf(navArgument(name = "recipient_user") {
                         type = NavType.IntType
@@ -198,7 +194,18 @@ fun NavigationContent(
                     AnimalInfo(
                         it.arguments?.getInt("id"),
                         animalViewModel,
-                        userViewModel
+                        userViewModel,
+                        navController
+                    )
+                }
+                composable(route = Routes.CLINICALRECORD + "/{id}",
+                    arguments = listOf(navArgument(name = "id") {
+                        type = NavType.IntType
+                    })) {
+
+                    ClinicalRecord(
+                        it.arguments?.getInt("id"),
+                        navController = navController
                     )
                 }
                 composable(route = Routes.LOGIN) {

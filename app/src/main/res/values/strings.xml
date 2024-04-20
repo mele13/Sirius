@@ -6,6 +6,8 @@
     <string name="close" translatable="false">Close</string>
     <string name="save" translatable="false">Save</string>
     <string name="ok" translatable="false">Ok</string>
+    <string name="cancel" translatable="false">Cancel</string>
+    <string name="accept" translatable="false">Accept</string>
 
     <!-- Animals -->
     <string name="adopt_me" translatable="false">Adopt me!</string>
@@ -78,4 +80,13 @@
     <!-- Navigation -->
     <string name="to_homepage" translatable="false">Go to Homepage</string>
 
+    <!--    Clinical records-->
+    <string name="medical_app" translatable="false">Medical appointments</string>
+    <string name="illnesses" translatable="false">Illnesses</string>
+    <string name="prescriptions" translatable="false">Prescriptions</string>
+    <string name="vaccines" translatable="false">Vaccines</string>
+    <string name="medical_comments" translatable="false">Medical comments</string>
+    <string name="edit_record" translatable="false">Edit record</string>
+    <string name="appointment_date" translatable="false">Appointment date</string>
+    <string name="prescription_end_date" translatable="false">Prescription end date</string>
 </resources>

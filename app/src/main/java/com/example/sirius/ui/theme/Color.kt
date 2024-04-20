@@ -20,3 +20,5 @@ val White = Color(0xFFFFFFF)
 val Gold = Color(0xFFD9AC69)
 val Wine = Color(0xFF800000)
 val Red = Color(0xFFBE3333)
+
+val Green3a50 = Green3.copy(alpha = 0.5f)

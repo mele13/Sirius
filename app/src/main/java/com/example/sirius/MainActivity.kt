@@ -12,6 +12,7 @@ import com.example.sirius.navigation.NavigationController
 import com.example.sirius.ui.theme.SiriusTheme
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
+import com.example.sirius.viewmodel.ClinicalRecordViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -47,6 +48,13 @@ class MainActivity : ComponentActivity() {
         animalApplication.initContext(applicationContext)
         ShelterViewModel((application as AnimalApplication).shelterDao)
     }
+
+    private val clinicalRecordViewModel: ClinicalRecordViewModel by lazy {
+        val animalApplication = application as AnimalApplication
+        animalApplication.initContext(applicationContext)
+        ClinicalRecordViewModel((application as AnimalApplication).clinicalRecordDao)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

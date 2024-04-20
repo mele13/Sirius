@@ -24,10 +24,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -56,8 +56,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
+import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.ui.theme.Orange
@@ -73,13 +75,12 @@ import kotlinx.coroutines.launch
 fun AnimalInfo(
     id: Int?,
     viewModel: AnimalViewModel,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    navController: NavController,
 ) {
     val user = userViewModel.getAuthenticatedUser()
     var showDialog by remember { mutableStateOf(false) }
-
     var editMode by remember { mutableStateOf(false) }
-
     var editedName by remember { mutableStateOf("") }
     var editedLongInfo by remember { mutableStateOf("") }
 
@@ -93,7 +94,6 @@ fun AnimalInfo(
 
         editedName = animal?.nameAnimal.toString()
         editedLongInfo = animal?.longInfoAnimal.toString()
-
 
         if (userId != null) {
             userViewModel.viewModelScope.launch {
@@ -116,9 +116,7 @@ fun AnimalInfo(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(
-                                    color = Color.White
-                                )
+                                .background(color = Color.White)
                         ) {
                             CarouselSlider(photoPaths, animal!!, context)
                             Image(
@@ -215,26 +213,15 @@ fun AnimalInfo(
                                     contentDescription = null,
                                     tint = Color.Black,
                                     modifier = Modifier
-                                        .clickable{
-                                            editMode = !editMode
-                                        }
+                                        .clickable{ editMode = !editMode }
                                         .size(15.dp)
                                 )
                                 Icon(
-                                    imageVector = Icons.Default.Check,
+                                    imageVector = Icons.Default.List,
                                     contentDescription = null,
                                     tint = Color.Black,
                                     modifier = Modifier
-                                        .clickable {
-                                                viewModel.viewModelScope.launch {
-                                                    val updatedAnimal = animal?.copy(
-                                                        nameAnimal = editedName,
-                                                        longInfoAnimal = editedLongInfo
-                                                    )
-                                                    updatedAnimal?.let { viewModel.updateAnimal(it) }
-                                                }
-                                                editMode = false
-                                        }
+                                        .clickable { navController.navigate(route = Routes.CLINICALRECORD + "/" + id) }
                                         .size(15.dp)
                                 )
                             }

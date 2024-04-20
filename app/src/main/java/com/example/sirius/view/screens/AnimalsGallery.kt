@@ -193,8 +193,6 @@ fun AnimalsGallery(
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
 
-
-
     var selectedCategory by remember { mutableStateOf("") }
     var selectedBreed by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("") }
@@ -633,7 +631,6 @@ fun AnimalCard(
                             }
 
                             if (showDialogEdit) {
-
                                 EditDialog( {showDialogEdit = false } , item, animalViewModel, newsViewModel)
                             }
 
