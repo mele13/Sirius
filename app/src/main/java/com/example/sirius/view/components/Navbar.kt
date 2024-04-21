@@ -203,10 +203,7 @@ fun NavigationContent(
                         type = NavType.IntType
                     })) {
 
-                    ClinicalRecord(
-                        it.arguments?.getInt("id"),
-                        navController = navController
-                    )
+                    ClinicalRecord(it.arguments?.getInt("id"))
                 }
                 composable(route = Routes.LOGIN) {
                     LoginScreen(navController = navController, userViewModel = userViewModel)

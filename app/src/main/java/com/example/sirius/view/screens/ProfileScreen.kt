@@ -39,7 +39,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -79,6 +78,7 @@ import com.example.sirius.tools.isPasswordValid
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.CustomSnackbar
+import com.example.sirius.view.components.ListEmployed
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -119,14 +119,10 @@ fun ProfileScreen(
                 .padding(10.dp)
                 .clickable {
                     navController.navigate(Routes.SETTIGNS)
-            }
+                }
 
         )
 
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
-        ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -193,23 +189,26 @@ fun ProfileScreen(
                 }
                 // Friends you like
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    if (likedAnimals.isNotEmpty()) {
-                        LikedAnimalsSection(likedAnimals, navController)
-                    } else {
-                        Text(
-                            text = stringResource(id = R.string.no_liked_friends),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            textAlign = TextAlign.Center
-                        )
+                    if (userViewModel.getAuthenticatedUser()?.role?.trim() == "user"){
+                        Spacer(modifier = Modifier.height(16.dp))
+                        if (likedAnimals.isNotEmpty()) {
+                            LikedAnimalsSection(likedAnimals, navController)
+                        } else {
+                            Text(
+                                text = stringResource(id = R.string.no_liked_friends),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else if (userViewModel.getAuthenticatedUser()?.role?.trim() == "owner") {
+                        Text(text = stringResource(id = R.string.list_employees))
+                        ListEmployed(userViewModel)
                     }
                 }
             }
-        }
     }
-
 }
 
 @Composable
@@ -541,10 +540,10 @@ fun ChangePasswordButton(userViewModel: UserViewModel, user: User) {
 fun UserImage(imageUrl: String,
               size: Dp = 200.dp,
               modifier : Modifier? = Modifier
-                    .size(size)
-                    .clip(MaterialTheme.shapes.small)
-                    .zIndex(-1f)
-                    .padding(bottom = 4.dp)
+                  .size(size)
+                  .clip(MaterialTheme.shapes.small)
+                  .zIndex(-1f)
+                  .padding(bottom = 4.dp)
 ) {
     if (modifier != null) {
         Image(

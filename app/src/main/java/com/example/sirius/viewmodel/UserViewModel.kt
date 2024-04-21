@@ -93,12 +93,8 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return false
     }
 
-    suspend fun getAllWorkers(): List<User> {
-        return userDao.getAllWorkers()
-    }
-
-    suspend fun getAllVolunteers(): List<User> {
-        return userDao.getAllVolunteers()
+    suspend fun getAllEmployers(): List<User> {
+        return userDao.getAllEmployers()
     }
 
     suspend fun updateProfilePhoto(user: User, newPhoto: String) {

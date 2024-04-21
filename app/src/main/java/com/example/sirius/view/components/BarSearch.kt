@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -23,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,8 +57,8 @@ fun BarSearch(
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = "Search",
-                    tint = Color.DarkGray, // Color del icono de búsqueda
-                    modifier = Modifier.padding(8.dp) // Espaciado del icono
+                    tint = Color.DarkGray,
+                    modifier = Modifier.padding(8.dp)
                 )
             },
             placeholder = {
@@ -86,7 +89,11 @@ fun BarSearch(
                             .padding(12.dp)
                     )
                 }
-            }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next,
+            ),
         )
     }
 }

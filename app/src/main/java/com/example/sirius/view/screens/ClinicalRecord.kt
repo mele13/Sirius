@@ -25,23 +25,16 @@ import com.example.sirius.viewmodel.ClinicalRecordViewModel
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import com.example.sirius.model.Animal
-import com.example.sirius.tools.stringToInt
 import com.example.sirius.ui.theme.Green3a50
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 @Composable
-fun ClinicalRecord(id: Int?, navController: NavController) {
+fun ClinicalRecord(id: Int?) {
     val clinicalRecordVm: ClinicalRecordViewModel = viewModel(factory = ClinicalRecordViewModel.factory)
     val clinicalRecords by clinicalRecordVm.getClinicalRecordsForAnimal(id ?: -1).collectAsState(emptyList())
     var selectedAppointment by remember { mutableStateOf<ClinicalRecord?>(null) }
