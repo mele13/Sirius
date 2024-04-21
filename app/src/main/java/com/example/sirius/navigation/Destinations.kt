@@ -38,6 +38,7 @@ object Routes {
     const val ABOUTUS = "about us"
     const val ANIMALINFO = "animal info"
     const val CLINICALRECORD = "clinical record"
+    const val SPONSORING = "animal sponsoring"
     const val LOGIN = "login"
     const val SIGNUP = "signup"
     const val SIGNUPSHELTER = "signup shelter"

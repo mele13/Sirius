@@ -44,6 +44,7 @@ import com.example.sirius.navigation.Routes
 import com.example.sirius.navigation.createDestinations
 import com.example.sirius.ui.theme.Green3
 import com.example.sirius.view.screens.AnimalInfo
+import com.example.sirius.view.screens.AnimalSponsor
 import com.example.sirius.view.screens.AnimalsGallery
 import com.example.sirius.view.screens.ChatScreen
 import com.example.sirius.view.screens.HomeScreen
@@ -204,6 +205,25 @@ fun NavigationContent(
                     })) {
 
                     ClinicalRecord(it.arguments?.getInt("id"))
+                }
+                composable(route = Routes.SPONSORING + "/{id}-{photo}-{animalName}",
+                    arguments = listOf(
+                        navArgument(name = "id") {
+                            type = NavType.IntType
+                        },
+                        navArgument(name = "photo") {
+                            type = NavType.StringType
+                        },
+                        navArgument(name = "animalName") {
+                            type = NavType.StringType
+                        }
+                    )) {
+
+                    AnimalSponsor(
+                        id = it.arguments?.getInt("id"),
+                        photo = it.arguments?.getString("photo"),
+                        animalName = it.arguments?.getString("animalName"),
+                    )
                 }
                 composable(route = Routes.LOGIN) {
                     LoginScreen(navController = navController, userViewModel = userViewModel)

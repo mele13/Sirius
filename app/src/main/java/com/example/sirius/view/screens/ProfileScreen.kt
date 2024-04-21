@@ -122,7 +122,6 @@ fun ProfileScreen(
                 }
 
         )
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
