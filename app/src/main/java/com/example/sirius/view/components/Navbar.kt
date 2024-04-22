@@ -69,13 +69,13 @@ fun NavigationContent(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     userViewModel: UserViewModel,
+    chatViewModel: ChatViewModel,
     selectedDestination: String,
     navigateDestination: (Destinations) -> Unit,
 ) {
 
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel : NewsViewModel = viewModel(factory = NewsViewModel.factory)
-    val chatViewModel : ChatViewModel = viewModel(factory = ChatViewModel.factory)
     val shelterViewModel : ShelterViewModel = viewModel(factory = ShelterViewModel.factory)
 
 

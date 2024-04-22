@@ -191,8 +191,6 @@ fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
         )
     }
 
-
-
     if( showDialogAdd.value){
         ShelterFormDialog(shelter, showDialogAdd = showDialogAdd , shelterViewModel)
     }

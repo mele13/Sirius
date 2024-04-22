@@ -149,7 +149,6 @@ fun MyProfile(
                 }
         )
     }
-
 }
 
 @Composable
@@ -186,7 +185,7 @@ fun UserEachRow(
                     ),
                     modifier = Modifier
                         .padding(start = 10.dp)
-                        //.align(CenterVertically)
+                    //.align(CenterVertically)
                 )
 
                 if(lastMessage != null){
@@ -272,7 +271,7 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
                 }
             }
             Box(
-               //  modifier = Modifier.fillMaxSize(),
+                //  modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 OutlinedTextField(
@@ -319,7 +318,3 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
 fun initRecipientUserId(recipientUserId: Int, chatViewModel: ChatViewModel) {
     chatViewModel.initRecipientUserId(recipientUserId)
 }
-
-
-
-

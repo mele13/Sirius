@@ -550,7 +550,7 @@ fun AnimalCard(
                                 )
                             }
                         }
-                        if (user!!.role.trim() == "admin") {
+                        if (user != null && user!!.role.trim() == "admin") {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,

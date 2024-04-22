@@ -13,12 +13,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.sirius.view.components.NavigationActions
 import com.example.sirius.view.components.NavigationContent
+import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationController(
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    chatViewModel: ChatViewModel
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -36,6 +38,7 @@ fun NavigationController(
             modifier = Modifier,
             navController = navController,
             userViewModel = userViewModel,
+            chatViewModel = chatViewModel,
             selectedDestination = selectedDestination,
             navigateDestination = navigateAction::navigateTo,
         )

@@ -40,8 +40,6 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
         }
     }
 
-
-
     fun generateChatId(user1Id: Int, user2Id: Int): String {
         return if (user1Id < user2Id) {
             "$user1Id-$user2Id"
@@ -106,7 +104,4 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
             }
         }
     }
-
-
-
 }
