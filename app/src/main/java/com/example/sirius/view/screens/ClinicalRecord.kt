@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -11,6 +12,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.collectAsState
@@ -25,6 +27,7 @@ import com.example.sirius.viewmodel.ClinicalRecordViewModel
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,6 +52,7 @@ fun ClinicalRecord(id: Int?) {
         ) {
             item {
                 MedicalAppointments(
+                    animalId = id ?: -1,
                     clinicalRecordVm,
                     clinicalRecords.filter { it.appointmentDate.isNotEmpty() }) { appointment ->
                     selectedAppointment = appointment
@@ -76,6 +80,7 @@ fun ClinicalRecord(id: Int?) {
 
 @Composable
 fun MedicalAppointments(
+    animalId: Int,
     clinicalRecordVm: ClinicalRecordViewModel,
     medicalAppointments: List<ClinicalRecord>,
     onAppointmentClick: (ClinicalRecord) -> Unit,
@@ -83,14 +88,32 @@ fun MedicalAppointments(
     val appointmentsInColumns = medicalAppointments.chunked(2)
     var editMode by remember { mutableStateOf(false) }
     var selectedAppointment by remember { mutableStateOf<ClinicalRecord?>(null) }
+    var showDialogCreateRecord by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.padding(horizontal = 16.dp),
     ) {
-        Text(
-            text = stringResource(id = R.string.medical_app),
-            style = MaterialTheme.typography.h5
-        )
+        Row {
+            Text(
+                text = stringResource(id = R.string.medical_app),
+                style = MaterialTheme.typography.h5
+            )
+            SmallFloatingActionButton(
+                onClick = { showDialogCreateRecord = true },
+                modifier = Modifier
+                    .padding(3.dp)
+                    .padding(start = 8.dp)
+                    .size(25.dp),
+                shape = CircleShape
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = null,
+                    tint = Color.Black
+                )
+            }
+        }
+
         appointmentsInColumns.forEach { appointmentsRow ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -129,12 +152,23 @@ fun MedicalAppointments(
     }
     if (editMode) {
         selectedAppointment?.let {
-            EditClinicalRecord(
+            ClinicalRecordDialog(
                 onDismissRequest = { editMode = false },
                 clinicalRecord = it,
-                clinicalRecordVm = clinicalRecordVm
+                clinicalRecordVm = clinicalRecordVm,
+                animalId = animalId,
+                isNewRecord = false,
             )
         }
+    }
+    if (showDialogCreateRecord) {
+        ClinicalRecordDialog(
+            onDismissRequest = { showDialogCreateRecord = false },
+            clinicalRecord = null,
+            clinicalRecordVm = clinicalRecordVm,
+            animalId = animalId,
+            isNewRecord = true,
+        )
     }
 }
 
@@ -228,12 +262,15 @@ fun Comments(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditClinicalRecord(
+fun ClinicalRecordDialog(
     onDismissRequest: () -> Unit,
-    clinicalRecord: ClinicalRecord,
-    clinicalRecordVm: ClinicalRecordViewModel
+    clinicalRecord: ClinicalRecord?,
+    clinicalRecordVm: ClinicalRecordViewModel,
+    animalId: Int,
+    isNewRecord: Boolean
 ){
-    var editedRecord by remember { mutableStateOf(clinicalRecord) }
+    var editedRecord by remember { mutableStateOf(clinicalRecord ?:
+        ClinicalRecord(0, animalId, "", "", "", "", "", "")) }
 
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
@@ -242,7 +279,7 @@ fun EditClinicalRecord(
                 modifier = Modifier.padding(horizontal = 16.dp),
             ) {
                 Text(
-                    text = stringResource(id = R.string.edit_record),
+                    text = stringResource(id = if(isNewRecord) R.string.new_record else R.string.edit_record),
                     style = MaterialTheme.typography.h5
                 )
             }
@@ -292,7 +329,8 @@ fun EditClinicalRecord(
             Button(
                 onClick = {
                     clinicalRecordVm.viewModelScope.launch {
-                        clinicalRecordVm.updateClinicalRecord(clinicalRecord = editedRecord)
+                        if (isNewRecord) clinicalRecordVm.insertClinicalRecord(clinicalRecord = editedRecord)
+                        else clinicalRecordVm.updateClinicalRecord(clinicalRecord = editedRecord)
                     }
                     onDismissRequest()
                 }

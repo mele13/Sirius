@@ -97,6 +97,7 @@
     <string name="vaccines" translatable="false">Vaccines</string>
     <string name="medical_comments" translatable="false">Medical comments</string>
     <string name="edit_record" translatable="false">Edit record</string>
+    <string name="new_record" translatable="false">New record</string>
     <string name="appointment_date" translatable="false">Appointment date</string>
     <string name="prescription_end_date" translatable="false">Prescription end date</string>
 </resources>
