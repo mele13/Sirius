@@ -20,12 +20,12 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser
 
-    suspend fun login(username: String, password: String): Boolean {
+    suspend fun login(username: String, password: String): String {
         return suspendCoroutine { continuation ->
             viewModelScope.launch {
                 try {
                     if (username.isBlank() || password.isBlank()) {
-                        continuation.resume(false)
+                        continuation.resume("false")
                         return@launch
                     }
                     val user = getUserByCredentials(username, password)
@@ -33,11 +33,17 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
                     if (user != null) {
                         _currentUser.value = user
                         saveAuthenticationState(user)
+                        if (user.role == "owner") {
+                            continuation.resume("shelter")
+                        } else {
+                            continuation.resume("true")
+                        }
+                    } else {
+                        continuation.resume("false")
                     }
-                    continuation.resume(success)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    continuation.resume(false)
+                    continuation.resume("false")
                 }
             }
         }

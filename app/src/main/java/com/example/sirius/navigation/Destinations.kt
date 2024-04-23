@@ -33,6 +33,7 @@ data class Destinations(
 
 object Routes {
     const val HOME = "home"
+    const val SHELTER = "shelter"
     const val ANIMALS = "animals"
     const val DONATIONS = "donations"
     const val ABOUTUS = "about us"

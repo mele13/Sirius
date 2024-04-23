@@ -210,10 +210,10 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
                             userViewModel.viewModelScope.launch {
                                 logInButtonClicked = true
                                 val success = userViewModel.login(username, password)
-                                if (success) {
-                                    navController.navigate(Routes.HOME)
-                                } else {
-                                    errorMessage = "Invalid username or password"
+                                when (success) {
+                                    "true" -> navController.navigate(Routes.HOME)
+//                                    "shelter" -> navController.navigate(Routes.SHELTER)
+                                    else -> errorMessage = "Invalid username or password"
                                 }
                             }
                         }

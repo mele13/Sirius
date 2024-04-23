@@ -25,6 +25,7 @@
     <string name="loginSignup" translatable="false">Log In / Sign Up</string>
     <string name="guest" translatable="false">Join as a guest</string>
     <string name="slogan" translatable="false">Proud to be an animal adopter</string>
+    <string name="shelter_owner" translatable="false">Shelter sign up</string>
 
     <!-- Log In & Sign Up-->
     <string name="login" translatable="false">Log In</string>
@@ -34,7 +35,7 @@
     <string name="password" translatable="false">Password</string>
     <string name="account_login" translatable="false">Got an account?\nLog In</string>
     <string name="account_signup" translatable="false">Don\'t have an account?\nSign Up</string>
-    <string name="account_signup_shelter" translatable="false">Are you a company?</string>
+    <string name="account_signup_shelter" translatable="false">Are you a shelter owner?</string>
     <string name="sheltername" translatable="false">Shelter\'s Name</string>
     <string name="emailowner" translatable="false">Mail Owner</string>
 

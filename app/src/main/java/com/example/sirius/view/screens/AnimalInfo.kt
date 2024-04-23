@@ -130,17 +130,27 @@ fun AnimalInfo(
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
                             // Icono sponsor
-                            Box(
-                                modifier = Modifier
-                                    .clickable { navController.navigate(route = Routes.SPONSORING + "/${id}-${photoPaths[0].substringAfterLast('/')}-${animal!!.nameAnimal}")}
-                                    .align(Alignment.BottomStart)
-                                    .size(65.dp)
-                                    .padding(start = 30.dp, bottom = 25.dp)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.sponsor_icon),
-                                    contentDescription = stringResource(id = R.string.sponsor)
-                                )
+                            if (user!!.role.trim() != "admin") {
+                                Box(
+                                    modifier = Modifier
+                                        .clickable {
+                                            navController.navigate(
+                                                route = Routes.SPONSORING + "/${id}-${
+                                                    photoPaths[0].substringAfterLast(
+                                                        '/'
+                                                    )
+                                                }-${animal!!.nameAnimal}"
+                                            )
+                                        }
+                                        .align(Alignment.BottomStart)
+                                        .size(65.dp)
+                                        .padding(start = 30.dp, bottom = 25.dp)
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.sponsor_icon),
+                                        contentDescription = stringResource(id = R.string.sponsor)
+                                    )
+                                }
                             }
                             // Botón "Adopt me"
                             Button(
@@ -229,14 +239,16 @@ fun AnimalInfo(
                                         .clickable { editMode = !editMode }
                                         .size(15.dp)
                                 )
-                                Icon(
-                                    imageVector = Icons.Default.List,
-                                    contentDescription = null,
-                                    tint = Color.Black,
-                                    modifier = Modifier
-                                        .clickable { navController.navigate(route = Routes.CLINICALRECORD + "/" + id) }
-                                        .size(15.dp)
-                                )
+                                if (user.role.trim() != "user") {
+                                    Icon(
+                                        imageVector = Icons.Default.List,
+                                        contentDescription = null,
+                                        tint = Color.Black,
+                                        modifier = Modifier
+                                            .clickable { navController.navigate(route = Routes.CLINICALRECORD + "/" + id) }
+                                            .size(15.dp)
+                                    )
+                                }
                             }
                         }
                     }

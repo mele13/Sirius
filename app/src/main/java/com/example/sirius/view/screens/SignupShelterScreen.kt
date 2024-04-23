@@ -6,17 +6,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -30,14 +34,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -46,44 +48,43 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.isEmailValid
-import com.example.sirius.tools.isPasswordValid
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.CustomSnackbar
+import com.example.sirius.viewmodel.UserViewModel
+import kotlinx.coroutines.launch
+import com.example.sirius.tools.isEmailValid
+import com.example.sirius.tools.isPasswordValid
+import kotlinx.coroutines.delay
 
 @Composable
-fun SignupShelterScreen (navController: NavController) {
+fun SignupShelterScreen(navController: NavController, userViewModel: UserViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    val signUpButtonClicked by remember { mutableStateOf(false) }
+    var signUpButtonClicked by remember { mutableStateOf(false) }
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
     var passwordVisibility by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-//            .background(color = Color.Yellow)
-//            .padding(16.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(14.dp)
                 .offset(y = 80.dp),
-//            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            SignUpHeaderShelter(isSystemInDarkTheme())
+            SignUpShelterHeader(isSystemInDarkTheme())
             // Username
             OutlinedTextField(
                 value = username,
@@ -215,7 +216,6 @@ fun SignupShelterScreen (navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
-            // Sign Up button
 
             ConstraintLayout(
                 modifier = Modifier.fillMaxSize()
@@ -235,7 +235,22 @@ fun SignupShelterScreen (navController: NavController) {
                         .size(230.dp)
                         .offset(x = 16.dp, y = (-100).dp)
                         .clickable {
-
+                            userViewModel.viewModelScope.launch {
+                                signUpButtonClicked = true
+                                if (isEmailValid(email) && isPasswordValid(password)) {
+                                    val success = userViewModel.registerUser(username, email, password)
+                                    if (success) {
+                                        delay(2000)
+                                        navController.navigate(Routes.HOME)
+                                    } else {
+                                        errorMessage = "Oops! Something went wrong during user creation"
+                                    }
+                                } else if (!isPasswordValid(password)) {
+                                    errorMessage = "Invalid password format.\nPassword must have at least 6 characters, 1 uppercase letter, and 1 special symbol\n"
+                                } else {
+                                    errorMessage = "Invalid email format.\nExpected format: name@example.com\n"
+                                }
+                            }
                         }
                 )
 
@@ -251,7 +266,6 @@ fun SignupShelterScreen (navController: NavController) {
                         .offset(x = 6.dp, y = (-80).dp)
                 )
             }
-
             // Error Snackbar
             errorMessage?.let { message ->
                 CustomSnackbar(
@@ -294,7 +308,7 @@ fun SignupShelterScreen (navController: NavController) {
 }
 
 @Composable
-fun SignUpHeaderShelter(isSystemInDarkTheme: Boolean) {
+fun SignUpShelterHeader(isSystemInDarkTheme: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -302,7 +316,7 @@ fun SignUpHeaderShelter(isSystemInDarkTheme: Boolean) {
         horizontalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.sirius_name),
+            painter = painterResource(id =R.drawable.sirius_name),
             contentDescription = null,
             colorFilter = ColorFilter.tint(color = if (isSystemInDarkTheme) Color.White else Color.Black)
         )

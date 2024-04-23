@@ -232,7 +232,7 @@ fun NavigationContent(
                     SignupScreen(navController = navController, userViewModel = userViewModel)
                 }
                 composable(route = Routes.SIGNUPSHELTER) {
-                    SignupShelterScreen(navController)
+                    SignupShelterScreen(navController = navController, userViewModel = userViewModel)
                 }
                 composable(route = Routes.LANDINGPAGE) {
                     LandingPage(navController = navController)
