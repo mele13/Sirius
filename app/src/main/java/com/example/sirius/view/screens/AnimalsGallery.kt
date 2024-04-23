@@ -70,6 +70,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
+import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
@@ -550,7 +551,7 @@ fun AnimalCard(
                                 )
                             }
                         }
-                        if (user != null && user!!.role.trim() == "admin") {
+                        if (user != null && user!!.role == TypeUser.admin) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
@@ -586,7 +587,7 @@ fun AnimalCard(
                     Log.e("AnimalImage", "Recurso no encontrado para $photoPath")
                 }
                 if (user != null) {
-                        if (user.role.trim() != "admin") {
+                        if (user!!.role != TypeUser.admin) {
                             if (isFavorite) {
                                 Icon(
                                     imageVector = Icons.Default.Favorite,

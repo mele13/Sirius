@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sirius.AnimalApplication
 import com.example.sirius.data.dao.UserDao
+import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
                     if (user != null) {
                         _currentUser.value = user
                         saveAuthenticationState(user)
-                        if (user.role == "owner") {
+                        if (user.role == TypeUser.owner) {
                             continuation.resume("shelter")
                         } else {
                             continuation.resume("true")
@@ -72,7 +73,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
                     username = username,
                     email = email,
                     password = password,
-                    role = "user",
+                    role = TypeUser.user,
                     photoUser = "res/drawable/user_default_image.jpg",
                 )
                 viewModelScope.launch {
@@ -173,7 +174,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
     fun getLikedAnimals(userId: Int) = userDao.getLikedAnimals(userId)
 
 
-    suspend fun updateRole(user: User, newRole: String) {
+    suspend fun updateRole(user: User, newRole: TypeUser) {
         user.role = newRole
         userDao.update(user)
     }

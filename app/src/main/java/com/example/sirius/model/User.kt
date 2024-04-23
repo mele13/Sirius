@@ -23,12 +23,12 @@ data class User(
     @NonNull
     @ColumnInfo(name = "role")
     //Enumerado
-    var role: String,
+    var role: TypeUser,
     @NonNull
     @ColumnInfo(name = "photo_user")
     var photoUser: String,
     // Favourites
 ) {
-    constructor(username: String, email: String, password: String, role: String, photoUser: String)
+    constructor(username: String, email: String, password: String, role: TypeUser, photoUser: String)
             : this(0, username, email, password, role, photoUser)
 }

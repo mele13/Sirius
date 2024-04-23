@@ -75,6 +75,7 @@ import com.example.sirius.R
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
+import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.formatDate
@@ -228,7 +229,7 @@ private fun RowWithTitle(
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(6.dp)
         )
-        if (userViewModel.getAuthenticatedUser()?.role?.trim() == "admin") {
+        if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.admin) == true) {
             EditIcon(navController, typeRuta)
         }
     }

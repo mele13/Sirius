@@ -59,6 +59,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
+import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
@@ -130,7 +131,7 @@ fun AnimalInfo(
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
                             // Icono sponsor
-                            if (user!!.role.trim() != "admin") {
+                            if (user!!.role != TypeUser.admin) {
                                 Box(
                                     modifier = Modifier
                                         .clickable {
@@ -194,7 +195,7 @@ fun AnimalInfo(
                                     label = { Text("Name animal") },
                                 )
                             }
-                            if (user!!.role.trim() != "admin") {
+                            if (user!!.role != TypeUser.admin) {
                                 if (userId != null) {
                                     if (isFavorite) {
                                         Icon(
@@ -239,7 +240,7 @@ fun AnimalInfo(
                                         .clickable { editMode = !editMode }
                                         .size(15.dp)
                                 )
-                                if (user.role.trim() != "user") {
+                                if (user!!.role != TypeUser.user) {
                                     Icon(
                                         imageVector = Icons.Default.List,
                                         contentDescription = null,

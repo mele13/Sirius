@@ -69,6 +69,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
+import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.buildAnAgeText
@@ -188,7 +189,7 @@ fun ProfileScreen(
                 }
                 // Friends you like
                 item {
-                    if (userViewModel.getAuthenticatedUser()?.role?.trim() == "user"){
+                    if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true){
                         Spacer(modifier = Modifier.height(16.dp))
                         if (likedAnimals.isNotEmpty()) {
                             LikedAnimalsSection(likedAnimals, navController)
@@ -201,7 +202,7 @@ fun ProfileScreen(
                                 textAlign = TextAlign.Center
                             )
                         }
-                    } else if (userViewModel.getAuthenticatedUser()?.role?.trim() == "owner") {
+                    } else if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.owner) == true) {
                         Text(text = stringResource(id = R.string.list_employees))
                         ListEmployed(userViewModel)
                     }

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.sirius.model.User
+import com.example.sirius.tools.parseStringToTypeUser
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.screens.getDrawableResourceId
 import com.example.sirius.viewmodel.UserViewModel
@@ -106,7 +107,7 @@ fun ListEmployed(viewModel: UserViewModel) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = user.role,
+                                    text = user.role.toString(), //TODO:
                                     color = Color.Black,
                                 )
 
@@ -131,7 +132,7 @@ fun ListEmployed(viewModel: UserViewModel) {
                                             onClick = {
                                                 expanded.value = false
                                                 viewModel.viewModelScope.launch {
-                                                    user.let { viewModel.updateRole(it, item) }
+                                                    user.let { viewModel.updateRole(it, parseStringToTypeUser(item)) }
                                                 }
                                             }
                                         )

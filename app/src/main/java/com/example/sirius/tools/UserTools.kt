@@ -1,5 +1,7 @@
 package com.example.sirius.tools
 
+import com.example.sirius.model.TypeUser
+
 /**
  * Checks if the given email string is in a valid format.
  *
@@ -20,4 +22,16 @@ fun isEmailValid(email: String): Boolean {
 fun isPasswordValid(password: String): Boolean {
     val passwordRegex = Regex("^(?=.*[A-Z])(?=.*[.,\\-_!@#\$%^&*()])(.{6,})\$")
     return passwordRegex.matches(password)
+}
+
+fun parseStringToTypeUser(role: String): TypeUser{
+    val rol = when(role) {
+        "user" -> TypeUser.user
+        "admin" ->  TypeUser.admin
+        "worker" -> TypeUser.worker
+        "volunteer" -> TypeUser.volunteer
+        "owner" -> TypeUser.owner
+        else -> TypeUser.user
+    }
+    return rol
 }
