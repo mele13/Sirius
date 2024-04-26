@@ -158,8 +158,8 @@ fun EditDialog(
 
 
     var titleText = when (item) {
-        is Animal -> "Editar Datos ${item.nameAnimal}"
-        is News -> "Editar Datos ${item.titleNews}"
+        is Animal -> "Edit Information ${item.nameAnimal}"
+        is News -> "Edit Information ${item.titleNews}"
         else -> ""
     }
     AlertDialog(
@@ -172,13 +172,6 @@ fun EditDialog(
                 when (item) {
                     is Animal -> item {
                         animalEditState = RenderAnimalContent(predefinedImageList, animalData)
-                        println("animalEditState")
-                        println(animalEditState.name)
-                        println(animalEditState.shortInfo)
-                        println(animalEditState.birthDate)
-                        println(animalEditState.photo)
-                        println(animalEditState.fosterCare)
-                        println(animalEditState.waitingAdoption)
                     }
                     is News -> item {
                         newsEditState = RenderNewsContent(editedTitle, editedShortInfoNew, editedPhotoAnimal, predefinedImageList, newsEditState)
@@ -217,7 +210,7 @@ fun EditDialog(
                     onDismissRequest()
                 }
             ) {
-                Text("Canceler")
+                Text("Cancel")
             }
         }
     )
@@ -340,7 +333,7 @@ fun RenderAnimalContent(
             true
         },
         title = {
-            Text("Seleccione una fecha", fontWeight = FontWeight.Bold)
+            Text("Select a date", fontWeight = FontWeight.Bold)
         }
     )
     birthDate = formatDate(datePickerState.selectedDateMillis!!)

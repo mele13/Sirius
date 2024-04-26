@@ -671,7 +671,7 @@ fun getDrawableResourceId(imagePath: String, firstImage: Boolean = false): Int {
     return if (resourceId != 0) {
         resourceId
     } else {
-        Log.e("UserImage", "Recurso no encontrado para $imagePath")
+        Log.e("UserImage", "Resource not found $imagePath")
         0
     }
 }

@@ -73,6 +73,9 @@ val mapsCompose = "2.9.0"
 val mapsService = "18.1.0"
 val material = "1.0.0"
 val constraintLayout = "1.0.0-alpha07"
+val mockitoVersion = "4.5.1"
+val espressoCoreVersion = "3.5.1"
+val junitVersion = "1.1.5"
 dependencies {
 
     implementation(platform("androidx.compose:compose-bom:2023.05.01"))
@@ -114,9 +117,9 @@ dependencies {
     implementation("androidx.core:core-splashscreen:$splashScreen")
 
     // Testing
-    testImplementation("io.mockk:mockk:1.12.2")
-    androidTestImplementation("androidx.test.sespresso:espresso-core:3.5.1")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("io.mockk:mockk:$mockitoVersion")
+    androidTestImplementation("androidx.test.sespresso:espresso-core:$espressoCoreVersion")
+    androidTestImplementation("androidx.test.ext:junit:$junitVersion")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
 
@@ -127,14 +130,10 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:$location")
     implementation("com.google.maps.android:maps-compose:$mapsCompose")
     implementation("com.google.android.gms:play-services-maps:$mapsService")
-
     implementation("androidx.compose.material:material:$material")
 
     //image
     implementation("io.coil-kt:coil-compose:$coilCompose")
-
-    // Accompanist
-//    implementation ("com.google.accompanist:accompanist-permissions:0.31.3-beta")
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")

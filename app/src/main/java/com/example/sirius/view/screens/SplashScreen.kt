@@ -148,7 +148,6 @@ fun LoadingPage (navController: NavHostController, id: Int = -1){
     }
 
     LaunchedEffect(true) {
-        // Esperar durante 2 segundos
         delay(2000)
         if (id == 1){
             navController.navigate(route = Routes.HOME)

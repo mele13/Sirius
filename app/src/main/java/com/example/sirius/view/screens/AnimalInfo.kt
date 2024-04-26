@@ -61,6 +61,7 @@ import com.example.sirius.R
 import com.example.sirius.model.Animal
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
+import com.example.sirius.tools.CheckIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.ui.theme.Orange
@@ -96,13 +97,8 @@ fun AnimalInfo(
         editedName = animal?.nameAnimal.toString()
         editedLongInfo = animal?.longInfoAnimal.toString()
 
-        if (userId != null) {
-            userViewModel.viewModelScope.launch {
-                userViewModel.getLikedAnimals(userId).collect { likedAnimals ->
-                    isFavorite = likedAnimals.any { it.id == (animal?.id ?: -1) }
-                }
-            }
-        }
+        isFavorite =
+            animal?.let { CheckIfAnimalIsFavorite(userId = userId, animal = it, userViewModel = userViewModel) } == true
 
         Box(
             modifier = Modifier
@@ -131,7 +127,7 @@ fun AnimalInfo(
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
                             // Icono sponsor
-                            if (user!!.role != TypeUser.admin) {
+                            if (user != null && user!!.role != TypeUser.admin) {
                                 Box(
                                     modifier = Modifier
                                         .clickable {
@@ -195,8 +191,8 @@ fun AnimalInfo(
                                     label = { Text("Name animal") },
                                 )
                             }
-                            if (user!!.role != TypeUser.admin) {
-                                if (userId != null) {
+                            if (userId != null) {
+                                if (user!!.role != TypeUser.admin &&  user!!.role != TypeUser.owner) {
                                     if (isFavorite) {
                                         Icon(
                                             imageVector = Icons.Default.Favorite,
@@ -230,17 +226,15 @@ fun AnimalInfo(
                                                 }
                                         )
                                     }
-                                }
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    tint = Color.Black,
-                                    modifier = Modifier
-                                        .clickable { editMode = !editMode }
-                                        .size(15.dp)
-                                )
-                                if (user!!.role != TypeUser.user) {
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = null,
+                                        tint = Color.Black,
+                                        modifier = Modifier
+                                            .clickable { editMode = !editMode }
+                                            .size(15.dp)
+                                    )
                                     Icon(
                                         imageVector = Icons.Default.List,
                                         contentDescription = null,

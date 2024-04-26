@@ -178,7 +178,8 @@ fun Section(
         list = list,
         isAnimalSection = isAnimalSection,
         navController = navController,
-        showDialogAdd = showDialogAdd
+        showDialogAdd = showDialogAdd,
+        userViewModel = userViewModel
     )
 
     if (showDialogAdd.value) {
@@ -252,8 +253,11 @@ private fun BoxWithContent(
     list: List<Any>,
     isAnimalSection: Boolean,
     navController: NavController,
-    showDialogAdd: MutableState<Boolean>
+    showDialogAdd: MutableState<Boolean>,
+    userViewModel: UserViewModel
 ) {
+    val user = userViewModel.getAuthenticatedUser()
+
     var dialogType = ""
     Box {
         LazyRow(
@@ -269,7 +273,10 @@ private fun BoxWithContent(
                 }
             }
         }
-        AddButton(showDialogAdd, Modifier.align(Alignment.BottomEnd))
+        if (user != null && (user.role == TypeUser.admin || user.role == TypeUser.owner)){
+            AddButton(showDialogAdd, Modifier.align(Alignment.BottomEnd))
+        }
+
     }
 }
 

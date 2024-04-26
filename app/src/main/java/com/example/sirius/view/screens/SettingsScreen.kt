@@ -111,7 +111,7 @@ fun Shelter(item: Any, index: Int, navController : NavController, shelterViewMod
 
                     Icon(
                         imageVector = Icons.Outlined.Delete,
-                        contentDescription = "Recibido",
+                        contentDescription = "Received",
                         tint = Red,
                         modifier = Modifier
                             .size(40.dp)
@@ -131,7 +131,6 @@ fun Shelter(item: Any, index: Int, navController : NavController, shelterViewMod
     }
 
 }
-
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -168,11 +167,9 @@ fun ShelterFormDialog(
         mutableStateOf((item as? Shelter)?.phone ?: "")
     }
 
-
-
     AlertDialog(
         onDismissRequest = { showDialogAdd.value = false },
-        title = { Text("Agregar Nuevo") },
+        title = { Text("Add New") },
         text = {
             LazyColumn(
                 modifier = Modifier.padding(8.dp)
@@ -260,8 +257,6 @@ fun ShelterFormDialog(
                             email = editedEmail,
                             phone = editedPhone
                         )
-
-                        println(shelter.toString())
                         shelterViewModel.viewModelScope.launch {
                             shelterViewModel.updateShelter(updatedShelter)
                         }
@@ -271,14 +266,14 @@ fun ShelterFormDialog(
                     showDialogAdd.value = false
                 }
             ) {
-                Text("Agregar")
+                Text("Add")
             }
         },
         dismissButton = {
             Button(
                 onClick = { showDialogAdd.value = false }
             ) {
-                Text("Cancelar")
+                Text("Cancel")
             }
         }
     )

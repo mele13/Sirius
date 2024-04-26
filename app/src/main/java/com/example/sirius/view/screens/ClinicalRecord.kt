@@ -26,7 +26,6 @@ import com.example.sirius.model.ClinicalRecord
 import com.example.sirius.viewmodel.ClinicalRecordViewModel
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -260,7 +259,6 @@ fun Comments(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClinicalRecordDialog(
     onDismissRequest: () -> Unit,

@@ -1,47 +1,30 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
-import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,41 +32,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
-import com.example.sirius.model.Animal
-import com.example.sirius.model.News
-import com.example.sirius.model.TypeUser
-import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.buildAnAgeText
-import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.calculateAgeCategory
 import com.example.sirius.tools.getYearRangeFromCategory
 import com.example.sirius.tools.mapCategoryToYearRange
 import com.example.sirius.ui.theme.Gold
-import com.example.sirius.ui.theme.Green1
-import com.example.sirius.ui.theme.Orange
-import com.example.sirius.ui.theme.Wine
-import com.example.sirius.view.components.DeleteDialog
-import com.example.sirius.view.components.EditDialog
-import com.example.sirius.view.components.OutlinedIcon
+import com.example.sirius.view.components.Card
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -95,7 +57,6 @@ import java.time.Year
 fun DropdownFilters(ageList: List<String>,
                     breedList: List<String>,
                     typeList: List<String>,
-                   // viewModel: AnimalViewModel,
                     onCategorySelected: (String) -> Unit,
                     onBreedSelected: (String) -> Unit,
                     onTypeSelected: (String) -> Unit
@@ -175,7 +136,6 @@ fun DropdownFilters(ageList: List<String>,
     }
 }
 
-
 @SuppressLint("CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -188,8 +148,6 @@ fun AnimalsGallery(
     type: String?,
     isAnimal: Boolean
 ) {
-    println("type route")
-    println(type)
 
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
@@ -208,7 +166,6 @@ fun AnimalsGallery(
             DropdownFilters(ageList,
                 breedList,
                 typeList,
-               // animalViewModel,
                 onCategorySelected = { selectedCategory = it },
                 onBreedSelected = { selectedBreed = it },
                 onTypeSelected = { selectedType = it }
@@ -300,7 +257,6 @@ fun AnimalsGallery(
                             animalViewModel = animalViewModel,
                             userViewModel = userViewModel,
                             newsViewModel = newsViewModel,
-                            type = type,
                         )
                     }
                 }
@@ -336,7 +292,7 @@ fun ClearFilterIconButton(
 
 @Composable
 fun TextWithSplit(text: String, color: Color) {
-    val texto = text.ifBlank { "Texto Vacío" }
+    val texto = text.ifBlank { "Empty text" }
     val espacioIndex = texto.indexOf(' ')
 
     if (espacioIndex != -1) {
@@ -450,270 +406,12 @@ fun AnimalCard(
     animalViewModel: AnimalViewModel,
     userViewModel: UserViewModel,
     newsViewModel: NewsViewModel,
-    type: String?,
 ) {
-    var isFavorite by remember { mutableStateOf(false) }
-    if (item is Animal){
-        println("age")
-        println(item.birthDate)
-    }
-    val age = if (item is Animal) calculateAge(item.birthDate) else ""
-    val user = userViewModel.getAuthenticatedUser()
-
-    var showDialogDelete by remember { mutableStateOf(false) }
-    var showDialogEdit by remember { mutableStateOf(false) }
-
-    if (user != null && (type == "AnimalsInShelter" || type == "LostAnimals"|| type == null)) {
-        userViewModel.viewModelScope.launch {
-            userViewModel.getLikedAnimals(user.id).collect { likedAnimals ->
-                isFavorite = likedAnimals.any { it.id == (item as Animal).id }
-            }
-        }
-    }
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(0.6f)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable {
-                if (item is Animal) {
-                    navController.navigate(route = Routes.ANIMALINFO + "/" + item.id)
-                }
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = Green1,
-        ),
-        border = BorderStroke(2.dp, Gold),
-        shape = MaterialTheme.shapes.medium,
-
-        ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(MaterialTheme.shapes.medium),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            ) {
-                val context = LocalContext.current
-                val photoPath = when (item) {
-                    is Animal -> {
-                        item.photoAnimal
-                    }
-                    is News -> {
-                        item.photoNews
-                    }
-                    else -> {
-                        null
-                    }
-                }
-                val firstImagePath = photoPath?.split(", ")?.get(0)?.trim()
-                val resourceName = firstImagePath?.substringAfterLast("/")
-                val defaultResourceName = "default_image" // Nombre de recurso predeterminado en caso de que resourceName sea nulo
-
-                val resourceId = context.resources.getIdentifier(
-                    resourceName?.replace(".jpg", "") ?: defaultResourceName, "drawable", context.packageName
-                )
-
-                if (resourceId != 0) {
-                    val painter = painterResource(id = resourceId)
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        when (painter) {
-                            is Painter -> {
-                                Image(
-                                    painter = painter,
-                                    contentDescription = if (item is Animal) item.shortInfoAnimal else if (item is News) item.shortInfoNews else null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .aspectRatio(1f)
-                                )
-                            }
-
-                            is Uri -> {
-                                Image(
-                                    painter = rememberImagePainter(
-                                        data = painter,
-                                        builder = {
-                                            crossfade(true)
-                                        }
-                                    ),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .clip(MaterialTheme.shapes.extraSmall)
-                                )
-                            }
-                        }
-                        if (user != null && user!!.role == TypeUser.admin) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = Color.Red,
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(50.dp)
-                                    .alpha(0.5f)
-                                    .pointerInput(Unit) {
-                                        detectTapGestures {
-                                            showDialogDelete = true
-                                        }
-                                    }
-                            )
-                            if (showDialogDelete) {
-                                var titleDialog = ""
-                                if (item is Animal){
-                                    titleDialog = "Delete ${item.nameAnimal}"
-                                } else if (item is News){
-                                    titleDialog = "Delete ${item.titleNews}"
-                                }
-                                DeleteDialog(
-                                    onDismissRequest = { showDialogDelete = false} ,
-                                    titleDialog = titleDialog,
-                                    animalViewModel = animalViewModel,
-                                    newsViewModel = newsViewModel,
-                                    item = item
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    Log.e("AnimalImage", "Recurso no encontrado para $photoPath")
-                }
-                if (user != null) {
-                        if (user!!.role != TypeUser.admin) {
-                            if (isFavorite) {
-                                Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    contentDescription = null,
-                                    tint = Wine,
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .clickable {
-                                            isFavorite = !isFavorite
-                                            animalViewModel.viewModelScope.launch {
-                                                animalViewModel.removeLikedAnimal(
-                                                    animalId = (item as Animal).id,
-                                                    userId = user.id
-                                                )
-                                            }
-                                        }
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.FavoriteBorder,
-                                    contentDescription = null,
-                                    tint = Wine,
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .clickable {
-                                            isFavorite = !isFavorite
-                                            userViewModel.viewModelScope.launch {
-                                                animalViewModel.insertLikedAnimal(
-                                                    animalId = (item as Animal).id,
-                                                    userId = user.id
-                                                )
-                                            }
-                                        }
-                                )
-                            }
-                        } else {
-                            Box (contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd))  {
-
-                                OutlinedIcon(Icons.Default.Edit) { showDialogEdit = true }
-                            }
-
-                            if (showDialogEdit) {
-                                EditDialog( {showDialogEdit = false } , item, animalViewModel, newsViewModel)
-                            }
-
-                        }
-                }
-            }
-            Spacer(Modifier.padding(4.dp))
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .offset(y = (-15).dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-
-                if (item is Animal) {
-                    val adoptionText = if (item.waitingAdoption == 1) {
-                        "Adoption"
-                    } else {
-                        "Pre Adoption"
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = adoptionText,
-                            style = TextStyle(
-                                fontSize = 10.sp,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier
-                                .background(color = Orange, shape = RoundedCornerShape(4.dp))
-                                .padding(horizontal = 2.dp, vertical = 4.dp)
-                        )
-
-                        if (item.fosterCare == 1) {
-                            Text(
-                                text = "In Foster Care",
-                                style = TextStyle(
-                                    fontSize = 10.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                modifier = Modifier
-                                    .background(color = Orange, shape = RoundedCornerShape(4.dp))
-                                    .padding(horizontal = 2.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-                }
-                var title = ""
-                if (item is Animal) {
-                    title = "${item.nameAnimal}, ${buildAnAgeText(age, item.birthDate, true)}"
-                } else if (item is News) {
-                    title = item.titleNews
-                }
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    textAlign = TextAlign.Center,
-                    color = Color.Black,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-                var description = ""
-                if (item is Animal) {
-                    description = item.shortInfoAnimal
-                } else if (item is News){
-                    description = item.shortInfoNews
-                }
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = Color.Black,
-                    softWrap = true,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .fillMaxWidth()
-                )
-
-            }
-        }
-    }
+        item = item,
+        navController = navController,
+        animalViewModel = animalViewModel,
+        userViewModel = userViewModel,
+        newsViewModel = newsViewModel,
+    )
 }
-

@@ -107,7 +107,7 @@ fun ListEmployed(viewModel: UserViewModel) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = user.role.toString(), //TODO:
+                                    text = user.role.toString(),
                                     color = Color.Black,
                                 )
 

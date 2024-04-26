@@ -3,7 +3,13 @@ package com.example.sirius.tools
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import com.example.sirius.model.Animal
 import com.example.sirius.model.TypeAnimal
+import com.example.sirius.viewmodel.UserViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import java.time.Year
 
 /**
@@ -110,4 +116,18 @@ fun stringToEnumTypeAnimal(value: String): TypeAnimal? {
     } catch (e: IllegalArgumentException) {
         null
     }
+}
+
+@Composable
+fun CheckIfAnimalIsFavorite(userId: Int?, animal: Animal, userViewModel: UserViewModel): Boolean {
+    val isFavoriteState = remember { mutableStateOf(false) }
+
+    LaunchedEffect(userId) {
+        if (userId != null) {
+            val likedAnimals = userViewModel.getLikedAnimals(userId).firstOrNull()
+            isFavoriteState.value = likedAnimals?.any { it.id == (animal.id ?: -1) } ?: false
+        }
+    }
+
+    return isFavoriteState.value
 }

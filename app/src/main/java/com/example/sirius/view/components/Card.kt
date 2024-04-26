@@ -1,5 +1,6 @@
-package com.example.sirius.view.screens
+package com.example.sirius.view.components
 
+import com.example.sirius.view.screens.getDrawableResourceId
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
@@ -12,7 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -54,12 +52,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
+import com.example.sirius.tools.CheckIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.stringToBoolean
@@ -74,45 +72,6 @@ import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun Cards (
-    items: List<Any>,
-    columns: Int,
-    navController: NavController,
-    userViewModel: UserViewModel,
-    type: String?,
-    modifier: Modifier = Modifier,
-) {
-
-    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
-    val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
-        modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(items.size) { index ->
-            val item = items.getOrNull(index)
-            item?.let {
-                if ((item is Animal && type == "Animal" || type == null) || (item is News && type == "News") && (animalViewModel != null && newsViewModel != null) ) {
-                        Card(
-                            item = item,
-                            navController = navController,
-                            animalViewModel = animalViewModel,
-                            userViewModel = userViewModel,
-                            newsViewModel = newsViewModel,
-                            type = type,
-                        )
-
-                }
-            }
-        }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
 fun Card(
@@ -121,7 +80,6 @@ fun Card(
     animalViewModel: AnimalViewModel,
     userViewModel: UserViewModel,
     newsViewModel: NewsViewModel,
-    type: String?,
 ) {
     var isFavorite by remember { mutableStateOf(false) }
     val age = if (item is Animal) calculateAge(item.birthDate) else ""
@@ -157,10 +115,10 @@ fun Card(
         fosterCareAnimal = item.fosterCare.toString()
     }
 
-    isFavorite = type?.let { determineFavorite(userViewModel, item, it) } == true
-
-    println("isFavorite")
-    println(isFavorite)
+    if (item is Animal && user != null) {
+        isFavorite =
+            item?.let { CheckIfAnimalIsFavorite(userId = user.id, animal = it, userViewModel = userViewModel) } == true
+    }
 
     androidx.compose.material3.Card(
         modifier = Modifier
@@ -234,7 +192,7 @@ fun Card(
                         )
                     }
                 } else {
-                    Log.e("AnimalImage", "Recurso no encontrado para $photoPath")
+                    Log.e("AnimalImage", "Resource not found $photoPath")
                 }
                 if (user != null) {
                     if (user!!.role != TypeUser.admin) {
@@ -334,8 +292,8 @@ fun Card(
                                 title = {
                                     Text(
                                         when (item) {
-                                            is Animal -> "Editar Datos ${item.nameAnimal}"
-                                            is News -> "Editar Datos ${item.titleNews}"
+                                            is Animal -> "Edit information ${item.nameAnimal}"
+                                            is News -> "Edit information ${item.titleNews}"
                                             else -> ""
                                         }
                                     )
@@ -348,7 +306,7 @@ fun Card(
                                                 TextField(
                                                     value = editedName,
                                                     onValueChange = { editedName = it },
-                                                    label = { Text("Nombre") }
+                                                    label = { Text("Name") }
                                                 )
                                                 TextField(
                                                     value = editedShortInfoAnimal,
@@ -423,7 +381,7 @@ fun Card(
                                                 TextField(
                                                     value = editedTitle,
                                                     onValueChange = { editedTitle = it },
-                                                    label = { Text("Título") }
+                                                    label = { Text("Tittle") }
                                                 )
                                                 TextField(
                                                     value = editedShortInfoNew,
@@ -633,19 +591,6 @@ fun Card(
             }
         }
     }
-}
-
-private fun determineFavorite(userViewModel: UserViewModel, item: Any, type: String): Boolean {
-    val user = userViewModel.getAuthenticatedUser()
-    var isFavorite = false
-    if (user != null && type == "Animal") {
-        userViewModel.viewModelScope.launch {
-            userViewModel.getLikedAnimals(user.id).collect { likedAnimals ->
-                isFavorite = likedAnimals.any { it.id == (item as Animal).id }
-            }
-        }
-    }
-    return isFavorite
 }
 
 private fun navigateToDetails(item: Any, navController: NavController) {

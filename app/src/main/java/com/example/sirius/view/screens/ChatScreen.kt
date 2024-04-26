@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -282,7 +283,7 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
                     },
                     label = {
                         Text(
-                            "Escribe tu mensaje"
+                            "Write Something..."
                         )
                     },
                     maxLines = 5,
@@ -290,7 +291,8 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
                         .padding(horizontal = 15.dp, vertical = 1.dp)
                         .fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next,
                     ),
                     singleLine = true,
                     trailingIcon = {
