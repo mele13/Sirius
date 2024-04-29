@@ -2,12 +2,12 @@ package com.example.sirius.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.sirius.model.Animal
 import com.example.sirius.model.User
 import kotlinx.coroutines.flow.Flow
-import androidx.room.OnConflictStrategy
-import androidx.room.Update
 
 @Dao
 interface UserDao {
@@ -46,4 +46,7 @@ interface UserDao {
 
     @Query("UPDATE User SET role = :newRole WHERE id = :userId")
     suspend fun updateRole(userId: Int, newRole: String)
+
+    @Query("SELECT * FROM User WHERE role = 'worker' OR role = 'owner' ORDER BY RANDOM() LIMIT 1")
+    fun getRandomWorkerOrOwner() : Flow<User?>
 }

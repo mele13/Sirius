@@ -1,6 +1,5 @@
 package com.example.sirius.view.components
 
-import com.example.sirius.view.screens.getDrawableResourceId
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
@@ -8,7 +7,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -29,11 +26,9 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,7 +55,6 @@ import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.CheckIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
-import com.example.sirius.tools.stringToBoolean
 import com.example.sirius.ui.theme.Black
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
@@ -86,7 +80,7 @@ fun Card(
     val user = userViewModel.getAuthenticatedUser()
 
     var showDialogDelete by remember { mutableStateOf(false) }
-    var showDialogEdit by remember { mutableStateOf(false) }
+    var showDialogEdit = remember { mutableStateOf(false) }
 
     var nameAnimal by remember { mutableStateOf("") }
     var shortInfoAnimal by remember { mutableStateOf("") }
@@ -239,10 +233,17 @@ fun Card(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .clickable {
-                                    showDialogEdit = true
+                                    showDialogEdit.value = true
                                 }
                         )
-                        if (showDialogEdit) {
+                        if (showDialogEdit.value) {
+
+
+
+
+
+
+                            /*
                             //Animal
                             var editedName by remember {
                                 mutableStateOf(
@@ -509,6 +510,8 @@ fun Card(
                                     }
                                 }
                             )
+
+                             */
                         }
 
                     }

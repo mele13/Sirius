@@ -11,6 +11,7 @@ import com.example.sirius.data.dao.UserDao
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -179,6 +180,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         userDao.update(user)
     }
 
+    fun getRandomUser() : Flow<User?> = userDao.getRandomWorkerOrOwner()
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

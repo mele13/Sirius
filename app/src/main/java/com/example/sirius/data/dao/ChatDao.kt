@@ -16,4 +16,10 @@ interface ChatDao {
 
     @Query("SELECT message FROM Chat WHERE chat_id = :chatId ORDER BY sent_on DESC LIMIT 1")
     suspend fun getLastMessage(chatId: String) : String
+
+    @Query("SELECT sent_by FROM Chat WHERE seen = 0")
+    fun getUnseenMessages(): Flow<List<Int>>
+
+    @Query("UPDATE Chat SET seen = 1 WHERE chat_id = :chatId")
+    fun markMessagesAsSeen(chatId: String)
 }

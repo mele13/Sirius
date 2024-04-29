@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
+import com.example.sirius.model.Shelter
 import com.example.sirius.tools.formatDate
 import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.tools.stringToBoolean
@@ -45,8 +47,11 @@ import com.example.sirius.ui.theme.Black
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.screens.getDrawableResourceId
 import com.example.sirius.viewmodel.AnimalViewModel
+import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
+import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+
 @Composable
 fun DeleteDialog(
     onDismissRequest: () -> Unit,
@@ -279,6 +284,7 @@ fun RenderNewsContent(
     return newsEditState
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RenderAnimalContent(
@@ -414,4 +420,46 @@ private fun handleAnimalItem(item: Any, animalEditState: AnimalEditState){
             animalEditState.fosterCare = item.fosterCare.toString()
         }
     }
+}
+
+
+
+@Composable
+fun AdoptAnAnimal(item: Animal, shelter: Shelter, chatViewModel: ChatViewModel, userViewModel: UserViewModel, onDismiss: () -> Unit) {
+    val randomUser by userViewModel.getRandomUser().collectAsState(initial = null)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "You are about to start the process of adopting ${item.nameAnimal}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        },
+        text = {
+            Text(
+                text = "As a rule of the shelter, before you can adopt  an animal, we have to conduct a short interview. Would you like to contact us?",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    randomUser?.let { chatViewModel.addMessageAdoption(it.id, item) }
+                    onDismiss()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+            ) {
+                Text("Contact with the shelter")
+            }
+        },
+        dismissButton = {}
+    )
 }

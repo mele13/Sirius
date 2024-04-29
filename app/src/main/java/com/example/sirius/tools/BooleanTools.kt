@@ -26,3 +26,7 @@ fun stringToInt(value: String): Int {
     }
     return 0
 }
+
+fun intToBoolean(value: Int): Boolean {
+    return value != 0
+}

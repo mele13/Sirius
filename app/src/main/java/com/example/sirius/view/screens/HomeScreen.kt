@@ -769,7 +769,7 @@ private fun newsFormFields(
 }
 
 @Composable
-private fun SexCheckbox(animalFormState: AnimalFormState) {
+fun SexCheckbox(animalFormState: AnimalFormState) {
     val bothEmpty = animalFormState.sex.isEmpty()
     val textColor = if (bothEmpty) Color.Red else LocalContentColor.current
 

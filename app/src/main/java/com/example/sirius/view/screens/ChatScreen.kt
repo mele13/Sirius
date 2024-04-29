@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,8 +29,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -48,6 +55,7 @@ import com.example.sirius.model.Chat
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.ui.theme.Green1
+import com.example.sirius.ui.theme.Green3
 import com.example.sirius.ui.theme.Green4
 import com.example.sirius.view.components.SingleMessage
 import com.example.sirius.viewmodel.ChatViewModel
@@ -70,6 +78,15 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
         }
     }
 
+    val unseenMessagesState = chatViewModel.getUnseenMessages().collectAsState(initial = emptyList())
+
+    val unseenMessages by remember {
+        unseenMessagesState
+    }
+
+
+
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -90,7 +107,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
                                     Log.e("Firestore", "Error en ChildList", e)
                                 }
                             }
-                            UserEachRow(person = item, lastMessage = lastMessage) {
+                            UserEachRow(person = item, lastMessage = lastMessage, unseenMessages = unseenMessages) {
                                 navController.navigate(Routes.CHAT + "/${item.id}")
                             }
                         }
@@ -156,9 +173,9 @@ fun MyProfile(
 fun UserEachRow(
     person: User,
     lastMessage: String?,
+    unseenMessages: List<Int>,
     onClick: () -> Unit = {},
 ) {
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,44 +184,74 @@ fun UserEachRow(
             containerColor = Color.Transparent
         )
     ){
+
         Row(
             modifier = Modifier
-                .padding(16.dp)
-        ) {
-            UserImage(imageUrl = person.photoUser,
+                .padding(16.dp).fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically) {
+
+
+            UserImage(
+                imageUrl = person.photoUser,
                 40.dp,
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(8.dp))
-                    .size(40.dp))
+                    .size(40.dp)
+            )
+
 
             Column {
                 Text(
-                    text  = person.username.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
+                    text = person.username.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.ROOT
+                        ) else it.toString()
+                    },
                     style = TextStyle(
                         fontSize = 20.sp,
-                        color =  Color.Black
+                        color = Color.Black
                     ),
                     modifier = Modifier
                         .padding(start = 10.dp)
                     //.align(CenterVertically)
                 )
 
-                if(lastMessage != null){
-                    Text(
-                        text = lastMessage.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() },
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            color = Green1
-                        ),
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                    )
+                Row(Modifier.fillMaxSize()) {
+                    if (lastMessage != null) {
+                        Text(
+                            text = lastMessage.replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase(
+                                    Locale.ROOT
+                                ) else it.toString()
+                            },
+                            style = TextStyle(
+                                fontSize = 20.sp,
+                                color = Green1
+                            ),
+                            modifier = Modifier
+                                .padding(start = 10.dp)
+                                .weight(1f)
+                        )
+                    }
+
+                    if (person.id in unseenMessages) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Recibido",
+                            tint = Green3,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
+
 
             }
 
 
         }
+
+
+
 
         Box(
             modifier = Modifier

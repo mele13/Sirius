@@ -1,8 +1,10 @@
 package com.example.sirius.view.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,12 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.*
 import com.example.sirius.ui.theme.Green3
 import com.example.sirius.ui.theme.Green4
 
 @Composable
 fun SingleMessage(message: String, isCurrentUser: Boolean) {
+
+
     Card(
         shape = RoundedCornerShape(16.dp),
         backgroundColor = if (isCurrentUser) Green4 else Green3 ,

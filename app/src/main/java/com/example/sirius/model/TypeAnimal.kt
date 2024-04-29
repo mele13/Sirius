@@ -5,5 +5,17 @@ enum class TypeAnimal {
     DOG,
     BIRD,
     RABBIT,
-    OTHER
+    OTHER;
+
+
+    companion object {
+        fun toList(): List<String> {
+            val list: MutableList<String> = mutableListOf()
+            for (animal in values()) {
+                list.add(animal.name)
+            }
+            return list
+        }
+    }
+
 }

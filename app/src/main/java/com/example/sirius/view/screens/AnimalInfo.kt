@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
@@ -66,8 +67,10 @@ import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.ui.theme.Wine
-import com.example.sirius.view.components.NotAvailableDialog
+import com.example.sirius.view.components.AdoptAnAnimal
 import com.example.sirius.viewmodel.AnimalViewModel
+import com.example.sirius.viewmodel.ChatViewModel
+import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -78,6 +81,7 @@ fun AnimalInfo(
     id: Int?,
     viewModel: AnimalViewModel,
     userViewModel: UserViewModel,
+    chatViewModel: ChatViewModel,
     navController: NavController,
 ) {
     val user = userViewModel.getAuthenticatedUser()
@@ -86,13 +90,15 @@ fun AnimalInfo(
     var editedName by remember { mutableStateOf("") }
     var editedLongInfo by remember { mutableStateOf("") }
 
+    var isFavorite by remember { mutableStateOf(false) }
+    val animal by viewModel.getAnimalById(id ?: 0).collectAsState(initial = null)
+    val context = LocalContext.current
+    val userId = userViewModel.getAuthenticatedUser()?.id
+
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
-        var isFavorite by remember { mutableStateOf(false) }
-        val animal by viewModel.getAnimalById(id ?: 0).collectAsState(initial = null)
-        val context = LocalContext.current
-        val userId = userViewModel.getAuthenticatedUser()?.id
+
 
         editedName = animal?.nameAnimal.toString()
         editedLongInfo = animal?.longInfoAnimal.toString()
@@ -311,11 +317,20 @@ fun AnimalInfo(
 
     }
     if (showDialog) {
-        NotAvailableDialog(
-            onDismiss = {
-                showDialog = false
+        val shelterViewModel  : ShelterViewModel = viewModel(factory = ShelterViewModel.factory)
+
+
+        val shelter by shelterViewModel.getShelterById(1).collectAsState(initial = null)
+
+        animal?.let {animal->
+            shelter?.let { shelter ->
+                AdoptAnAnimal(animal, shelter, chatViewModel, userViewModel) {
+                    showDialog = false
+                }
             }
-        )
+        }
+
+
     }
 }
 

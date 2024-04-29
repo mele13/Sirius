@@ -47,11 +47,11 @@ import com.example.sirius.view.screens.AnimalInfo
 import com.example.sirius.view.screens.AnimalSponsor
 import com.example.sirius.view.screens.AnimalsGallery
 import com.example.sirius.view.screens.ChatScreen
+import com.example.sirius.view.screens.ClinicalRecord
 import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
-import com.example.sirius.view.screens.ClinicalRecord
 import com.example.sirius.view.screens.Messages
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SettingsScreen
@@ -196,33 +196,9 @@ fun NavigationContent(
                         it.arguments?.getInt("id"),
                         animalViewModel,
                         userViewModel,
-                        navController
-                    )
-                }
-                composable(route = Routes.CLINICALRECORD + "/{id}",
-                    arguments = listOf(navArgument(name = "id") {
-                        type = NavType.IntType
-                    })) {
+                        chatViewModel,
+                        navController,
 
-                    ClinicalRecord(it.arguments?.getInt("id"))
-                }
-                composable(route = Routes.SPONSORING + "/{id}-{photo}-{animalName}",
-                    arguments = listOf(
-                        navArgument(name = "id") {
-                            type = NavType.IntType
-                        },
-                        navArgument(name = "photo") {
-                            type = NavType.StringType
-                        },
-                        navArgument(name = "animalName") {
-                            type = NavType.StringType
-                        }
-                    )) {
-
-                    AnimalSponsor(
-                        id = it.arguments?.getInt("id"),
-                        photo = it.arguments?.getString("photo"),
-                        animalName = it.arguments?.getString("animalName"),
                     )
                 }
                 composable(route = Routes.LOGIN) {
@@ -253,6 +229,33 @@ fun NavigationContent(
                     ProfileScreen(
                         navController = navController,
                         userViewModel = userViewModel,
+                    )
+                }
+                composable(route = Routes.CLINICALRECORD + "/{id}",
+                    arguments = listOf(navArgument(name = "id") {
+                        type = NavType.IntType
+                    })) {
+
+                    ClinicalRecord(it.arguments?.getInt("id"))
+                }
+
+                composable(route = Routes.SPONSORING + "/{id}-{photo}-{animalName}",
+                    arguments = listOf(
+                        navArgument(name = "id") {
+                            type = NavType.IntType
+                        },
+                        navArgument(name = "photo") {
+                            type = NavType.StringType
+                        },
+                        navArgument(name = "animalName") {
+                            type = NavType.StringType
+                        }
+                    )) {
+
+                    AnimalSponsor(
+                        id = it.arguments?.getInt("id"),
+                        photo = it.arguments?.getString("photo"),
+                        animalName = it.arguments?.getString("animalName"),
                     )
                 }
             }
