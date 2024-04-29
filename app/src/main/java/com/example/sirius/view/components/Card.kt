@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -26,9 +28,11 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,11 +59,13 @@ import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.CheckIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
+import com.example.sirius.tools.stringToBoolean
 import com.example.sirius.ui.theme.Black
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.ui.theme.Wine
+import com.example.sirius.view.screens.getDrawableResourceId
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -243,7 +249,7 @@ fun Card(
 
 
 
-                            /*
+
                             //Animal
                             var editedName by remember {
                                 mutableStateOf(
@@ -289,7 +295,7 @@ fun Card(
                                 )
                             }
                             AlertDialog(
-                                onDismissRequest = { showDialogEdit = false },
+                                onDismissRequest = { showDialogEdit.value = false },
                                 title = {
                                     Text(
                                         when (item) {
@@ -493,7 +499,7 @@ fun Card(
                                                 }
                                             }
                                             // Cerrar el diálogo
-                                            showDialogEdit = false
+                                            showDialogEdit.value = false
                                         }
                                     ) {
                                         Text("Aceptar")
@@ -503,7 +509,7 @@ fun Card(
                                     Button(
                                         onClick = {
                                             // Cerrar el diálogo sin guardar cambios
-                                            showDialogEdit = false
+                                            showDialogEdit.value = false
                                         }
                                     ) {
                                         Text("Cancelar")
@@ -511,7 +517,7 @@ fun Card(
                                 }
                             )
 
-                             */
+
                         }
 
                     }
