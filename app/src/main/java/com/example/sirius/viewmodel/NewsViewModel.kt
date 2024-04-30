@@ -21,7 +21,7 @@ class NewsViewModel(private val newsDao: NewsDao) : ViewModel() {
         return newsDao.getWhatNews()
     }
 
-    suspend fun inserNews(news: News) {
+    suspend fun insertNews(news: News) {
         newsDao.insertNews(news)
     }
 
