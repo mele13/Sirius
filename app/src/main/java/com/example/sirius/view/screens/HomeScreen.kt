@@ -46,8 +46,11 @@ import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
+import com.example.sirius.view.components.AnimalFormData
 import com.example.sirius.view.components.AnimalFormDialog
+import com.example.sirius.view.components.AnimalFormState
 import com.example.sirius.view.components.AnimalItem
+import com.example.sirius.view.components.NewsFormData
 import com.example.sirius.view.components.NewsFormDialog
 import com.example.sirius.view.components.NewsItem
 import com.example.sirius.view.components.rememberAnimalFormState
@@ -146,7 +149,31 @@ fun Section(
         userViewModel = userViewModel
     )
 
+    var animalFormData = AnimalFormData(
+        0,
+        "", "", "",
+        waitingAdoption = false,
+        fosterCare = false,
+        shortInfo = "",
+        longInfo = "",
+        breed = "",
+        type = "",
+        entryDate = "",
+        photoAnimal = "",
+        inShelter = false,
+        lost = false
+    )
 
+    var newsFormData = NewsFormData(
+        0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        false)
     if (showDialogAdd.value) {
         if (isAnimalSection){
             AnimalFormDialog(
@@ -154,6 +181,7 @@ fun Section(
                 animalFormState = animalFormState,
                 typeList = typeList,
                 sectionType = determineSectionType(title),
+                animalFormData = animalFormData,
                 isEdit = false
             ) {
             }
@@ -161,9 +189,10 @@ fun Section(
             NewsFormDialog(
                 showDialogAdd = showDialogAdd,
                 newsFormState = newsFormState,
-                dateState = dateState,
-                newsViewmodel = newsViewModel,
-                sectionType = determineSectionType(title)
+                sectionType = determineSectionType(title),
+                newsFormData,
+                false
+
             ) {
             }
         }
@@ -272,6 +301,8 @@ fun AddButton(
 @Composable
 fun DropdownFiltersHome(
     typeList: List<String>,
+    animalFormData: AnimalFormData,
+    animalFormState: AnimalFormState,
     onTypeSelected: (String) -> Unit
 ){
     var typeDropdownExpanded by remember { mutableStateOf(false) }
@@ -281,9 +312,11 @@ fun DropdownFiltersHome(
     DropdownButtonHome(
         text = "Type",
         options = typeList.map { it },
-        selectedOption = selectedType,
+        selectedOption = if( animalFormData.type == null) selectedType else animalFormData.type,
         onOptionSelected = {
             selectedType = it
+            animalFormData.type = it
+            animalFormState.typeAnimal = it
             onTypeSelected(it)
         },
         expanded = typeDropdownExpanded,

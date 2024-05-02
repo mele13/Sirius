@@ -24,11 +24,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
-import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
+import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.viewmodel.NewsViewModel
 import kotlinx.coroutines.launch
 
@@ -36,13 +37,31 @@ import kotlinx.coroutines.launch
 fun NewsFormDialog(
     showDialogAdd: MutableState<Boolean>,
     newsFormState: NewsFormState,
-    dateState: Long,
-    newsViewmodel: NewsViewModel,
     sectionType: SectionType,
     newsFormData: NewsFormData? =  null,
+    isEdit : Boolean,
     onAddClick: () -> Unit,
 ) {
-    var formData = NewsFormData("", "", "", "", "", "", "", false)
+
+
+    val newsViewmodel: NewsViewModel = viewModel(factory = NewsViewModel.factory)
+
+    val dateState = System.currentTimeMillis()
+
+    var formData = newsFormData ?: NewsFormData(
+        0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        false)
+
+    if (newsFormData != null) {
+        formData = newsFormData
+    }
 
     if (sectionType ==  SectionType.GOOD_NEWS) {
         newsFormState.goodNews = true
@@ -54,20 +73,38 @@ fun NewsFormDialog(
         onDismissRequest = { showDialogAdd.value = false },
         title = { Text("Add New") },
         text = {
-            formData = newsFormFields(state = dateState, newsFormState = newsFormState)
+            formData = newsFormFields(
+                state = dateState,
+                newsFormState = newsFormState,
+                newsFormData,
+                isEdit
+            )
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (formData.photoNews.isEmpty()){
-                        formData.photoNews = "res/drawable/user_image2.jpg"
+                    if (isEdit){
+                        println("updateAnimal")
+                        onAddClick()
+                        showDialogAdd.value = false
+                        newsViewmodel.viewModelScope.launch {
+                            newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
+                            newsFormState.clear()
+                        }
+                    } else {
+                        if (formData.photoNews.isEmpty()){
+                            formData.photoNews = "res/drawable/user_image1.jpg"
+                        }
+                        onAddClick()
+                        showDialogAdd.value = false
+                        println(formData)
+                        newsViewmodel.viewModelScope.launch {
+                            newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
+                            newsFormState.clear()
+                        }
+
+                        println("insertAnimal")
                     }
-                    onAddClick()
-                    showDialogAdd.value = false
-                    newsViewmodel.viewModelScope.launch {
-                        newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews) ))
-                    }
-                    newsFormState.clear()
                 },
                 enabled = newsFormState.title.isNotEmpty() &&
                         newsFormState.shortInfo.isNotEmpty() &&
@@ -94,9 +131,12 @@ fun NewsFormDialog(
 private fun newsFormFields(
     state: Long,
     newsFormState: NewsFormState,
+    newsFormData: NewsFormData?,
+    isEdit: Boolean
 ): NewsFormData {
 
-    val formData = NewsFormData(
+    val formData = newsFormData ?: NewsFormData(
+        id = newsFormData?.id ?: 0,
         title = newsFormState.title,
         shortInfo = newsFormState.shortInfo,
         longInfo = newsFormState.longInfo,
@@ -107,62 +147,88 @@ private fun newsFormFields(
         goodNews = newsFormState.goodNews,
     )
 
+
+
+    newsFormState.id = formData.id
+    newsFormState.title = formData.title
+    newsFormState.shortInfo = formData.shortInfo
+    newsFormState.longInfo = formData.longInfo
+    newsFormState.publishedDate = formData.publishedDate
+    newsFormState.createdAt = formData.createdAt
+    newsFormState.untilDate = formData.untilDate
+    newsFormState.photoNews = formData.photoNews
+    newsFormState.goodNews = formData.goodNews
     LazyColumn(
         modifier = Modifier.padding(8.dp)
     ) {
         item {
             CustomTextField(
                 value = newsFormState.title,
-                onValueChange = { newsFormState.title = it },
+                onValueChange = {
+                    newsFormState.title = it
+                    formData.title = it
+                                },
                 label = "Title new"
             )
         }
         item {
             CustomTextField(
                 value = newsFormState.shortInfo,
-                onValueChange = { newsFormState.shortInfo = it },
+                onValueChange = { newsFormState.shortInfo = it
+                    formData.shortInfo = it
+                },
                 label = "Short Info"
             )
         }
         item {
             CustomTextField(
                 value = newsFormState.longInfo,
-                onValueChange = { newsFormState.longInfo = it },
+                onValueChange = { newsFormState.longInfo = it
+                    formData.longInfo = it
+                },
                 label = "Long Info"
             )
         }
         item {
             DatePickerItem(
-                state = state,
+                state =  if( formData.publishedDate != "") parseDateStringToLong(formData.publishedDate) else state,
                 onDateSelected = { date ->
                     newsFormState.publishedDate = date
+                    formData.publishedDate = date
+
                 },
                 title = "Published Date"
             )
         }
         item {
             DatePickerItem(
-                state = state,
+                state =  if( formData.createdAt != "") parseDateStringToLong(formData.createdAt) else state,
                 onDateSelected = { date ->
                     newsFormState.createdAt = date
+                    formData.createdAt = date
+
                 },
                 title = "Create At"
             )
         }
         item {
             DatePickerItem(
-                state = state,
+                state =  if( formData.untilDate != "") parseDateStringToLong(formData.untilDate) else state,
                 onDateSelected = { date ->
                     newsFormState.untilDate = date
+                    formData.untilDate = date
+
                 },
                 title = "Until Date"
             )
         }
         item {
             PhotoPicker (
-                selectedImage = newsFormState.photoNews,
+                selectedImage = formData.photoNews,
                 onImageSelected = { imagePath ->
                     newsFormState.photoNews = imagePath
+                    formData.photoNews = imagePath
+
                 }
             )
         }
@@ -206,6 +272,7 @@ fun rememberNewsFormState(): NewsFormState {
 }
 
 data class NewsFormData(
+    var id : Int,
     var title: String,
     var shortInfo: String,
     var longInfo: String,
@@ -228,7 +295,7 @@ class NewsFormState {
         photoNews = ""
         goodNews = false
     }
-
+    var id by mutableStateOf(0)
     var title by mutableStateOf("")
     var shortInfo by mutableStateOf("")
     var longInfo by mutableStateOf("")

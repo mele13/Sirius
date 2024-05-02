@@ -41,11 +41,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.sirius.model.Animal
+import com.example.sirius.model.News
 import com.example.sirius.tools.calculateAgeCategory
 import com.example.sirius.tools.getYearRangeFromCategory
 import com.example.sirius.tools.mapCategoryToYearRange
 import com.example.sirius.ui.theme.Gold
-import com.example.sirius.view.components.Card
+import com.example.sirius.view.components.AnimalCard
+import com.example.sirius.view.components.NewsCard
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -250,8 +253,18 @@ fun AnimalsGallery(
             items(items.size) { index ->
                 val item = items.getOrNull(index)
                 item?.let {
-                    if (newsViewModel != null) {
+                    if (newsViewModel != null && item is Animal) {
                         AnimalCard(
+                            item = item,
+                            navController = navController,
+                            animalViewModel = animalViewModel,
+                            userViewModel = userViewModel,
+                            newsViewModel = newsViewModel,
+                        )
+                    }
+
+                    if(newsViewModel != null && item is News){
+                        NewsCard(
                             item = item,
                             navController = navController,
                             animalViewModel = animalViewModel,
@@ -407,7 +420,7 @@ fun AnimalCard(
     userViewModel: UserViewModel,
     newsViewModel: NewsViewModel,
 ) {
-    Card(
+    AnimalCard(
         item = item,
         navController = navController,
         animalViewModel = animalViewModel,

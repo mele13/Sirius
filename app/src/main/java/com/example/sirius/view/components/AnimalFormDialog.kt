@@ -35,6 +35,7 @@ import com.example.sirius.model.Animal
 import com.example.sirius.model.SectionType
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
+import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.view.screens.DropdownFiltersHome
 import com.example.sirius.viewmodel.AnimalViewModel
@@ -56,7 +57,9 @@ fun AnimalFormDialog(
 
     val dateState = System.currentTimeMillis()
 
+
     var formData = animalFormData ?: AnimalFormData(
+        0,
         "", "", "",
         waitingAdoption = false,
         fosterCare = false,
@@ -70,14 +73,9 @@ fun AnimalFormDialog(
         lost = false
     )
 
-
-//
-    if (animalFormData != null){
+    if (animalFormData != null) {
         formData = animalFormData
     }
-
-    println("formData")
-    println(formData)
 
     if (sectionType ==  SectionType.LOST) {
         animalFormState.lost = true
@@ -95,39 +93,54 @@ fun AnimalFormDialog(
                 animalViewmodel = animalViewModel,
                 typeList = typeList,
                 sectionType = sectionType,
-                animalFormData = formData
+                animalFormData = formData,
+                isEdit
             )
         },
         confirmButton = {
             Button(
                 onClick = {
-
-                        if (formData.photoAnimal.isEmpty()){
-                            formData.photoAnimal = "res/drawable/user_image1.jpg"
-                        }
+                    if (isEdit){
+                        println("updateAnimal")
                         onAddClick()
                         showDialogAdd.value = false
                         animalViewModel.viewModelScope.launch {
                             stringToEnumTypeAnimal(formData.type)?.let {
-                                Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
+                                Animal(formData.id, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
                                     it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
                                 )
                             }?.let { animalViewModel.updateAnimal(it) }
                             animalFormState.clear()
                         }
+                    } else {
+                        if (formData.photoAnimal.isEmpty()){
+                            formData.photoAnimal = "res/drawable/user_image1.jpg"
+                        }
+                        onAddClick()
+                        showDialogAdd.value = false
+                        println(formData)
+                        animalViewModel.viewModelScope.launch {
+                            stringToEnumTypeAnimal(formData.type)?.let {
+                                Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
+                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
+                                )
+                            }?.let { animalViewModel.insertAnimal(it) }
+                            animalFormState.clear()
+                        }
 
-
-
+                        println("insertAnimal")
+                    }
 
                 },
-                /*enabled = animalFormState.name.isNotEmpty() &&
+
+                enabled = animalFormState.name.isNotEmpty()  &&
                         animalFormState.sex.isNotEmpty() &&
                         animalFormState.shortInfo.isNotEmpty() &&
                         animalFormState.longInfo.isNotEmpty() &&
                         animalFormState.breed.isNotEmpty() &&
                         animalFormState.typeAnimal.isNotBlank()
 
-                 */
+
             ) {
                 Text("Add")
             }
@@ -135,6 +148,9 @@ fun AnimalFormDialog(
         dismissButton = {
             Button(
                 onClick = {
+                    println("formData")
+                    println(formData)
+                    println(animalFormData)
                     showDialogAdd.value = false
                     animalFormState.clear()
                 }
@@ -153,10 +169,12 @@ private fun animalFormFields(
     animalViewmodel: AnimalViewModel,
     typeList: List<String>,
     sectionType: SectionType,
-    animalFormData: AnimalFormData?
+    animalFormData: AnimalFormData?,
+    isEdit: Boolean
 ): AnimalFormData {
 
     val formData = animalFormData ?: AnimalFormData(
+        id = animalFormData?.id ?: 0,
         name = animalFormState.name,
         birthDate = animalFormState.birthDate,
         sex = animalFormState.sex,
@@ -172,6 +190,7 @@ private fun animalFormFields(
         lost = animalFormState.lost
     )
 
+    animalFormState.id = formData.id
     animalFormState.name = formData.name
     animalFormState.birthDate = formData.birthDate
     animalFormState.sex = formData.sex
@@ -186,11 +205,6 @@ private fun animalFormFields(
     animalFormState.inShelter = formData.inShelter
     animalFormState.lost = formData.lost
 
-    println("uwu formdata")
-    println(formData)
-    println("animalFormData")
-    println(animalFormData)
-
     LazyColumn(
         modifier = Modifier.padding(8.dp)
     ) {
@@ -204,8 +218,9 @@ private fun animalFormFields(
             )
         }
         item {
+            println(dateState)
             DatePickerItem(
-                state = dateState,
+                state = if( formData.birthDate != "") parseDateStringToLong(formData.birthDate) else dateState,
                 onDateSelected = { date ->
                     animalFormState.birthDate = date
                     formData.birthDate = date
@@ -214,7 +229,7 @@ private fun animalFormFields(
             )
         }
         item {
-            SexCheckbox(animalFormState)
+            SexCheckbox(animalFormState, formData)
         }
         item {
             StatusCheckbox(
@@ -295,17 +310,18 @@ private fun animalFormFields(
           //  var selectedType by remember { mutableStateOf(formData.type) }
             var selectedType = formData.type
             Text("Type animal")
-            DropdownFiltersHome(
-                typeList,
-                onTypeSelected = { selectedType = it }
-            )
-            animalFormState.typeAnimal = selectedType
-            formData.type = selectedType
+                DropdownFiltersHome(
+                    typeList,
+                    formData,
+                    animalFormState,
+                    onTypeSelected = { selectedType = it }
+                )
+
 
         }
         item {
             DatePickerItem(
-                state = dateState,
+                state = if( formData.entryDate != "") parseDateStringToLong(formData.entryDate) else dateState,
                 onDateSelected = { date ->
                     animalFormState.entryDate = date
                     formData.entryDate = date
@@ -324,11 +340,12 @@ private fun animalFormFields(
                 }
             )
         }
-        if (sectionType != SectionType.IN_SHELTER){
+
+        if (sectionType != SectionType.IN_SHELTER || isEdit){
             item {
                 StatusCheckbox(
                     labelText = "In shelter",
-                    checked = animalFormState.inShelter ?: formData.inShelter ?: false,
+                    checked = animalFormState.inShelter,
                     onCheckedChange = { isChecked ->
                         animalFormState.inShelter = isChecked
                         formData.inShelter = isChecked
@@ -336,7 +353,7 @@ private fun animalFormFields(
                 )
             }
         }
-        if (sectionType != SectionType.LOST) {
+        if (sectionType != SectionType.LOST || isEdit) {
             item {
                 StatusCheckbox(
                     labelText = "Lost",
@@ -391,6 +408,7 @@ fun rememberAnimalFormState(): AnimalFormState {
 }
 
 data class AnimalFormData(
+    var id: Int = 0,
     var name: String,
     var birthDate: String,
     var sex: String,
@@ -424,6 +442,7 @@ class AnimalFormState {
         lost = false
     }
 
+    var id by mutableStateOf(0)
     var name by mutableStateOf("")
     var sex by mutableStateOf("")
     var waitingAdoption by mutableStateOf(false)

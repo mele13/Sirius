@@ -42,7 +42,7 @@ import com.example.sirius.ui.theme.Green4
 import com.example.sirius.view.screens.getDrawableResourceId
 
 @Composable
-fun SexCheckbox(animalFormState: AnimalFormState) {
+fun SexCheckbox(animalFormState: AnimalFormState, animalFormData: AnimalFormData)  {
     val bothEmpty = animalFormState.sex.isEmpty()
     val textColor = if (bothEmpty) Color.Red else LocalContentColor.current
 
@@ -58,6 +58,8 @@ fun SexCheckbox(animalFormState: AnimalFormState) {
                 checked = animalFormState.sex == "M",
                 onCheckedChange = { isChecked ->
                     animalFormState.sex = if (isChecked) "M" else ""
+                    animalFormData.sex = if (isChecked) "M" else ""
+
                 }
             )
         }
@@ -69,6 +71,8 @@ fun SexCheckbox(animalFormState: AnimalFormState) {
                 checked = animalFormState.sex == "F",
                 onCheckedChange = { isChecked ->
                     animalFormState.sex = if (isChecked) "F" else ""
+                    animalFormData.sex = if (isChecked) "F" else ""
+
                 }
             )
         }
