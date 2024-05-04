@@ -59,6 +59,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
+import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeAnimal
 import com.example.sirius.model.TypeUser
@@ -479,7 +480,7 @@ fun AnimalInfo(
 @SuppressLint("DiscouragedApi")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CarouselSlider(photoPaths: List<String>, animal: Animal, context: Context) {
+fun CarouselSlider(photoPaths: List<String>, item: Any, context: Context) {
     val pagerState = rememberPagerState()
     Box(
         modifier = Modifier.fillMaxSize()
@@ -493,11 +494,22 @@ fun CarouselSlider(photoPaths: List<String>, animal: Animal, context: Context) {
             val resourceId = context.resources.getIdentifier(
                 resourceName, "drawable", context.packageName
             )
-            if(resourceId != 0) {
-                GetImage(painter = resourceId, description = animal.shortInfoAnimal)
-            } else {
-                GetImage(painter = R.drawable.image_not_found, description = animal.shortInfoAnimal)
+
+            if(item is Animal){
+                if(resourceId != 0) {
+                    GetImage(painter = resourceId, description = item.shortInfoAnimal)
+                } else {
+                    GetImage(painter = R.drawable.image_not_found, description = item.shortInfoAnimal)
+                }
+            } else if (item is News){
+                if(resourceId != 0) {
+                    GetImage(painter = resourceId, description = item.shortInfoNews)
+                } else {
+                    GetImage(painter = R.drawable.image_not_found, description = item.shortInfoNews)
+                }
             }
+
+
         }
     }
 }

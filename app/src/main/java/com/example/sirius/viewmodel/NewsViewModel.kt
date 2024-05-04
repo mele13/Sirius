@@ -32,6 +32,9 @@ class NewsViewModel(private val newsDao: NewsDao) : ViewModel() {
     suspend fun deleteNews(newNew: News) {
         newsDao.deleteNews(newNew)
     }
+    fun getNewsById(option: Int): Flow<News?> = newsDao.getNewsById(option)
+
+
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {

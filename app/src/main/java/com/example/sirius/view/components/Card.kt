@@ -640,7 +640,7 @@ fun NewsCard(
 
                             var editedLongInfo by remember {
                                 mutableStateOf(
-                                    (item as? Animal)?.longInfoAnimal ?: ""
+                                    (item as? News)?.longInfoNews ?: ""
                                 )
                             }
 
@@ -796,6 +796,9 @@ fun NewsCard(
 private fun navigateToDetails(item: Any, navController: NavController) {
     if (item is Animal) {
         navController.navigate(route = Routes.ANIMALINFO + "/" + item.id)
+    }else if( item is News) {
+        navController.navigate(route = Routes.NEWSINFO + "/" + item.id)
+
     }
 }
 

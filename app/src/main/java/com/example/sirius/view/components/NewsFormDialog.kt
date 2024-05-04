@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
+import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.viewmodel.NewsViewModel
@@ -251,7 +252,7 @@ fun NewsItem(news: News, navController: NavController) {
         ) {
             val painter = painterResource(id = resourceId)
             SquareImage(painter = painter, onClick = {
-               // navController.navigate(route = Routes.NEWSINFO + "/" + news.id)
+                navController.navigate(route = Routes.NEWSINFO + "/" + news.id)
             })
             Text(
                 text = news.titleNews,

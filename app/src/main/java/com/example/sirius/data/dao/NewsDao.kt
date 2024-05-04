@@ -25,14 +25,16 @@ interface NewsDao {
     @Query("SELECT * FROM News WHERE title = :title ORDER BY published_date DESC")
     fun getNewsByTitle(title: String): Flow<List<News>>
 
-    @Query("SELECT * FROM News WHERE id = :newsId")
-    suspend fun getNewsById(newsId: Int): News?
+
 
     @Query("SELECT * FROM News WHERE good_news = 1 ORDER BY published_date DESC")
     fun getGoodNews(): Flow<List<News>>
 
     @Query("SELECT * FROM News WHERE good_news = 0 ORDER BY published_date DESC")
     fun getWhatNews(): Flow<List<News>>
+
+    @Query("SELECT * FROM News WHERE id = :id")
+    fun getNewsById(id: Int): Flow<News>
 
     @Query("DELETE FROM News")
     suspend fun deleteAllNews()
@@ -48,4 +50,8 @@ interface NewsDao {
 
     @Query("UPDATE News SET photo_news = :photoNews  WHERE id = :newsId")
     suspend fun updatePhotoNews(newsId: Int, photoNews : String)
+
+
+
+
 }

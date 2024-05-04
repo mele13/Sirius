@@ -53,6 +53,7 @@ import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
 import com.example.sirius.view.screens.LoginScreen
 import com.example.sirius.view.screens.Messages
+import com.example.sirius.view.screens.NewsInfo
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SettingsScreen
 import com.example.sirius.view.screens.SignupScreen
@@ -201,6 +202,22 @@ fun NavigationContent(
 
                     )
                 }
+
+                composable(route = Routes.NEWSINFO + "/{id}",
+                    arguments = listOf(navArgument(name = "id") {
+                        type = NavType.IntType
+                    })) {
+
+                    NewsInfo(
+                        it.arguments?.getInt("id"),
+                        newsViewModel,
+                        userViewModel,
+                        chatViewModel,
+                        navController,
+
+                        )
+                }
+
                 composable(route = Routes.LOGIN) {
                     LoginScreen(navController = navController, userViewModel = userViewModel)
                 }
