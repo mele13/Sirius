@@ -101,4 +101,5 @@
     <string name="new_record" translatable="false">New record</string>
     <string name="appointment_date" translatable="false">Appointment date</string>
     <string name="prescription_end_date" translatable="false">Prescription end date</string>
+    <string name="calendar" translatable="false">Calendar</string>
 </resources>

@@ -121,59 +121,59 @@ fun AddGoogleMap(location : String) {
 
 
 @SuppressLint("DiscouragedApi")
-@Composable
-fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
-    val shelterImages = listOf("shelter1", "shelter2", "shelter3", "shelter4")
-    val context = LocalContext.current
+            @Composable
+            fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
+                val shelterImages = listOf("shelter1", "shelter2", "shelter3", "shelter4")
+                val context = LocalContext.current
 
-    val shelter by shelterViewModel.getShelterById(id ?: 0).collectAsState(initial = null)
+                val shelter by shelterViewModel.getShelterById(id ?: 0).collectAsState(initial = null)
 
-    val showDialogAdd = remember { mutableStateOf(false) }
+                val showDialogAdd = remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        item {
-            SectionTitle("About Us")
-            shelter?.let { JustifiedText(it.aboutUs) }
-        }
-
-        item {
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                for (image in shelterImages) {
-                    val resourceId = context.resources.getIdentifier(
-                        image, "drawable", context.packageName
-                    )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
                     item {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                        SectionTitle("About Us")
+                        shelter?.let { JustifiedText(it.aboutUs) }
+                    }
+
+                    item {
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            SquareImage(resourceId)
+                            for (image in shelterImages) {
+                                val resourceId = context.resources.getIdentifier(
+                                    image, "drawable", context.packageName
+                                )
+                                item {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        SquareImage(resourceId)
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            }
-        }
 
-        item {
-            shelter?.let { LocationCard(it.location) }
-        }
+                    item {
+                        shelter?.let { LocationCard(it.location) }
+                    }
 
-        item {
-            SectionTitle("Schedule")
-            shelter?.let { JustifiedText(it.schedule) }
+                    item {
+                        SectionTitle("Schedule")
+                        shelter?.let { JustifiedText(it.schedule) }
 
-        }
+                    }
 
-        item {
-            SectionTitle("Shelter's Data")
+                    item {
+                        SectionTitle("Shelter's Data")
             shelter?.let { JustifiedText(it.sheltersData) }
         }
 

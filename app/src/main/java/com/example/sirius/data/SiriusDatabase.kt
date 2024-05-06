@@ -17,9 +17,11 @@ import com.example.sirius.model.LikedAnimal
 import com.example.sirius.model.News
 import com.example.sirius.model.Shelter
 import com.example.sirius.model.User
+import com.example.sirius.model.Event
+import com.example.sirius.data.dao.EventDAO
 
 @Database(
-    entities = [Animal::class, News::class, User::class, LikedAnimal::class, Chat::class, Shelter::class, ClinicalRecord::class],
+    entities = [Animal::class, News::class, User::class, LikedAnimal::class, Chat::class, Shelter::class, ClinicalRecord::class, Event::class],
     version = 2,
     exportSchema = false
 )
@@ -31,6 +33,7 @@ abstract class SiriusDatabase: RoomDatabase() {
     abstract fun chatDao(): ChatDao
     abstract fun shelterDao(): ShelterDao
     abstract fun clinicalRecordDao(): ClinicalRecordDao
+    abstract fun eventDao(): EventDAO
 
     companion object {
         @Volatile

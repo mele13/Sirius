@@ -14,13 +14,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.sirius.view.components.NavigationActions
 import com.example.sirius.view.components.NavigationContent
 import com.example.sirius.viewmodel.ChatViewModel
+import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationController(
     userViewModel: UserViewModel,
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
+    eventViewModel: EventViewModel
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -41,6 +43,7 @@ fun NavigationController(
             chatViewModel = chatViewModel,
             selectedDestination = selectedDestination,
             navigateDestination = navigateAction::navigateTo,
+            eventViewModel = eventViewModel,
         )
     }
 }

@@ -2,6 +2,9 @@ package com.example.sirius.navigation
 
 import androidx.compose.runtime.Composable
 import com.example.sirius.R
+import com.example.sirius.model.TypeUser
+import com.example.sirius.model.User
+import com.example.sirius.viewmodel.UserViewModel
 
 @Composable
 fun createDestination(route: String, selectedIcon: Int, iconTextId: Int): Destinations {
@@ -14,14 +17,25 @@ fun createDestination(route: String, selectedIcon: Int, iconTextId: Int): Destin
 }
 
 @Composable
-fun createDestinations(): List<Destinations> {
-    return listOf(
-        createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
-        createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
-        createDestination(Routes.CHAT,R.drawable.chat_icon, R.string.chat),
-        createDestination(Routes.DONATIONS, R.drawable.donations_icon, R.string.donations),
-        createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
-    )
+fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
+    if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true || userViewModel.getAuthenticatedUser()?.equals(null) ?: true ) {
+        return listOf(
+            createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
+            createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
+            createDestination(Routes.CHAT, R.drawable.chat_icon, R.string.chat),
+            createDestination(Routes.DONATIONS, R.drawable.donations_icon, R.string.donations),
+            createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
+        )
+    } else {
+        return listOf(
+            createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
+            createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
+            createDestination(Routes.CHAT, R.drawable.chat_icon, R.string.chat),
+            createDestination(Routes.DONATIONS, R.drawable.donations_icon, R.string.donations),
+            createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
+            createDestination(Routes.CALENDAR, R.drawable.calendar,R.string.calendar )
+        )
+    }
 }
 
 data class Destinations(
@@ -49,4 +63,5 @@ object Routes {
     const val CHAT = "chat"
     const val SETTIGNS = "settings"
     const val NEWSINFO = "news info"
+    const val CALENDAR = "calendar"
 }

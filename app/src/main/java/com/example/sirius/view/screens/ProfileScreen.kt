@@ -1,6 +1,7 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
+import android.content.ClipData.Item
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -8,7 +9,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-
+import androidx.compose.foundation.layout.Box
+import com.example.sirius.tools.DATE_FORMAT
 import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
@@ -53,6 +55,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -69,18 +73,24 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Animal
+import com.example.sirius.model.Event
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
+import com.example.sirius.tools.formatDate
 import com.example.sirius.tools.isEmailValid
 import com.example.sirius.tools.isPasswordValid
+import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.CustomSnackbar
+import com.example.sirius.view.components.EventCard
 import com.example.sirius.view.components.ListEmployed
+import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.UserViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -88,6 +98,8 @@ import kotlinx.coroutines.launch
 fun ProfileScreen(
     navController: NavController,
     userViewModel: UserViewModel,
+    eventViewModel: EventViewModel
+
 ) {
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
     val username by remember { mutableStateOf(user?.username ?: "") }
@@ -96,6 +108,7 @@ fun ProfileScreen(
     val likedAnimals by userViewModel.getLikedAnimals(user?.id ?: -1).collectAsState(emptyList())
     val currentUser by userViewModel.currentUser.collectAsState()
     var showUpdateImageDialog by remember { mutableStateOf(false) }
+    val events by eventViewModel.getEvents().collectAsState(initial = null)
 
     val predefinedImageList = listOf(
         "res/drawable/user_image1",
@@ -205,6 +218,13 @@ fun ProfileScreen(
                     } else if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.owner) == true) {
                         Text(text = stringResource(id = R.string.list_employees))
                         ListEmployed(userViewModel)
+                    }
+                }
+                item{
+                    if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == false){
+                        Text(text = "Events for you")
+                        events?.let { user?.let { it1 -> ShowEvents(it, it1, eventViewModel) } }
+
                     }
                 }
             }
@@ -368,6 +388,45 @@ fun ProfileItem(
         )
     }
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ShowEvents(events: List<Event>,user: User, eventViewModel: EventViewModel) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        events.forEach { event ->
+            if (event.UserID == user.id.toString()) {
+                if (parseDateStringToLong(event.dateEvent) >= System.currentTimeMillis()) {
+                    /*
+                    Text(
+                        text = "Titulo: ${event.titleEvent}",
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = event.descriptionEvent,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = "Para: ${event.dateEvent}",
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Text(
+                        text = "----------------------"
+                    )
+
+                     */
+                    EventCard(event = event, eventViewModel = eventViewModel, user = user)
+                }
+            }
+        }
+    }
+}
+
+
+
 
 @Composable
 fun LogoutButton(onLogoutClick: () -> Unit) {

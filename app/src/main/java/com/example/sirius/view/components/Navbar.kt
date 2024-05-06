@@ -1,6 +1,7 @@
 package com.example.sirius.view.components
 
 import AboutUsScreen
+import CalendarScreen
 import DonationsScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -58,8 +59,10 @@ import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SettingsScreen
 import com.example.sirius.view.screens.SignupScreen
 import com.example.sirius.view.screens.SignupShelterScreen
+
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
+import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -71,6 +74,7 @@ fun NavigationContent(
     navController: NavHostController,
     userViewModel: UserViewModel,
     chatViewModel: ChatViewModel,
+    eventViewModel: EventViewModel,
     selectedDestination: String,
     navigateDestination: (Destinations) -> Unit,
 ) {
@@ -227,6 +231,9 @@ fun NavigationContent(
                 composable(route = Routes.SIGNUPSHELTER) {
                     SignupShelterScreen(navController = navController, userViewModel = userViewModel)
                 }
+                composable(route = Routes.CALENDAR){
+                    CalendarScreen(userViewModel = userViewModel, eventViewModel = eventViewModel)
+                }
                 composable(route = Routes.LANDINGPAGE) {
                     LandingPage(navController = navController)
                 }
@@ -246,6 +253,7 @@ fun NavigationContent(
                     ProfileScreen(
                         navController = navController,
                         userViewModel = userViewModel,
+                        eventViewModel = eventViewModel
                     )
                 }
                 composable(route = Routes.CLINICALRECORD + "/{id}",
@@ -284,6 +292,7 @@ fun NavigationContent(
                 Navbar(
                     selectedDestination = selectedDestination,
                     navigateDestination = navigateDestination,
+                    userViewModel
                 )
             }
         }
@@ -299,8 +308,9 @@ private fun selectColor(destination: Destinations, selectedDestination: String):
 fun Navbar(
     selectedDestination: String,
     navigateDestination: (Destinations) -> Unit,
+    userViewModel: UserViewModel
 ) {
-    val destinations = createDestinations()
+    val destinations = createDestinations(userViewModel = userViewModel)
 
     Row(
         modifier = Modifier

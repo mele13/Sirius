@@ -84,7 +84,7 @@ fun SexCheckbox(animalFormState: AnimalFormState, animalFormData: AnimalFormData
 fun DatePickerItem(
     state: Long,
     title: String,
-    onDateSelected: (String) -> Unit
+    onDateSelected: @Composable (String) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(state)
 
