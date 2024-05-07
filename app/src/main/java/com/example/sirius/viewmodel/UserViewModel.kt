@@ -66,7 +66,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         }
     }
 
-    suspend fun registerUser(username: String, email: String, password: String): Boolean {
+    suspend fun registerUser(username: String, email: String, password: String, role: TypeUser): Boolean {
         if (username.isBlank() || email.isBlank() || password.isBlank()) return false
         if (!checkIfUserExists(username)) {
             return try {
@@ -74,7 +74,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
                     username = username,
                     email = email,
                     password = password,
-                    role = TypeUser.user,
+                    role = role,
                     photoUser = "res/drawable/user_default_image.jpg",
                 )
                 viewModelScope.launch {

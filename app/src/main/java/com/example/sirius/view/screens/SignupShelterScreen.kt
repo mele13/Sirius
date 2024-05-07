@@ -53,6 +53,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.R
+import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.CustomSnackbar
@@ -237,7 +238,7 @@ fun SignupShelterScreen(navController: NavController, userViewModel: UserViewMod
                             userViewModel.viewModelScope.launch {
                                 signUpButtonClicked = true
                                 if (isEmailValid(email) && isPasswordValid(password)) {
-                                    val success = userViewModel.registerUser(username, email, password)
+                                    val success = userViewModel.registerUser(username, email, password, TypeUser.owner)
                                     if (success) {
                                         delay(2000)
                                         navController.navigate(Routes.HOME)
