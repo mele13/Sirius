@@ -34,7 +34,7 @@ fun NavigationController(
         }
 
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val selectedDestination = navBackStackEntry?.destination?.route ?: Routes.HOME
+        val selectedDestination = navBackStackEntry?.destination?.route ?: Routes.SHELTERLIST
 
         NavigationContent(
             modifier = Modifier,

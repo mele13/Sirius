@@ -36,20 +36,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.sirius.model.Shelter
+import com.example.sirius.model.TypeUser
+import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.BarSearch
 import com.example.sirius.view.components.CustomTextField
 import com.example.sirius.viewmodel.ShelterViewModel
+import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavController){
+fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavController, userViewModel: UserViewModel){
     val textState = remember { mutableStateOf(TextFieldValue("")) }
-
     val shelters = shelterViewModel.getAllShelters().collectAsState(emptyList()).value
-
+    val user = userViewModel.getAuthenticatedUser()
     val showDialogAdd = remember { mutableStateOf(false) }
 
     Column {
@@ -63,7 +65,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
             items(items = shelters.filter {
                 it.name.contains(searchedText, ignoreCase = true)
             }, key = { it.id }) { item ->
-                Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel )
+                if (user != null) Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user)
             }
         }
 
@@ -80,8 +82,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
 }
 
 @Composable
-fun Shelter(item: Any, index: Int, navController : NavController, shelterViewModel: ShelterViewModel) {
-
+fun Shelter(item: Any, index: Int, navController : NavController, shelterViewModel: ShelterViewModel, user: User) {
     val border = if (index % 2 == 0) Green1 else Orange
 
     when (item) {
@@ -109,22 +110,23 @@ fun Shelter(item: Any, index: Int, navController : NavController, shelterViewMod
                         )
                         Text(text = item.email)
                     }
+                    if (user.role == TypeUser.admin) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = "Received",
+                            tint = Red,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterVertically)
+                                .padding(8.dp)
+                                .clickable {
+                                    shelterViewModel.viewModelScope.launch {
+                                        shelterViewModel.deleteShelter(item)
+                                    }
 
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = "Received",
-                        tint = Red,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .align(Alignment.CenterVertically)
-                            .padding(8.dp)
-                            .clickable {
-                                shelterViewModel.viewModelScope.launch {
-                                    shelterViewModel.deleteShelter(item)
                                 }
-
-                            }
-                    )
+                        )
+                    }
                 }
 
             }

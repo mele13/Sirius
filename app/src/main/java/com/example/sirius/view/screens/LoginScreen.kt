@@ -211,7 +211,7 @@ fun LoginScreen(navController: NavController, userViewModel: UserViewModel) {
                                 logInButtonClicked = true
                                 val success = userViewModel.login(username, password)
                                 when (success) {
-                                    "true" -> navController.navigate(Routes.HOME)
+                                    "true" -> navController.navigate(Routes.SHELTERLIST)
                                     "shelter" -> navController.navigate(Routes.SHELTER)
                                     else -> errorMessage = "Invalid username or password"
                                 }

@@ -58,6 +58,7 @@ import com.example.sirius.view.screens.Messages
 import com.example.sirius.view.screens.NewsInfo
 import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SettingsScreen
+import com.example.sirius.view.screens.ShelterList
 import com.example.sirius.view.screens.SignupScreen
 import com.example.sirius.view.screens.SignupShelterScreen
 import com.example.sirius.viewmodel.AnimalViewModel
@@ -118,7 +119,7 @@ fun NavigationContent(
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = navController,
-                startDestination = if (userViewModel.getAuthenticatedUser() != null) Routes.HOME
+                startDestination = if (userViewModel.getAuthenticatedUser() != null) Routes.SHELTERLIST
                                    else Routes.LOADING
             ) {
                 composable(route = Routes.HOME) {
@@ -181,7 +182,7 @@ fun NavigationContent(
                     ChatScreen(navController, chatViewModel, userViewModel)
                 }
                 composable(route = Routes.SETTIGNS) {
-                    SettingsScreen(shelterViewModel, navController)
+                    SettingsScreen(shelterViewModel, navController, userViewModel)
                 }
                 composable(route = Routes.CHAT + "/{recipient_user}",
                     arguments = listOf(navArgument(name = "recipient_user") {
@@ -206,7 +207,6 @@ fun NavigationContent(
 
                     )
                 }
-
                 composable(route = Routes.NEWSINFO + "/{id}",
                     arguments = listOf(navArgument(name = "id") {
                         type = NavType.IntType
@@ -218,10 +218,8 @@ fun NavigationContent(
                         userViewModel,
                         chatViewModel,
                         navController,
-
                         )
                 }
-
                 composable(route = Routes.SHELTER) {
                     val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())
                     val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
@@ -229,16 +227,10 @@ fun NavigationContent(
 
                     HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel, typeList = typeList)
                 }
-
-
                 composable(route = Routes.MANAGEMENT) {
                     val shelterId = shelterViewModel.getSheltersOwner(userViewModel.getAuthenticatedUser()!!.id).collectAsState(null).value
                     HandlingScreen(id = shelterId, navController = navController, userViewModel = userViewModel)
                 }
-
-
-
-
                 composable(route = Routes.LOGIN) {
                     LoginScreen(navController = navController, userViewModel = userViewModel)
                 }
@@ -299,6 +291,9 @@ fun NavigationContent(
                         photo = it.arguments?.getString("photo"),
                         animalName = it.arguments?.getString("animalName"),
                     )
+                }
+                composable(route = Routes.SHELTERLIST) {
+                    ShelterList(navController = navController, shelterViewModel = shelterViewModel, userViewModel = userViewModel)
                 }
             }
             if (currentRoute !in listOf(

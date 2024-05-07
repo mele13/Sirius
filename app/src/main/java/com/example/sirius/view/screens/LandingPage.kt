@@ -87,7 +87,7 @@ fun LandingPage(navController: NavController) {
                 Spacer(modifier = Modifier.height(15.dp))
                 RoundButton(
                     text = stringResource(id = R.string.guest),
-                    onClick = { navController.navigate(Routes.HOME) }
+                    onClick = { navController.navigate(Routes.SHELTERLIST) }
                 )
                 Spacer(modifier = Modifier.height(32.dp))
             }
