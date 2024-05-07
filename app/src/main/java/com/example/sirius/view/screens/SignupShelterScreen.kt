@@ -241,7 +241,7 @@ fun SignupShelterScreen(navController: NavController, userViewModel: UserViewMod
                                     val success = userViewModel.registerUser(username, email, password, TypeUser.owner)
                                     if (success) {
                                         delay(2000)
-                                        navController.navigate(Routes.HOME)
+                                        navController.navigate(Routes.SHELTER)
                                     } else {
                                         errorMessage = "Oops! Something went wrong during user creation"
                                     }
