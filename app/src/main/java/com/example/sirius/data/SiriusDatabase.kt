@@ -7,21 +7,23 @@ import androidx.room.RoomDatabase
 import com.example.sirius.data.dao.AnimalDao
 import com.example.sirius.data.dao.ChatDao
 import com.example.sirius.data.dao.ClinicalRecordDao
+import com.example.sirius.data.dao.EventDAO
+import com.example.sirius.data.dao.ManagementDao
 import com.example.sirius.data.dao.NewsDao
 import com.example.sirius.data.dao.ShelterDao
 import com.example.sirius.data.dao.UserDao
 import com.example.sirius.model.Animal
 import com.example.sirius.model.Chat
 import com.example.sirius.model.ClinicalRecord
+import com.example.sirius.model.Event
 import com.example.sirius.model.LikedAnimal
+import com.example.sirius.model.Management
 import com.example.sirius.model.News
 import com.example.sirius.model.Shelter
 import com.example.sirius.model.User
-import com.example.sirius.model.Event
-import com.example.sirius.data.dao.EventDAO
 
 @Database(
-    entities = [Animal::class, News::class, User::class, LikedAnimal::class, Chat::class, Shelter::class, ClinicalRecord::class, Event::class],
+    entities = [Animal::class, News::class, User::class, LikedAnimal::class, Chat::class, Shelter::class, ClinicalRecord::class, Event::class, Management::class],
     version = 2,
     exportSchema = false
 )
@@ -34,6 +36,7 @@ abstract class SiriusDatabase: RoomDatabase() {
     abstract fun shelterDao(): ShelterDao
     abstract fun clinicalRecordDao(): ClinicalRecordDao
     abstract fun eventDao(): EventDAO
+    abstract fun managementDao(): ManagementDao
 
     companion object {
         @Volatile

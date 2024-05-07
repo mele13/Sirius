@@ -49,6 +49,7 @@ import com.example.sirius.view.screens.AnimalSponsor
 import com.example.sirius.view.screens.AnimalsGallery
 import com.example.sirius.view.screens.ChatScreen
 import com.example.sirius.view.screens.ClinicalRecord
+import com.example.sirius.view.screens.HandlingScreen
 import com.example.sirius.view.screens.HomeScreen
 import com.example.sirius.view.screens.LandingPage
 import com.example.sirius.view.screens.LoadingPage
@@ -59,7 +60,6 @@ import com.example.sirius.view.screens.ProfileScreen
 import com.example.sirius.view.screens.SettingsScreen
 import com.example.sirius.view.screens.SignupScreen
 import com.example.sirius.view.screens.SignupShelterScreen
-
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.EventViewModel
@@ -221,6 +221,23 @@ fun NavigationContent(
 
                         )
                 }
+
+                composable(route = Routes.SHELTER) {
+                    val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())
+                    val newsList by newsViewModel.getNews().collectAsState(initial = emptyList())
+                    val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
+
+                    HomeScreen(navController = navController, animalList = animalList, newsList = newsList, userViewModel = userViewModel, typeList = typeList)
+                }
+
+
+                composable(route = Routes.MANAGEMENT) {
+                    val shelterId = shelterViewModel.getSheltersOwner(userViewModel.getAuthenticatedUser()!!.id).collectAsState(null).value
+                    HandlingScreen(id = shelterId, navController = navController, userViewModel = userViewModel)
+                }
+
+
+
 
                 composable(route = Routes.LOGIN) {
                     LoginScreen(navController = navController, userViewModel = userViewModel)

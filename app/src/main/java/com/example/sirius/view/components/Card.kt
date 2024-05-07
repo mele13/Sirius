@@ -8,6 +8,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,13 +19,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,8 +38,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -59,7 +62,6 @@ import com.example.sirius.tools.CheckIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.intToBoolean
-import com.example.sirius.ui.theme.Black
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
@@ -139,6 +141,9 @@ fun AnimalCard(
         shape = MaterialTheme.shapes.medium,
 
         ) {
+
+
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -174,6 +179,7 @@ fun AnimalCard(
                 )
 
 
+
                 if (resourceId != 0) {
                     val painter = painterResource(id = resourceId)
                     Box(
@@ -187,19 +193,52 @@ fun AnimalCard(
                                 .fillMaxSize()
                                 .aspectRatio(1f)
                         )
-                        ShowDeleteDialog(
-                            item = item,
-                            animalViewModel = animalViewModel,
-                            newsViewModel = newsViewModel,
-                            showDialogDelete = showDialogDelete,
-                            onDismiss = { showDialogDelete = false }
-                        )
+
+                        if (user!!.role == TypeUser.admin || user!!.role == TypeUser.owner) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = Color.Red,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .size(50.dp)
+                                    .alpha(0.5f)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures {
+                                            showDialogDelete = true
+                                        }
+                                    }
+
+                            )
+                        }
+
+
+
+                        if (showDialogDelete) {
+                            var titleDialog = ""
+                            if (item is Animal) {
+                                titleDialog = "Eliminar ${item.nameAnimal}"
+                            } else if (item is News) {
+                                titleDialog = "Eliminar ${item.titleNews}"
+                            }
+
+                            DeleteDialog(
+                                onDismissRequest = { showDialogDelete = false },
+                                titleDialog = titleDialog,
+                                animalViewModel = animalViewModel,
+                                newsViewModel = newsViewModel,
+                                item = item
+                            )
+                        }
+
                     }
                 } else {
                     Log.e("AnimalImage", "Resource not found $photoPath")
                 }
+
+
                 if (user != null) {
-                    if (user!!.role != TypeUser.admin) {
+                    if (user!!.role == TypeUser.user) {
                         if (isFavorite) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
@@ -236,16 +275,12 @@ fun AnimalCard(
                             )
                         }
                     } else {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = null,
-                            tint = Black,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .clickable {
-                                    showDialogEdit.value = true
-                                }
-                        )
+
+                        OutlinedIcon(icon = Icons.Default.Edit, modifier = Modifier.align(Alignment.TopEnd)){
+                            showDialogEdit.value = true
+
+                        }
+
                         if (showDialogEdit.value) {
 
 
@@ -450,6 +485,8 @@ fun AnimalCard(
 }
 
 
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
@@ -563,13 +600,39 @@ fun NewsCard(
                                 .fillMaxSize()
                                 .aspectRatio(1f)
                         )
-                        ShowDeleteDialog(
-                            item = item,
-                            animalViewModel = animalViewModel,
-                            newsViewModel = newsViewModel,
-                            showDialogDelete = showDialogDelete,
-                            onDismiss = { showDialogDelete = false }
+
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.Red,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(50.dp)
+                                .alpha(0.5f)
+                                .pointerInput(Unit) {
+                                    detectTapGestures {
+                                        showDialogDelete = true
+                                    }
+                                }
+
                         )
+
+                        if (showDialogDelete) {
+                            var titleDialog = ""
+                            if (item is Animal) {
+                                titleDialog = "Eliminar ${item.nameAnimal}"
+                            } else if (item is News) {
+                                titleDialog = "Eliminar ${item.titleNews}"
+                            }
+
+                            DeleteDialog(
+                                onDismissRequest = { showDialogDelete = false },
+                                titleDialog = titleDialog,
+                                animalViewModel = animalViewModel,
+                                newsViewModel = newsViewModel,
+                                item = item
+                            )
+                        }
                     }
                 } else {
                     Log.e("AnimalImage", "Resource not found $photoPath")
@@ -612,16 +675,12 @@ fun NewsCard(
                             )
                         }
                     } else {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = null,
-                            tint = Black,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .clickable {
-                                    showDialogEdit.value = true
-                                }
-                        )
+
+
+                        OutlinedIcon(icon = Icons.Default.Edit, modifier = Modifier.align(Alignment.TopEnd)){
+                            showDialogEdit.value = true
+
+                        }
                         if (showDialogEdit.value) {
 
 
@@ -802,54 +861,3 @@ private fun navigateToDetails(item: Any, navController: NavController) {
     }
 }
 
-@Composable
-fun ShowDeleteDialog(
-    item: Any,
-    animalViewModel: AnimalViewModel,
-    newsViewModel: NewsViewModel,
-    showDialogDelete: Boolean,
-    onDismiss: () -> Unit
-) {
-    if (showDialogDelete) {
-        var titleDialog = ""
-        if (item is Animal) {
-            titleDialog = "Eliminar ${item.nameAnimal}"
-        } else if (item is News) {
-            titleDialog = "Eliminar ${item.titleNews}"
-        }
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = {
-                Text(text = titleDialog)
-            },
-            text = {
-                Text(text = "¿Estás seguro de eliminarlo?")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        onDismiss()
-                        if (item is Animal) {
-                            animalViewModel.viewModelScope.launch {
-                                animalViewModel.deleteAnimal(animal = item)
-                            }
-                        } else if (item is News) {
-                            newsViewModel.viewModelScope.launch {
-                                newsViewModel.deleteNews(newNew = item)
-                            }
-                        }
-                    }
-                ) {
-                    Text("Aceptar")
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = onDismiss
-                ) {
-                    Text("Cancelar")
-                }
-            }
-        )
-    }
-}

@@ -20,6 +20,7 @@
     <string name="aboutUs" translatable="false">About Us</string>
     <string name="profile" translatable="false">Profile</string>
     <string name="chat" translatable="false">Chat</string>
+    <string name="handling" translatable="false">Handling</string>
 
     <!-- Landing Page -->
     <string name="loginSignup" translatable="false">Log In / Sign Up</string>

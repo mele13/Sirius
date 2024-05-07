@@ -15,6 +15,9 @@ class ShelterViewModel(private val shelterDao: ShelterDao) : ViewModel() {
 
     fun getShelterById(id : Int) : Flow<Shelter?> = shelterDao.getShelterById(id)
 
+    fun getSheltersOwner(id : Int) : Flow<Int?> = shelterDao.getSheltersOwner(id)
+
+
     suspend fun insertShelter(shelter: Shelter) {
         shelterDao.insertShelter(shelter)
     }

@@ -1,51 +1,35 @@
 package com.example.sirius.view.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerFormatter
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
+import com.example.sirius.model.SectionType
 import com.example.sirius.model.Shelter
-import com.example.sirius.tools.formatDate
-import com.example.sirius.tools.parseDateStringToLong
-import com.example.sirius.tools.stringToBoolean
-import com.example.sirius.tools.stringToInt
-import com.example.sirius.ui.theme.Black
-import com.example.sirius.ui.theme.Green1
-import com.example.sirius.view.screens.getDrawableResourceId
+import com.example.sirius.tools.booleanToInt
+import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
@@ -102,327 +86,25 @@ fun DeleteDialog(
 }
 
 @Composable
-fun OutlinedIcon( icon : ImageVector, onClick: (() -> Unit)? = null){
+fun OutlinedIcon(icon: ImageVector, modifier: Modifier, onClick: (() -> Unit)? = null) {
     Icon(
         imageVector = icon,
         contentDescription = null,
         tint = Color.White,
-        modifier = Modifier
-            .size(24.dp)
+        modifier = modifier.then(Modifier.size(25.dp))
+            .then(Modifier.offset(y = 1.dp))
     )
     Icon(
         imageVector = icon,
         contentDescription = null,
-        tint = Black,
-        modifier = Modifier
-            .clickable {
-                if (onClick != null) {
-                    onClick()
-                }
-            }
-            .size(20.dp)
+        tint = Color.Black,
+        modifier = modifier
+            .then(Modifier.clickable {
+                onClick?.invoke()
+            })
+            .then(Modifier.size(25.dp))
     )
 }
-
-@Composable
-fun EditDialog(
-    onDismissRequest: () -> Unit,
-    item : Any,
-    animalViewModel : AnimalViewModel,
-    newsViewModel : NewsViewModel
-){
-    var animalEditState by remember { mutableStateOf(AnimalEditState()) }
-    var newsEditState by remember { mutableStateOf(NewsEditState()) }
-
-    var predefinedImageList = (1..10).map { index ->
-        "res/drawable/user_image$index"
-    }
-
-    handleAnimalItem(item, animalEditState)
-
-    var editedName by remember { mutableStateOf((item as? Animal)?.nameAnimal ?: "") }
-    var editedShortInfoAnimal by remember { mutableStateOf((item as? Animal)?.shortInfoAnimal ?: "") }
-    var editedWaitingAdoption by remember { mutableStateOf(stringToBoolean(animalEditState.waitingAdoption)) }
-    var editedFosterCare by remember { mutableStateOf(stringToBoolean( animalEditState.fosterCare)) }
-    var editedPhotoAnimal by remember { mutableStateOf((item as? Animal)?.photoAnimal ?: "") }
-    var editedBirthDateAnimal by remember { mutableStateOf((item as? Animal)?.birthDate ?: "") }
-
-    val animalData = AnimalData(
-        editedName = editedName,
-        editedShortInfoAnimal = editedShortInfoAnimal,
-        editedBirthDateAnimal = editedBirthDateAnimal,
-        editedWaitingAdoption = editedWaitingAdoption,
-        editedFosterCare = editedFosterCare,
-        editedPhotoAnimal = editedPhotoAnimal
-    )
-
-    //News
-    var editedTitle by remember { mutableStateOf((item as? News)?.titleNews ?: "") }
-    var editedShortInfoNew by remember { mutableStateOf((item as? News)?.shortInfoNews ?: "") }
-    var editedPhotoNews by remember { mutableStateOf((item as? News)?.photoNews ?: "") }
-
-
-    var titleText = when (item) {
-        is Animal -> "Edit Information ${item.nameAnimal}"
-        is News -> "Edit Information ${item.titleNews}"
-        else -> ""
-    }
-    AlertDialog(
-        onDismissRequest = { onDismissRequest() },
-        title = {
-            Text(titleText)
-        },
-        text = {
-            LazyColumn {
-                when (item) {
-                    is Animal -> item {
-                        animalEditState = RenderAnimalContent(predefinedImageList, animalData)
-                    }
-                    is News -> item {
-                        newsEditState = RenderNewsContent(editedTitle, editedShortInfoNew, editedPhotoAnimal, predefinedImageList, newsEditState)
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    when (item) {
-                        is Animal -> {
-                            animalViewModel.viewModelScope.launch {
-                                animalViewModel.updateAnimal(animal = Animal(item.id, animalEditState.name, animalEditState.birthDate, item.sexAnimal, stringToInt(animalEditState.waitingAdoption), stringToInt(animalEditState.fosterCare), animalEditState.shortInfo, item.longInfoAnimal, item.breedAnimal, item.typeAnimal, item.entryDate, animalEditState.photo, item.inShelter, item.lost))
-                            }
-                        }
-                        is News -> {
-                            newsEditState.title = editedTitle
-                            newsEditState.shortInfo = editedShortInfoAnimal
-                            newsEditState.photo = editedPhotoNews
-                            newsViewModel.viewModelScope.launch {
-                                newsViewModel.updateNew(newNew = News(item.id, newsEditState.title, newsEditState.shortInfo, item.longInfoNews, item.publishedDate, item.createdAt, item.untilDate, newsEditState.photo, item.goodNews))
-                            }
-
-                        }
-                    }
-                     onDismissRequest()
-                }
-            ) {
-                Text("Accept")
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun RenderNewsContent(
-    editedTitle: String,
-    editedShortInfoNew: String,
-    editedPhotoNews: String,
-    predefinedImageList: List<String>,
-    newsEditState: NewsEditState
-): NewsEditState {
-    var title by remember { mutableStateOf(editedTitle) }
-    var shortInfo by remember { mutableStateOf(editedShortInfoNew) }
-    var photo by remember { mutableStateOf(editedPhotoNews) }
-
-    TextField(
-        value = title,
-        onValueChange = { title = it },
-        label = { Text("Tittle") }
-    )
-    TextField(
-        value = shortInfo,
-        onValueChange = { shortInfo = it },
-        label = { Text("Short Info") }
-    )
-    Text("Change Photo")
-    Column {
-        val chunkedImages = predefinedImageList.chunked(5)
-        chunkedImages.forEach { rowImages ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                rowImages.forEach { imagePath ->
-                    val isSelected = photo == imagePath
-                    val borderColor = (if (isSelected) Green1 else Color.Transparent)
-                    Image(
-                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(4.dp)
-                            .clip(MaterialTheme.shapes.extraSmall)
-                            .clickable {
-                                photo =
-                                    imagePath
-                            }
-                            .border(
-                                width = 2.dp,
-                                color = borderColor,
-                                shape = MaterialTheme.shapes.extraSmall
-                            )
-                    )
-                }
-            }
-        }
-    }
-    newsEditState.title = title
-    newsEditState.photo = photo
-    newsEditState.shortInfo = shortInfo
-
-    return newsEditState
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RenderAnimalContent(
-    predefinedImageList: List<String>,
-   animalData: AnimalData,
-):AnimalEditState {
-    var name by remember(animalData.editedName) { mutableStateOf(animalData.editedName) }
-    var shortInfo by remember(animalData.editedShortInfoAnimal) { mutableStateOf(animalData.editedShortInfoAnimal) }
-    var waitingAdoption by remember(animalData.editedWaitingAdoption) { mutableStateOf(animalData.editedWaitingAdoption) }
-    var fosterCare by remember(animalData.editedFosterCare) { mutableStateOf(animalData.editedFosterCare) }
-    var photo by remember(animalData.editedPhotoAnimal) { mutableStateOf(animalData.editedPhotoAnimal) }
-    var birthDate by remember(animalData.editedBirthDateAnimal) { mutableStateOf(animalData.editedBirthDateAnimal) }
-
-    val datePickerState = rememberDatePickerState(parseDateStringToLong(birthDate))
-    TextField(
-        value = name,
-        onValueChange = { name = it },
-        label = { Text("Name") }
-    )
-    TextField(
-        value = shortInfo,
-        onValueChange = { shortInfo = it },
-        label = { Text("Short Info") }
-    )
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("Waiting Adoption")
-        Checkbox(
-            checked = waitingAdoption,
-            onCheckedChange = { newWaitingAdoption ->
-                waitingAdoption = newWaitingAdoption
-            },
-        )
-    }
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("Foster Care")
-        Checkbox(
-            checked = fosterCare,
-            onCheckedChange = { newFosterCare ->
-                fosterCare = newFosterCare
-            },
-        )
-    }
-    DatePicker(
-        state = datePickerState,
-        modifier = Modifier.padding(16.dp),
-        dateFormatter = DatePickerFormatter(),
-        dateValidator = {
-            true
-        },
-        title = {
-            Text("Select a date", fontWeight = FontWeight.Bold)
-        }
-    )
-    birthDate = formatDate(datePickerState.selectedDateMillis!!)
-    Text("Change Photo")
-    Column {
-        val chunkedImages = predefinedImageList.chunked(5)
-        chunkedImages.forEach { rowImages ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                rowImages.forEach { imagePath ->
-                    val isSelected = photo == imagePath
-                    val borderColor = (if (isSelected) Green1 else Color.Transparent)
-                    Image(
-                        painter = painterResource(id = getDrawableResourceId(imagePath = imagePath)),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(4.dp)
-                            .clip(MaterialTheme.shapes.extraSmall)
-                            .clickable {
-                                photo =
-                                    imagePath
-                            }
-                            .border(
-                                width = 2.dp,
-                                color = borderColor,
-                                shape = MaterialTheme.shapes.extraSmall
-                            )
-                    )
-                }
-            }
-        }
-    }
-    return AnimalEditState(
-        name = name,
-        shortInfo = shortInfo,
-        waitingAdoption = waitingAdoption.toString(),
-        fosterCare = fosterCare.toString(),
-        photo = photo,
-        birthDate = birthDate
-    )
-}
-
-class AnimalEditState(
-    var name: String = "",
-    var shortInfo: String = "",
-    var birthDate: String = "",
-    var waitingAdoption: String = "",
-    var fosterCare: String = "",
-    var photo: String = ""
-)
-
-data class AnimalData(
-    val editedName: String,
-    val editedShortInfoAnimal: String,
-    val editedBirthDateAnimal: String,
-    val editedWaitingAdoption: Boolean,
-    val editedFosterCare: Boolean,
-    val editedPhotoAnimal: String
-)
-
-class NewsEditState(
-    var title: String = "",
-    var shortInfo: String = "",
-    var photo: String = ""
-)
-
-private fun handleAnimalItem(item: Any, animalEditState: AnimalEditState){
-    if (item is Animal){
-        animalEditState.apply {
-            animalEditState.name = item.nameAnimal
-            animalEditState.shortInfo = item.shortInfoAnimal
-            animalEditState.waitingAdoption = item.waitingAdoption.toString()
-            animalEditState.fosterCare = item.fosterCare.toString()
-        }
-    }
-}
-
-
 
 @Composable
 fun AdoptAnAnimal(item: Animal, shelter: Shelter, chatViewModel: ChatViewModel, userViewModel: UserViewModel, onDismiss: () -> Unit) {
@@ -461,5 +143,222 @@ fun AdoptAnAnimal(item: Animal, shelter: Shelter, chatViewModel: ChatViewModel, 
             }
         },
         dismissButton = {}
+    )
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun AnimalFormDialog(
+    showDialogAdd: MutableState<Boolean>,
+    animalFormState: AnimalFormState,
+    typeList: List<String>,
+    sectionType: SectionType,
+    animalFormData: AnimalFormData? =  null,
+    isEdit : Boolean,
+    onAddClick: () -> Unit,
+
+    ) {
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+
+    val dateState = System.currentTimeMillis()
+
+
+    var formData = animalFormData ?: AnimalFormData(
+        0,
+        "", "", "",
+        waitingAdoption = false,
+        fosterCare = false,
+        shortInfo = "",
+        longInfo = "",
+        breed = "",
+        type = "",
+        entryDate = "",
+        photoAnimal = "",
+        inShelter = false,
+        lost = false
+    )
+
+    if (animalFormData != null) {
+        formData = animalFormData
+    }
+
+    if (sectionType ==  SectionType.LOST) {
+        animalFormState.lost = true
+    } else if (sectionType ==  SectionType.IN_SHELTER){
+        animalFormState.inShelter = true
+    }
+
+    AlertDialog(
+        onDismissRequest = { showDialogAdd.value = false },
+        title = { Text("Add New") },
+        text = {
+            formData = animalFormFields(
+                animalFormState = animalFormState,
+                dateState = dateState,
+                animalViewmodel = animalViewModel,
+                typeList = typeList,
+                sectionType = sectionType,
+                animalFormData = formData,
+                isEdit
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (isEdit){
+                        println("updateAnimal")
+                        onAddClick()
+                        showDialogAdd.value = false
+                        animalViewModel.viewModelScope.launch {
+                            stringToEnumTypeAnimal(formData.type)?.let {
+                                Animal(formData.id, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
+                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
+                                )
+                            }?.let { animalViewModel.updateAnimal(it) }
+                            animalFormState.clear()
+                        }
+                    } else {
+                        if (formData.photoAnimal.isEmpty()){
+                            formData.photoAnimal = "res/drawable/user_image1.jpg"
+                        }
+                        onAddClick()
+                        showDialogAdd.value = false
+                        println(formData)
+                        animalViewModel.viewModelScope.launch {
+                            stringToEnumTypeAnimal(formData.type)?.let {
+                                Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
+                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
+                                )
+                            }?.let { animalViewModel.insertAnimal(it) }
+                            animalFormState.clear()
+                        }
+
+                        println("insertAnimal")
+                    }
+
+                },
+
+                enabled = animalFormState.name.isNotEmpty()  &&
+                        animalFormState.sex.isNotEmpty() &&
+                        animalFormState.shortInfo.isNotEmpty() &&
+                        animalFormState.longInfo.isNotEmpty() &&
+                        animalFormState.breed.isNotEmpty() &&
+                        animalFormState.typeAnimal.isNotBlank()
+
+
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    println("formData")
+                    println(formData)
+                    println(animalFormData)
+                    showDialogAdd.value = false
+                    animalFormState.clear()
+                }
+            ) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
+
+
+@Composable
+fun NewsFormDialog(
+    showDialogAdd: MutableState<Boolean>,
+    newsFormState: NewsFormState,
+    sectionType: SectionType,
+    newsFormData: NewsFormData? =  null,
+    isEdit : Boolean,
+    onAddClick: () -> Unit,
+) {
+
+
+    val newsViewmodel: NewsViewModel = viewModel(factory = NewsViewModel.factory)
+
+    val dateState = System.currentTimeMillis()
+
+    var formData = newsFormData ?: NewsFormData(
+        0,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        false)
+
+    if (newsFormData != null) {
+        formData = newsFormData
+    }
+
+    if (sectionType ==  SectionType.GOOD_NEWS) {
+        newsFormState.goodNews = true
+    } else if (sectionType ==  SectionType.WHATS_NEW){
+        newsFormState.goodNews = false
+    }
+
+    AlertDialog(
+        onDismissRequest = { showDialogAdd.value = false },
+        title = { Text("Add New") },
+        text = {
+            formData = newsFormFields(
+                state = dateState,
+                newsFormState = newsFormState,
+                newsFormData,
+                isEdit
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (isEdit){
+                        println("updateAnimal")
+                        onAddClick()
+                        showDialogAdd.value = false
+                        newsViewmodel.viewModelScope.launch {
+                            newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
+                            newsFormState.clear()
+                        }
+                    } else {
+                        if (formData.photoNews.isEmpty()){
+                            formData.photoNews = "res/drawable/user_image1.jpg"
+                        }
+                        onAddClick()
+                        showDialogAdd.value = false
+                        println(formData)
+                        newsViewmodel.viewModelScope.launch {
+                            newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
+                            newsFormState.clear()
+                        }
+
+                        println("insertAnimal")
+                    }
+                },
+                enabled = newsFormState.title.isNotEmpty() &&
+                        newsFormState.shortInfo.isNotEmpty() &&
+                        newsFormState.longInfo.isNotEmpty()
+            ) {
+                Text("Add")
+
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    showDialogAdd.value = false
+                    newsFormState.clear()
+                }
+            ) {
+                Text("Cancel")
+            }
+        }
     )
 }

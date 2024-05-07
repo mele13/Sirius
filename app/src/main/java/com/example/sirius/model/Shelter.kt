@@ -31,8 +31,11 @@ data class Shelter (
     @NonNull
     @ColumnInfo(name = "phone")
     val phone: String,
+    @NonNull
+    @ColumnInfo(name = "id_owner")
+    val idOwner: Int,
 
-) {
-    constructor(name: String, aboutUs: String, location: String, schedule: String, sheltersData: String, email: String, phone: String)
-            : this(0, name, aboutUs, location, schedule, sheltersData,email , phone)
+    ) {
+    constructor(name: String, aboutUs: String, location: String, schedule: String, sheltersData: String, email: String, phone: String, idOwner: Int)
+            : this(0, name, aboutUs, location, schedule, sheltersData,email , phone, idOwner)
 }

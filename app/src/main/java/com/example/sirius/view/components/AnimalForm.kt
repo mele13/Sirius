@@ -9,12 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,142 +25,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.SectionType
 import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.parseDateStringToLong
-import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.view.screens.DropdownFiltersHome
 import com.example.sirius.viewmodel.AnimalViewModel
-import kotlinx.coroutines.launch
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AnimalFormDialog(
-    showDialogAdd: MutableState<Boolean>,
-    animalFormState: AnimalFormState,
-    typeList: List<String>,
-    sectionType: SectionType,
-    animalFormData: AnimalFormData? =  null,
-    isEdit : Boolean,
-    onAddClick: () -> Unit,
-
-) {
-    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
-
-    val dateState = System.currentTimeMillis()
-
-
-    var formData = animalFormData ?: AnimalFormData(
-        0,
-        "", "", "",
-        waitingAdoption = false,
-        fosterCare = false,
-        shortInfo = "",
-        longInfo = "",
-        breed = "",
-        type = "",
-        entryDate = "",
-        photoAnimal = "",
-        inShelter = false,
-        lost = false
-    )
-
-    if (animalFormData != null) {
-        formData = animalFormData
-    }
-
-    if (sectionType ==  SectionType.LOST) {
-        animalFormState.lost = true
-    } else if (sectionType ==  SectionType.IN_SHELTER){
-        animalFormState.inShelter = true
-    }
-
-    AlertDialog(
-        onDismissRequest = { showDialogAdd.value = false },
-        title = { Text("Add New") },
-        text = {
-            formData = animalFormFields(
-                animalFormState = animalFormState,
-                dateState = dateState,
-                animalViewmodel = animalViewModel,
-                typeList = typeList,
-                sectionType = sectionType,
-                animalFormData = formData,
-                isEdit
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (isEdit){
-                        println("updateAnimal")
-                        onAddClick()
-                        showDialogAdd.value = false
-                        animalViewModel.viewModelScope.launch {
-                            stringToEnumTypeAnimal(formData.type)?.let {
-                                Animal(formData.id, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
-                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
-                                )
-                            }?.let { animalViewModel.updateAnimal(it) }
-                            animalFormState.clear()
-                        }
-                    } else {
-                        if (formData.photoAnimal.isEmpty()){
-                            formData.photoAnimal = "res/drawable/user_image1.jpg"
-                        }
-                        onAddClick()
-                        showDialogAdd.value = false
-                        println(formData)
-                        animalViewModel.viewModelScope.launch {
-                            stringToEnumTypeAnimal(formData.type)?.let {
-                                Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
-                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
-                                )
-                            }?.let { animalViewModel.insertAnimal(it) }
-                            animalFormState.clear()
-                        }
-
-                        println("insertAnimal")
-                    }
-
-                },
-
-                enabled = animalFormState.name.isNotEmpty()  &&
-                        animalFormState.sex.isNotEmpty() &&
-                        animalFormState.shortInfo.isNotEmpty() &&
-                        animalFormState.longInfo.isNotEmpty() &&
-                        animalFormState.breed.isNotEmpty() &&
-                        animalFormState.typeAnimal.isNotBlank()
-
-
-            ) {
-                Text("Add")
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = {
-                    println("formData")
-                    println(formData)
-                    println(animalFormData)
-                    showDialogAdd.value = false
-                    animalFormState.clear()
-                }
-            ) {
-                Text("Cancel")
-            }
-        },
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-private fun animalFormFields(
+fun animalFormFields(
     animalFormState: AnimalFormState,
     dateState: Long,
     animalViewmodel: AnimalViewModel,

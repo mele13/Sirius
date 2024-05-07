@@ -322,18 +322,7 @@ fun AnimalInfo(
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Start,
                                 )
-                                /*
-                            } else {
-                                var editedNameAux by remember { mutableStateOf(animal?.nameAnimal ?: "") }
-                                editedName = editedNameAux
-                                TextField(
-                                    value = editedNameAux,
-                                    onValueChange = { editedNameAux = it },
-                                    label = { Text("Name animal") },
-                                )
-                            }
 
-                                 */
                             if (userId != null) {
                                 if (user!!.role != TypeUser.admin &&  user!!.role != TypeUser.owner) {
                                     if (isFavorite) {
@@ -397,7 +386,6 @@ fun AnimalInfo(
                                 .padding(start = 20.dp)
                         ) {
                             Spacer(modifier = Modifier.height(8.dp))
-                           // if (!editMode) {
                                 Text(
                                     text = animal!!.longInfoAnimal,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -406,18 +394,7 @@ fun AnimalInfo(
                                         .fillMaxWidth()
                                         .padding(start = 20.dp, end = 20.dp)
                                 )
-                          /*
-                            } else {
-                                var editedLongInfoAux by remember { mutableStateOf(animal?.longInfoAnimal ?: "") }
-                                editedLongInfo = editedLongInfoAux
-                                TextField(
-                                    value = editedLongInfoAux,
-                                    onValueChange = { editedLongInfoAux = it },
-                                    label = { Text("Long animal information") },
-                                )
-                            }
 
-                           */
                         }
                     }
                     val age = calculateAge(animal!!.birthDate)
@@ -432,26 +409,7 @@ fun AnimalInfo(
                                 .padding(start = 20.dp)
                         )
                     }
-                    /*
-                    item{
-                        if (editMode) {
-                            Button(
-                                onClick = {
-                                    viewModel.viewModelScope.launch {
-                                        val updatedAnimal = animal?.copy(
-                                            nameAnimal = editedName,
-                                            longInfoAnimal = editedLongInfo
-                                        )
-                                        updatedAnimal?.let { viewModel.updateAnimal(it) }
-                                    }
-                                    editMode = false
-                                },
-                            ) {
-                                Text("Save changes")
-                            }
-                        }
-                    }
-*/
+
                 }
             }
         }

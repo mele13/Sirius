@@ -44,6 +44,9 @@ interface ShelterDao {
     @Query("UPDATE Shelters SET name = :newEmail WHERE id = :shelterId")
     suspend fun updateShelterEmail(shelterId: Int, newEmail: String)
 
+    @Query("SELECT id FROM Shelters WHERE id_owner = :id")
+    fun getSheltersOwner(id: Int): Flow<Int?>
+
     @Update
     suspend fun updateShelter(shelter: Shelter)
 

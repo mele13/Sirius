@@ -238,13 +238,19 @@ fun ShelterFormDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val shelter = Shelter(editedName, editedAboutUs, "$editedLatitude;$editedLongitude",editedSchedule, editedSheltersData, editedEmail, editedPhone )
+                    val shelter = (item as? Shelter)?.idOwner?.let {
+                        Shelter(editedName, editedAboutUs, "$editedLatitude;$editedLongitude",editedSchedule, editedSheltersData, editedEmail, editedPhone,
+                            it
+                        )
+                    }
                     if(item == null){
 
                         shelterViewModel.viewModelScope.launch {
-                            shelterViewModel.insertShelter(
-                                shelter
-                            )
+                            if (shelter != null) {
+                                shelterViewModel.insertShelter(
+                                    shelter
+                                )
+                            }
                         }
                     }else {
 

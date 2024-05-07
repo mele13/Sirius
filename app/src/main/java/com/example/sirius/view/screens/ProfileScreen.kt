@@ -1,7 +1,6 @@
 package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
-import android.content.ClipData.Item
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -9,12 +8,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import com.example.sirius.tools.DATE_FORMAT
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
-
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,8 +50,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.VerticalAlignmentLine
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,7 +72,6 @@ import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
-import com.example.sirius.tools.formatDate
 import com.example.sirius.tools.isEmailValid
 import com.example.sirius.tools.isPasswordValid
 import com.example.sirius.tools.parseDateStringToLong
@@ -90,7 +82,6 @@ import com.example.sirius.view.components.EventCard
 import com.example.sirius.view.components.ListEmployed
 import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.UserViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -124,18 +115,22 @@ fun ProfileScreen(
     )
 
     Column {
-        Icon(
-            imageVector = Icons.Outlined.Settings,
-            contentDescription = "Settings",
-            tint = Color.Black,
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(10.dp)
-                .clickable {
-                    navController.navigate(Routes.SETTIGNS)
-                }
 
-        )
+        if (userViewModel.getAuthenticatedUser()?.role == TypeUser.admin) {
+            Icon(
+                imageVector = Icons.Outlined.Settings,
+                contentDescription = "Settings",
+                tint = Color.Black,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(10.dp)
+                    .clickable {
+                        navController.navigate(Routes.SETTIGNS)
+                    }
+
+            )
+        }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()

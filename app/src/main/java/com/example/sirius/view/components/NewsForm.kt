@@ -6,12 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,113 +20,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.News
-import com.example.sirius.model.SectionType
 import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.parseDateStringToLong
-import com.example.sirius.viewmodel.NewsViewModel
-import kotlinx.coroutines.launch
 
 @Composable
-fun NewsFormDialog(
-    showDialogAdd: MutableState<Boolean>,
-    newsFormState: NewsFormState,
-    sectionType: SectionType,
-    newsFormData: NewsFormData? =  null,
-    isEdit : Boolean,
-    onAddClick: () -> Unit,
-) {
-
-
-    val newsViewmodel: NewsViewModel = viewModel(factory = NewsViewModel.factory)
-
-    val dateState = System.currentTimeMillis()
-
-    var formData = newsFormData ?: NewsFormData(
-        0,
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        false)
-
-    if (newsFormData != null) {
-        formData = newsFormData
-    }
-
-    if (sectionType ==  SectionType.GOOD_NEWS) {
-        newsFormState.goodNews = true
-    } else if (sectionType ==  SectionType.WHATS_NEW){
-        newsFormState.goodNews = false
-    }
-
-    AlertDialog(
-        onDismissRequest = { showDialogAdd.value = false },
-        title = { Text("Add New") },
-        text = {
-            formData = newsFormFields(
-                state = dateState,
-                newsFormState = newsFormState,
-                newsFormData,
-                isEdit
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (isEdit){
-                        println("updateAnimal")
-                        onAddClick()
-                        showDialogAdd.value = false
-                        newsViewmodel.viewModelScope.launch {
-                            newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
-                            newsFormState.clear()
-                        }
-                    } else {
-                        if (formData.photoNews.isEmpty()){
-                            formData.photoNews = "res/drawable/user_image1.jpg"
-                        }
-                        onAddClick()
-                        showDialogAdd.value = false
-                        println(formData)
-                        newsViewmodel.viewModelScope.launch {
-                            newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
-                            newsFormState.clear()
-                        }
-
-                        println("insertAnimal")
-                    }
-                },
-                enabled = newsFormState.title.isNotEmpty() &&
-                        newsFormState.shortInfo.isNotEmpty() &&
-                        newsFormState.longInfo.isNotEmpty()
-            ) {
-                Text("Add")
-
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = {
-                    showDialogAdd.value = false
-                    newsFormState.clear()
-                }
-            ) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-private fun newsFormFields(
+fun newsFormFields(
     state: Long,
     newsFormState: NewsFormState,
     newsFormData: NewsFormData?,

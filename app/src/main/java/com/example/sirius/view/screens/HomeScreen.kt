@@ -224,7 +224,7 @@ private fun RowWithTitle(
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(6.dp)
         )
-        if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.admin) == true) {
+        if (userViewModel.getAuthenticatedUser()?.role != TypeUser.user) {
             EditIcon(navController, typeRuta)
         }
     }
