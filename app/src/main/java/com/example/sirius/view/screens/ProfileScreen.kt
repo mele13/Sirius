@@ -83,6 +83,8 @@ import com.example.sirius.view.components.ListEmployed
 import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -386,14 +388,22 @@ fun ProfileItem(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShowEvents(events: List<Event>,user: User, eventViewModel: EventViewModel) {
+
+fun ShowEvents(events: List<Event>, user: User, eventViewModel: EventViewModel) {
+    val currentTimeMillis = System.currentTimeMillis()
+    val calendar = Calendar.getInstance()
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        calendar.timeInMillis = currentTimeMillis
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
         events.forEach { event ->
             if (event.UserID == user.id.toString()) {
-                if (parseDateStringToLong(event.dateEvent) >= System.currentTimeMillis()) {
+                if (parseDateStringToLong(event.dateEvent) >= calendar.timeInMillis) {
                     EventCard(event = event, eventViewModel = eventViewModel, user = user)
                 }
             }

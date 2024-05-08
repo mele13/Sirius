@@ -226,20 +226,25 @@ fun EditEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,event: 
                     Text(selectedItem)
                 }
 
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {
-                    event.titleEvent = title
-                    event.descriptionEvent = description
-                    event.dateEvent = newDate
-                    event.eventType = eventViewModel.stringToTypeEvent(selectedItem)
-
-                    eventViewModel.viewModelScope.launch {
-                        eventViewModel.updateEvent(event)
+                Row() {
+                    Button(onClick = { onDismiss() }) {
+                        Text(text = "Cancel")
                     }
-                    onDismiss() }) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        event.titleEvent = title
+                        event.descriptionEvent = description
+                        event.dateEvent = newDate
+                        event.eventType = eventViewModel.stringToTypeEvent(selectedItem)
 
-                    Text(text = "Accept")
+                        eventViewModel.viewModelScope.launch {
+                            eventViewModel.updateEvent(event)
+                        }
+                        onDismiss()
+                    }) {
+
+                        Text(text = "Accept")
+                    }
                 }
             }
         }
@@ -281,6 +286,7 @@ fun ConfirmDialog(onDismiss: () -> Unit, event: Event, eventViewModel: EventView
                     Button(onClick = {
                         eventViewModel.viewModelScope.launch {
                             eventViewModel.deleteEvent(event)
+                            onDismiss()
                         }
                     }) {
                         Text("Accept")
