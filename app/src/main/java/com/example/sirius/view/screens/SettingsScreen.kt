@@ -48,7 +48,7 @@ import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavController, userViewModel: UserViewModel){
+fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavController, userViewModel: UserViewModel, edit: Boolean){
     val textState = remember { mutableStateOf(TextFieldValue("")) }
     val shelters = shelterViewModel.getAllShelters().collectAsState(emptyList()).value
     val user = userViewModel.getAuthenticatedUser()
@@ -65,11 +65,13 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
             items(items = shelters.filter {
                 it.name.contains(searchedText, ignoreCase = true)
             }, key = { it.id }) { item ->
-                if (user != null) Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user)
+                if (user != null) {
+                    Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit)
+                }
             }
         }
 
-        if (user != null && user!!.role == TypeUser.admin) {
+        if (user != null && user.role == TypeUser.admin && edit) {
             AddButton(
                 showDialogAdd,
                 Modifier.align(End)
@@ -84,7 +86,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
 }
 
 @Composable
-fun Shelter(item: Any, index: Int, navController : NavController, shelterViewModel: ShelterViewModel, user: User) {
+fun Shelter(item: Any, index: Int, navController : NavController, shelterViewModel: ShelterViewModel, user: User, edit: Boolean) {
     val border = if (index % 2 == 0) Green1 else Orange
 
     when (item) {
@@ -112,7 +114,7 @@ fun Shelter(item: Any, index: Int, navController : NavController, shelterViewMod
                         )
                         Text(text = item.email)
                     }
-                    if (user.role == TypeUser.admin) {
+                    if (user.role == TypeUser.admin && edit) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
                             contentDescription = "Received",

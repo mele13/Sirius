@@ -182,7 +182,7 @@ fun NavigationContent(
                     ChatScreen(navController, chatViewModel, userViewModel)
                 }
                 composable(route = Routes.SETTIGNS) {
-                    SettingsScreen(shelterViewModel, navController, userViewModel)
+                    SettingsScreen(shelterViewModel, navController, userViewModel, true)
                 }
                 composable(route = Routes.CHAT + "/{recipient_user}",
                     arguments = listOf(navArgument(name = "recipient_user") {

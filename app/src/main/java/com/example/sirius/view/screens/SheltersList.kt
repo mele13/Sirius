@@ -16,5 +16,5 @@ fun ShelterList(
     shelterViewModel: ShelterViewModel,
     userViewModel: UserViewModel
 ) {
-    SettingsScreen(shelterViewModel = shelterViewModel, navController = navController, userViewModel = userViewModel)
+    SettingsScreen(shelterViewModel = shelterViewModel, navController = navController, userViewModel = userViewModel, false)
 }
