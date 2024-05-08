@@ -77,7 +77,6 @@ val mockitoVersion = "4.5.1"
 val espressoCoreVersion = "3.5.1"
 val junitVersion = "1.1.5"
 dependencies {
-
     implementation(platform("androidx.compose:compose-bom:2023.05.01"))
     implementation("androidx.activity:activity-compose:$activityCompose3")
     implementation("androidx.compose.material3:material3")
@@ -89,56 +88,36 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleBase")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodelCompose")
     implementation("androidx.activity:activity-compose:$activityCompose4")
-    // Nav
     implementation("androidx.navigation:navigation-compose:${rootProject.extra["nav_version"]}")
-
-    // Room
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation("androidx.benchmark:benchmark-macro:$benchmark")
     implementation("com.google.firebase:firebase-crashlytics-buildtools:$buildTools")
     implementation("androidx.recyclerview:recyclerview:$recyclerView")
-    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
-
-    // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle")
-
-    // LiveData
     implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycle")
     implementation("androidx.compose.runtime:runtime-livedata:$livedata")
-
-    // Fragment
     implementation("androidx.fragment:fragment-ktx:$fragment")
-
-    // Activity
     implementation("androidx.activity:activity-compose:$activityCompose2")
-
-    //Splash
     implementation("androidx.core:core-splashscreen:$splashScreen")
-
-    // Testing
-    testImplementation("io.mockk:mockk:$mockitoVersion")
-    androidTestImplementation("androidx.test.sespresso:espresso-core:$espressoCoreVersion")
-    androidTestImplementation("androidx.test.ext:junit:$junitVersion")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
-
-    // JSON
     implementation("com.google.code.gson:gson:$gson")
-
-    // Google Services & Maps
     implementation("com.google.android.gms:play-services-location:$location")
     implementation("com.google.maps.android:maps-compose:$mapsCompose")
     implementation("com.google.android.gms:play-services-maps:$mapsService")
     implementation("androidx.compose.material:material:$material")
-
-    //image
+    implementation("io.coil-kt:coil-compose:$coilCompose")
+    implementation ("androidx.constraintlayout:constraintlayout-compose:$constraintLayout")
     implementation("io.coil-kt:coil-compose:$coilCompose")
 
+    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+
+    testImplementation("io.mockk:mockk:$mockitoVersion")
+
+    androidTestImplementation("androidx.test.sespresso:espresso-core:$espressoCoreVersion")
+    androidTestImplementation("androidx.test.ext:junit:$junitVersion")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
+
+    debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
-
-    implementation ("androidx.constraintlayout:constraintlayout-compose:$constraintLayout")
-
-    implementation("io.coil-kt:coil-compose:$coilCompose")
 }

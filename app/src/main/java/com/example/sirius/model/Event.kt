@@ -21,7 +21,7 @@ data class Event (
     var dateEvent: String,
     @NonNull
     @ColumnInfo(name = "userId")
-    val UserID: String,
+    val userId: String,
     @NonNull
     @ColumnInfo(name = "type")
     var eventType: TypeEvent,

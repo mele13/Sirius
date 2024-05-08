@@ -18,8 +18,8 @@ fun createDestination(route: String, selectedIcon: Int, iconTextId: Int): Destin
 @Composable
 fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
 
-    if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true || userViewModel.getAuthenticatedUser()?.equals(null) != false) {
-        return listOf(
+    return if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true || userViewModel.getAuthenticatedUser()?.equals(null) != false) {
+        listOf(
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
             createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
             createDestination(Routes.CHAT, R.drawable.chat_icon, R.string.chat),
@@ -27,7 +27,7 @@ fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
             createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
         )
     } else if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.owner) == true || userViewModel.getAuthenticatedUser()?.equals(null) != false) {
-        return listOf(
+        listOf(
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
             createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
             createDestination(Routes.CHAT, R.drawable.chat_icon, R.string.chat),
@@ -36,8 +36,7 @@ fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
         )
     }
     else{
-
-        return listOf(
+        listOf(
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
             createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
             createDestination(Routes.CHAT, R.drawable.chat_icon, R.string.chat),

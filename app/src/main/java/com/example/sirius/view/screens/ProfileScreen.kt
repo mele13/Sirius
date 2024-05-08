@@ -84,7 +84,6 @@ import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -132,7 +131,6 @@ fun ProfileScreen(
 
             )
         }
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -402,17 +400,12 @@ fun ShowEvents(events: List<Event>, user: User, eventViewModel: EventViewModel) 
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         events.forEach { event ->
-            if (event.UserID == user.id.toString()) {
-                if (parseDateStringToLong(event.dateEvent) >= calendar.timeInMillis) {
-                    EventCard(event = event, eventViewModel = eventViewModel, user = user)
-                }
+            if (event.userId == user.id.toString() && (parseDateStringToLong(event.dateEvent) >= calendar.timeInMillis)) {
+                EventCard(event = event, eventViewModel = eventViewModel, user = user)
             }
         }
     }
 }
-
-
-
 
 @Composable
 fun LogoutButton(onLogoutClick: () -> Unit) {

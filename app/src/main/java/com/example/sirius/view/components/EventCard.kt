@@ -64,16 +64,14 @@ fun EventCard(event: Event, eventViewModel: EventViewModel,user: User) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            if(event.eventType == TypeEvent.volunteer){
-                if(user.role != TypeUser.volunteer || user.id.toString() == event.UserID){
-                    permission = true
-                }
+            if(event.eventType == TypeEvent.volunteer && (user.role != TypeUser.volunteer || user.id.toString() == event.userId)){
+                permission = true
             }
             if(event.eventType == TypeEvent.worker){
                 if(user.role == TypeUser.admin || user.role == TypeUser.owner){
                     permission = true
                 }
-                if(user.role == TypeUser.worker && user.id.toString() == event.UserID)     {
+                if(user.role == TypeUser.worker && user.id.toString() == event.userId)     {
                     permission = true
                     }
                 }
@@ -81,7 +79,7 @@ fun EventCard(event: Event, eventViewModel: EventViewModel,user: User) {
                 if(user.role == TypeUser.admin || user.role == TypeUser.owner){
                     permission = true
                 }
-                if(user.id.toString() == event.UserID)     {
+                if(user.id.toString() == event.userId)     {
                     permission = true
                 }
             }
@@ -91,7 +89,6 @@ fun EventCard(event: Event, eventViewModel: EventViewModel,user: User) {
                         .padding(16.dp)
                 ) {
                     IconButton(onClick = {
-                        //confirmDialog(event,eventViewModel)
                         dialogActivated = true
                     }) {
                         Icon(

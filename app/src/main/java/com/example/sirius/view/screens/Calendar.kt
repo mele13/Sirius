@@ -63,7 +63,7 @@ fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel)
             DatePickerItem(
                 state = System.currentTimeMillis(),
                 onDateSelected = { dateAux -> date = dateAux
-                    events?.let { user?.let { it1 -> ShowEventsbyCalendar(it, it1,date, eventViewModel) } }
+                    events?.let { user?.let { it1 -> ShowEventsByCalendar(it, it1,date, eventViewModel) } }
                 },
                 title = "Entry Date"
             )
@@ -80,7 +80,7 @@ fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShowEventsbyCalendar(events: List<Event>, user: User,fecha : String, eventViewModel: EventViewModel) {
+fun ShowEventsByCalendar(events: List<Event>, user: User,fecha : String, eventViewModel: EventViewModel) {
 
     Column(
         modifier = Modifier
@@ -88,24 +88,6 @@ fun ShowEventsbyCalendar(events: List<Event>, user: User,fecha : String, eventVi
     ) {
         events.forEach { event ->
               if (parseDateStringToLong(event.dateEvent) >= parseDateStringToLong(fecha)) {
-                  /*
-                    Text(
-                        text = "Titulo: ${event.titleEvent}",
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    Text(
-                        text = event.descriptionEvent,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    Text(
-                        text = "Para: ${event.dateEvent}",
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    Text(
-                        text = "----------------------"
-                    )
-
-                   */
                   EventCard(event,eventViewModel,user)
                 }
             }
@@ -228,7 +210,7 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                                 titleEvent = title,
                                 descriptionEvent = description,
                                 dateEvent = newDate,
-                                UserID = user.id.toString(),
+                                userId = user.id.toString(),
                                 eventType = eventViewModel.stringToTypeEvent(selectedItem)
                             )
                             eventViewModel.viewModelScope.launch {

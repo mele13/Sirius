@@ -227,26 +227,20 @@ fun NewsInfo(
                             modifier = Modifier
                                 .padding(start = 20.dp)
                         ) {
-                            //  if (!editMode) {
                             Text(
                                 text = news!!.titleNews,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Start,
                             )
-
-                            if (userId != null) {
-                                if (user!!.role == TypeUser.admin || user.role == TypeUser.owner) {
-
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = null,
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                            .clickable { editMode.value = true }
-                                            .size(15.dp)
-                                    )
-
-                                }
+                            if (userId != null && (user!!.role == TypeUser.admin || user.role == TypeUser.owner)) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = Color.Black,
+                                    modifier = Modifier
+                                        .clickable { editMode.value = true }
+                                        .size(15.dp)
+                                )
                             }
                         }
                     }
