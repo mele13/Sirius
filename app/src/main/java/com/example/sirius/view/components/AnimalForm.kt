@@ -60,9 +60,9 @@ fun animalFormFields(
             )
         }
         item {
-            animalFormData?.let { selectedBirthday(it, dateState) }?.let { it ->
+            animalFormData?.let { selectedBirthday(it, dateState) }?.let { state ->
                 DatePickerItem(
-                    state = it,
+                    state = state,
                     onDateSelected = { updateBirthDate(animalFormState, formData, it) },
                     title = "Birth Date"
                 )
@@ -224,12 +224,14 @@ private fun updateWaitingAdoption(animalFormState: AnimalFormState, formData: An
 }
 
 private fun selectedBirthday(formData: AnimalFormData, dateState: Long) : Long{
-    if (formData.birthDate != "") return parseDateStringToLong(formData.birthDate) else return dateState
+    return if(formData.birthDate != "") parseDateStringToLong(formData.birthDate) else dateState
+
 }
 
 
 private fun selectedEntryDate(formData: AnimalFormData, dateState: Long) : Long{
-    if( formData.entryDate != "") return parseDateStringToLong(formData.entryDate) else return dateState
+    return if(formData.entryDate != "") parseDateStringToLong(formData.entryDate) else dateState
+
 }
 private fun createDefaultFormData(animalFormState: AnimalFormState): AnimalFormData {
     return AnimalFormData(
