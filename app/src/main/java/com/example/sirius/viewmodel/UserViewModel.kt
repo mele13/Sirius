@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -26,19 +27,14 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return suspendCoroutine { continuation ->
             viewModelScope.launch {
                 try {
-                    if (username.isBlank() || password.isBlank()) {
+                    if (isInvalidCredentials(username, password)) {
                         continuation.resume("false")
                         return@launch
                     }
+
                     val user = getUserByCredentials(username, password)
                     if (user != null) {
-                        _currentUser.value = user
-                        saveAuthenticationState(user)
-                        if (user.role == TypeUser.owner) {
-                            continuation.resume("shelter")
-                        } else {
-                            continuation.resume("true")
-                        }
+                        handleSuccessfulLogin(user, continuation)
                     } else {
                         continuation.resume("false")
                     }
@@ -48,6 +44,17 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
                 }
             }
         }
+    }
+
+    private fun isInvalidCredentials(username: String, password: String): Boolean {
+        return username.isBlank() || password.isBlank()
+    }
+
+    private suspend fun handleSuccessfulLogin(user: User, continuation: Continuation<String>) {
+        _currentUser.value = user
+        saveAuthenticationState(user)
+        val loginResult = if (user.role == TypeUser.owner) "shelter" else "true"
+        continuation.resume(loginResult)
     }
 
     fun getAuthenticatedUser(): User? {
