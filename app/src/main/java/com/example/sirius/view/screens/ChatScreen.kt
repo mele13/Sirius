@@ -84,6 +84,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
         unseenMessagesState
     }
 
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -91,29 +92,44 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(10.dp)) {
 
-                LazyColumn(modifier = Modifier.padding(10.dp)) {
-                    items(items = userList, key = { it?.id ?: "" }) { item ->
-                        if (item != null) {
-                            var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
+                Chats(
+                    userList = userList,
+                    user = user,
+                    unseenMessages = unseenMessages,
+                    chatViewModel = chatViewModel,
+                    navController = navController
+                )
+            }
+        }
+    }
+}
 
-                            LaunchedEffect(Unit) {
-                                try {
-                                    val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
-                                    lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
-                                } catch (e: Exception) {
-                                    Log.e("Firestore", "Error ChildList", e)
-                                }
-                            }
-                            UserEachRow(person = item, lastMessage = lastMessage, unseenMessages = unseenMessages) {
-                                navController.navigate(Routes.CHAT + "/${item.id}")
-                            }
-                        }
+
+@Composable
+fun Chats(userList : List<User?>, user: User?, unseenMessages: List<Int>, chatViewModel: ChatViewModel, navController: NavHostController){
+    LazyColumn(modifier = Modifier.padding(10.dp)) {
+        items(items = userList, key = { it?.id ?: "" }) { item ->
+            if (item != null) {
+                var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
+
+                LaunchedEffect(Unit) {
+                    try {
+                        val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
+                        lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
+                    } catch (e: Exception) {
+                        Log.e("Error: ", "Chat ID not found", e)
                     }
+                }
+                UserEachRow(person = item, lastMessage = lastMessage, unseenMessages = unseenMessages) {
+                    navController.navigate(Routes.CHAT + "/${item.id}")
                 }
             }
         }
     }
 }
+
+
+
 
 @Composable
 fun MyProfile(
@@ -184,7 +200,8 @@ fun UserEachRow(
 
         Row(
             modifier = Modifier
-                .padding(16.dp).fillMaxSize(),
+                .padding(16.dp)
+                .fillMaxSize(),
             verticalAlignment = CenterVertically) {
 
 
@@ -213,49 +230,65 @@ fun UserEachRow(
                     //.align(CenterVertically)
                 )
 
-                Row(Modifier.fillMaxSize()) {
-                    if (lastMessage != null) {
-                        Text(
-                            text = lastMessage.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(
-                                    Locale.ROOT
-                                ) else it.toString()
-                            },
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                color = Green1
-                            ),
-                            modifier = Modifier
-                                .padding(start = 10.dp)
-                                .weight(1f)
-                        )
-                    }
+                Content(lastMessage, person, unseenMessages)
 
-                    if (person.id in unseenMessages) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Receive",
-                            tint = Green3,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
+
             }
+
+
         }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp)
-                .drawBehind {
-                    drawLine(
-                        color = Color.Black,
-                        start = Offset(0f, size.height),
-                        end = Offset(size.width, size.height),
-                        strokeWidth = 1f
-                    )
-                }
-        )
+
+        DrawLine()
+
     }
+}
+
+
+@Composable
+fun Content(lastMessage: String?, person: User, unseenMessages: List<Int>){
+    Row(Modifier.fillMaxSize()) {
+        if (lastMessage != null) {
+            Text(
+                text = lastMessage.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.ROOT
+                    ) else it.toString()
+                },
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    color = Green1
+                ),
+                modifier = Modifier
+                    .padding(start = 10.dp)
+                    .weight(1f)
+            )
+        }
+
+        if (person.id in unseenMessages) {
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = "Recibido",
+                tint = Green3,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+@Composable
+fun DrawLine(){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(10.dp)
+            .drawBehind {
+                drawLine(
+                    color = Color.Black,
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = 1f
+                )
+            }
+    )
 }
 
 @SuppressLint("SuspiciousIndentation")
