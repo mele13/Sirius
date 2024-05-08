@@ -217,24 +217,29 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                         Text(selectedItem)
                     }
 
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {
-                        val newEvent = Event(
-                            id = 0,
-                            titleEvent = title,
-                            descriptionEvent = description,
-                            dateEvent = newDate,
-                            UserID = user.id.toString(),
-                            eventType = eventViewModel.stringToTypeEvent(selectedItem)
-                        )
-                        eventViewModel.viewModelScope.launch {
-                            eventViewModel.insertEvent(newEvent)
+                    Row() {
+                        Button(onClick = { onDismiss()}) {
+                            Text(text = "Cancel")
                         }
-                        onDismiss()
-                    }) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = {
+                            val newEvent = Event(
+                                id = 0,
+                                titleEvent = title,
+                                descriptionEvent = description,
+                                dateEvent = newDate,
+                                UserID = user.id.toString(),
+                                eventType = eventViewModel.stringToTypeEvent(selectedItem)
+                            )
+                            eventViewModel.viewModelScope.launch {
+                                eventViewModel.insertEvent(newEvent)
+                            }
+                            onDismiss()
+                        }) {
 
-                        Text(text = "Accept")
+                            Text(text = "Accept")
+                        }
+
                     }
                 }
             }
