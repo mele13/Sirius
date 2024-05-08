@@ -63,34 +63,45 @@ fun HandlingScreen(id: Int?) {
     var selectedButton = remember { mutableStateOf("Expenses") }
 
     val context = LocalContext.current
-    Column(modifier = Modifier.fillMaxSize()) {
-        DownloadMovements(context, managementViewModel)
-        Text(
-            text = "Last movement",
-            style = TextStyle(
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-            ),
-            modifier = Modifier.padding(15.dp)
-        )
-
-        if (lastMovements != null) {
-           Movement(movements = managementViewModel.getMovementsForCurrentMonth(movements))
-
-        }
-        BarSearch(state = textState, placeHolder = "Search here...",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp))
-        val searchedText = textState.value.text
-
-        Buttons(selectedButton)
-        if (movements != null) {
-            PaymentHistory(movements, selectedButton, searchedText)
-            Summary(movements, managementViewModel)
-
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            DownloadMovements(context, managementViewModel)
         }
 
+        item {
+            Text(
+                text = "Last movement",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+                modifier = Modifier.padding(15.dp)
+            )
+        }
+
+        item {
+            if (lastMovements != null) {
+                Movement(movements = managementViewModel.getMovementsForCurrentMonth(movements))
+
+            }
+        }
+
+        item {
+            BarSearch(state = textState, placeHolder = "Search here...",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 15.dp, end = 15.dp))
+        }
+
+        item {
+            val searchedText = textState.value.text
+            Buttons(selectedButton)
+            if (movements != null) {
+                PaymentHistory(movements, selectedButton, searchedText)
+                Summary(movements, managementViewModel)
+
+            }
+        }
     }
 }
 
