@@ -100,7 +100,10 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
         return chatDao.getUnseenMessages()
     }
 
-    fun markMessagesAsSeen(chatId : String) =  chatDao.markMessagesAsSeen(chatId)
+
+    fun getChatId() : Flow<List<String>>{
+        return chatDao.getChatId()
+    }
 
     private fun loadMessages(chatId: String) {
         viewModelScope.launch {
@@ -108,6 +111,25 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
                 _messages.postValue(messages.reversed())
             }.launchIn(viewModelScope)
         }
+    }
+
+    fun splitChatId(chatIds: List<String>): List<String> {
+        val chatIdParts = mutableListOf<String>()
+
+        for (chatId in chatIds) {
+            val currentPart = StringBuilder()
+            for (char in chatId) {
+                if (char != '-') {
+                    currentPart.append(char)
+                } else {
+                    chatIdParts.add(currentPart.toString())
+                    currentPart.clear()
+                }
+            }
+            chatIdParts.add(currentPart.toString())
+        }
+
+        return chatIdParts
     }
 
 

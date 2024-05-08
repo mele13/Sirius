@@ -97,6 +97,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
                     user = user,
                     unseenMessages = unseenMessages,
                     chatViewModel = chatViewModel,
+                    userViewModel = userViewModel,
                     navController = navController
                 )
             }
@@ -106,7 +107,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
 
 
 @Composable
-fun Chats(userList : List<User?>, user: User?, unseenMessages: List<Int>, chatViewModel: ChatViewModel, navController: NavHostController){
+fun Chats(userList : List<User?>, user: User?, unseenMessages: List<Int>, chatViewModel: ChatViewModel,userViewModel: UserViewModel, navController: NavHostController){
     LazyColumn(modifier = Modifier.padding(10.dp)) {
         items(items = userList, key = { it?.id ?: "" }) { item ->
             if (item != null) {
@@ -120,7 +121,7 @@ fun Chats(userList : List<User?>, user: User?, unseenMessages: List<Int>, chatVi
                         Log.e("Error: ", "Chat ID not found", e)
                     }
                 }
-                UserEachRow(person = item, lastMessage = lastMessage, unseenMessages = unseenMessages) {
+                UserEachRow(person = item, lastMessage = lastMessage, unseenMessages = unseenMessages, userViewModel = userViewModel, chatViewModel = chatViewModel) {
                     navController.navigate(Routes.CHAT + "/${item.id}")
                 }
             }
@@ -187,6 +188,8 @@ fun UserEachRow(
     person: User,
     lastMessage: String?,
     unseenMessages: List<Int>,
+    userViewModel: UserViewModel,
+    chatViewModel: ChatViewModel,
     onClick: () -> Unit = {},
 ) {
     Card(
@@ -230,7 +233,7 @@ fun UserEachRow(
                     //.align(CenterVertically)
                 )
 
-                Content(lastMessage, person, unseenMessages)
+                Content(lastMessage, person, unseenMessages, userViewModel, chatViewModel = chatViewModel)
 
 
             }
@@ -245,7 +248,11 @@ fun UserEachRow(
 
 
 @Composable
-fun Content(lastMessage: String?, person: User, unseenMessages: List<Int>){
+fun Content(lastMessage: String?, person: User, unseenMessages: List<Int>, userViewModel: UserViewModel, chatViewModel: ChatViewModel){
+
+    val chatId = chatViewModel.getChatId().collectAsState(initial = emptyList())
+    val authenticatedUserId = userViewModel.getAuthenticatedUser()?.id.toString()
+
     Row(Modifier.fillMaxSize()) {
         if (lastMessage != null) {
             Text(
@@ -264,7 +271,9 @@ fun Content(lastMessage: String?, person: User, unseenMessages: List<Int>){
             )
         }
 
-        if (person.id in unseenMessages) {
+        val chatIdParts = chatViewModel.splitChatId(chatId.value)
+
+        if (authenticatedUserId.toString() in chatIdParts && person.id in unseenMessages) {
             Icon(
                 imageVector = Icons.Default.Notifications,
                 contentDescription = "Recibido",
@@ -272,6 +281,7 @@ fun Content(lastMessage: String?, person: User, unseenMessages: List<Int>){
                 modifier = Modifier.size(24.dp)
             )
         }
+
     }
 }
 @Composable

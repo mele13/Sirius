@@ -45,37 +45,9 @@ fun animalFormFields(
     isEdit: Boolean
 ): AnimalFormData {
 
-    val formData = animalFormData ?: AnimalFormData(
-        id = animalFormData?.id ?: 0,
-        name = animalFormState.name,
-        birthDate = animalFormState.birthDate,
-        sex = animalFormState.sex,
-        waitingAdoption = animalFormState.waitingAdoption,
-        fosterCare = animalFormState.fosterCare,
-        shortInfo = animalFormState.shortInfo,
-        longInfo = animalFormState.longInfo,
-        breed = animalFormState.breed,
-        type = animalFormState.typeAnimal,
-        entryDate = animalFormState.entryDate,
-        photoAnimal = animalFormState.photoAnimal,
-        inShelter = animalFormState.inShelter,
-        lost = animalFormState.lost
-    )
+    val formData = animalFormData ?: createDefaultFormData(animalFormState)
 
-    animalFormState.id = formData.id
-    animalFormState.name = formData.name
-    animalFormState.birthDate = formData.birthDate
-    animalFormState.sex = formData.sex
-    animalFormState.waitingAdoption = formData.waitingAdoption
-    animalFormState.fosterCare = formData.fosterCare
-    animalFormState.shortInfo = formData.shortInfo
-    animalFormState.longInfo = formData.longInfo
-    animalFormState.breed = formData.breed
-    animalFormState.typeAnimal = formData.type
-    animalFormState.entryDate = formData.entryDate
-    animalFormState.photoAnimal = formData.photoAnimal
-    animalFormState.inShelter = formData.inShelter
-    animalFormState.lost = formData.lost
+    updateFormStateFromData(animalFormState, formData)
 
     LazyColumn(
         modifier = Modifier.padding(8.dp)
@@ -83,22 +55,18 @@ fun animalFormFields(
         item {
             CustomTextField(
                 value = animalFormState.name,
-                onValueChange = {
-                    animalFormState.name = it
-                    formData.name = it},
+                onValueChange = { updateName(animalFormState, formData, it) },
                 label = "Name animal"
             )
         }
         item {
-            println(dateState)
-            DatePickerItem(
-                state = if( formData.birthDate != "") parseDateStringToLong(formData.birthDate) else dateState,
-                onDateSelected = { date ->
-                    animalFormState.birthDate = date
-                    formData.birthDate = date
-                },
-                title = "Birth Date"
-            )
+            animalFormData?.let { selectedBirthday(it, dateState) }?.let { it ->
+                DatePickerItem(
+                    state = it,
+                    onDateSelected = { updateBirthDate(animalFormState, formData, it) },
+                    title = "Birth Date"
+                )
+            }
         }
         item {
             SexCheckbox(animalFormState, formData)
@@ -108,8 +76,7 @@ fun animalFormFields(
                 labelText = "Waiting Adoption",
                 checked = animalFormState.waitingAdoption,
                 onCheckedChange = { isChecked ->
-                    animalFormState.waitingAdoption = isChecked
-                    formData.waitingAdoption = isChecked
+                    updateWaitingAdoption(animalFormState, formData, isChecked)
                 }
             )
         }
@@ -192,7 +159,7 @@ fun animalFormFields(
         }
         item {
             DatePickerItem(
-                state = if( formData.entryDate != "") parseDateStringToLong(formData.entryDate) else dateState,
+                state = selectedEntryDate(formData, dateState),
                 onDateSelected = { date ->
                     animalFormState.entryDate = date
                     formData.entryDate = date
@@ -241,6 +208,66 @@ fun animalFormFields(
     return formData
 }
 
+private fun updateName(animalFormState: AnimalFormState, formData: AnimalFormData, newName: String) {
+    animalFormState.name = newName
+    formData.name = newName
+}
+
+private fun updateBirthDate(animalFormState: AnimalFormState, formData: AnimalFormData, newDate: String) {
+    animalFormState.birthDate = newDate
+    formData.birthDate = newDate
+}
+
+private fun updateWaitingAdoption(animalFormState: AnimalFormState, formData: AnimalFormData, isChecked: Boolean) {
+    animalFormState.waitingAdoption = isChecked
+    formData.waitingAdoption = isChecked
+}
+
+private fun selectedBirthday(formData: AnimalFormData, dateState: Long) : Long{
+    if (formData.birthDate != "") return parseDateStringToLong(formData.birthDate) else return dateState
+}
+
+
+private fun selectedEntryDate(formData: AnimalFormData, dateState: Long) : Long{
+    if( formData.entryDate != "") return parseDateStringToLong(formData.entryDate) else return dateState
+}
+private fun createDefaultFormData(animalFormState: AnimalFormState): AnimalFormData {
+    return AnimalFormData(
+        id = animalFormState.id,
+        name = animalFormState.name,
+        birthDate = animalFormState.birthDate,
+        sex = animalFormState.sex,
+        waitingAdoption = animalFormState.waitingAdoption,
+        fosterCare = animalFormState.fosterCare,
+        shortInfo = animalFormState.shortInfo,
+        longInfo = animalFormState.longInfo,
+        breed = animalFormState.breed,
+        type = animalFormState.typeAnimal,
+        entryDate = animalFormState.entryDate,
+        photoAnimal = animalFormState.photoAnimal,
+        inShelter = animalFormState.inShelter,
+        lost = animalFormState.lost
+    )
+}
+
+private fun updateFormStateFromData(animalFormState: AnimalFormState, formData: AnimalFormData) {
+    animalFormState.apply {
+        id = formData.id
+        name = formData.name
+        birthDate = formData.birthDate
+        sex = formData.sex
+        waitingAdoption = formData.waitingAdoption
+        fosterCare = formData.fosterCare
+        shortInfo = formData.shortInfo
+        longInfo = formData.longInfo
+        breed = formData.breed
+        typeAnimal = formData.type
+        entryDate = formData.entryDate
+        photoAnimal = formData.photoAnimal
+        inShelter = formData.inShelter
+        lost = formData.lost
+    }
+}
 @SuppressLint("DiscouragedApi")
 @Composable
 fun AnimalItem(animal: Animal, navController: NavController) {

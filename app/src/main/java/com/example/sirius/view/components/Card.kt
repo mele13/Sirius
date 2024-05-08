@@ -215,7 +215,7 @@ fun AnimalCard(
                     Log.e("AnimalImage", "Resource not found $photoPath")
                 }
                 if (user != null) {
-                    if (user.role != TypeUser.admin) {
+                    if (user.role == TypeUser.user) {
                         if (isFavorite) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,

@@ -20,6 +20,9 @@ interface ChatDao {
     @Query("SELECT sent_by FROM Chat WHERE seen = 0")
     fun getUnseenMessages(): Flow<List<Int>>
 
+    @Query("SELECT chat_id FROM Chat WHERE seen = 0")
+    fun getChatId(): Flow<List<String>>
+
     @Query("UPDATE Chat SET seen = 1 WHERE chat_id = :chatId")
     fun markMessagesAsSeen(chatId: String)
 }
