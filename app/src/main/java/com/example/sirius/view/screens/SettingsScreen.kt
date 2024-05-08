@@ -69,10 +69,12 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
             }
         }
 
-        AddButton(
-            showDialogAdd,
-            Modifier.align(End)
-        )
+        if (user!!.role == TypeUser.admin) {
+            AddButton(
+                showDialogAdd,
+                Modifier.align(End)
+            )
+        }
 
         if( showDialogAdd.value){
             ShelterFormDialog(showDialogAdd = showDialogAdd , shelterViewModel =  shelterViewModel)
