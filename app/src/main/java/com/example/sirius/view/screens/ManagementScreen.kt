@@ -1,5 +1,6 @@
 package com.example.sirius.view.screens
 
+import android.content.Context
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -24,11 +25,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,34 +60,11 @@ fun HandlingScreen(id: Int?) {
 
     val textState = remember { mutableStateOf(TextFieldValue("")) }
 
-    var selectedButton by remember { mutableStateOf("Expenses") }
+    var selectedButton = remember { mutableStateOf("Expenses") }
 
     val context = LocalContext.current
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "Download movements",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                ),
-                modifier = Modifier.padding(15.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.download),
-                contentDescription = "Download",
-                modifier = Modifier.size(24.dp).clickable {
-
-                    managementViewModel.viewModelScope.launch {
-                        managementViewModel.exportTableAText(
-                            context = context,
-                            "movements.txt"
-                        )
-                        Toast.makeText(context, "The file has been exported successfully.", Toast.LENGTH_LONG).show()
-                    }
-                }
-            )
-        }
+        DownloadMovements(context, managementViewModel)
         Text(
             text = "Last movement",
             style = TextStyle(
@@ -107,102 +84,163 @@ fun HandlingScreen(id: Int?) {
                 .padding(start = 15.dp, end = 15.dp))
         val searchedText = textState.value.text
 
-        Row(modifier = Modifier.fillMaxWidth() ,verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = { selectedButton = "Expenses" },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (selectedButton == "Expenses") Green3 else Color.White,
-                    contentColor = if (selectedButton == "Expenses") Color.Black else Color.Black.copy(alpha = 0.5f)
-                ),
-                border = BorderStroke(0.dp, Color.Transparent),
-                modifier = Modifier.width(200.dp)
-            ) {
-                Text(
-                    text = "Expenses",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                    ),
+        Buttons(selectedButton)
+        if (movements != null) {
+            PaymentHistory(movements, selectedButton, searchedText)
+            Summary(movements, managementViewModel)
 
-                )
-            }
-            Button(onClick = { selectedButton = "Incomes" },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (selectedButton == "Incomes") Green3 else Color.White,
-                    contentColor = if (selectedButton == "Incomes") Color.Black else Color.Black.copy(alpha = 0.5f)
-                ),
-                border = BorderStroke(0.dp, Color.Transparent),
-                modifier = Modifier.width(200.dp)
-            ) {
-                Text(
-                    text = "Income",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                    ),
-
-                )
-            }
         }
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp), contentAlignment = Alignment.Center) {
-            LazyColumn(modifier = Modifier.width(400.dp).height(200.dp)) {
-                if (movements != null) {
-                    items(
-                        items = movements.filter {
-                            if (selectedButton == "Expenses") {
-                                it?.value?.startsWith("-") ?: false &&
-                                it?.description?.contains(searchedText, ignoreCase = true)?: false
-                            } else {
-                                !it?.value?.startsWith("-")!! &&
-                                        it.description.contains(searchedText, ignoreCase = true)
 
-                            }
-                        },
-                        key = { it?.id ?: 0 }
-                    ) { item ->
-                        MovementItem(movement = item)
+    }
+}
+
+@Composable
+fun DownloadMovements(context : Context, managementViewModel: ManagementViewModel){
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = "Download movements",
+            style = TextStyle(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+            ),
+            modifier = Modifier.padding(15.dp)
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.download),
+            contentDescription = "Download",
+            modifier = Modifier
+                .size(24.dp)
+                .clickable {
+
+                    managementViewModel.viewModelScope.launch {
+                        managementViewModel.exportTableAText(
+                            context = context,
+                            "movements.txt"
+                        )
+                        Toast
+                            .makeText(
+                                context,
+                                "The file has been exported successfully.",
+                                Toast.LENGTH_LONG
+                            )
+                            .show()
                     }
                 }
-            }
-        }
-        Row(modifier = Modifier.fillMaxWidth().padding(top= 20.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Balance",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                    ),
-                )
-                val balance = managementViewModel.calculateBalance(movements)
-                Text(
-                    text = "$balance$",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        color = if (balance < 0) Color.Red else Green4
-                    ),
-                )
-            }
+        )
+    }
+}
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Total",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                    ),
+@Composable
+fun Buttons(selectedButton: MutableState<String>){
+    Row(modifier = Modifier.fillMaxWidth() ,verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.Center
+    ) {
+
+
+        Button(onClick = { selectedButton.value = "Expenses" },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if (selectedButton.value == "Expenses") Green3 else Color.White,
+                contentColor = if (selectedButton.value == "Expenses") Color.Black else Color.Black.copy(alpha = 0.5f)
+            ),
+            border = BorderStroke(0.dp, Color.Transparent),
+            modifier = Modifier.width(200.dp)
+        ) {
+            Text(
+                text = "Expenses",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                ),
+
                 )
-                val total = managementViewModel.calculateTotal(movements)
-                Text(
-                    text = "$total$",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        color = if (total < 0) Color.Red else Green4
-                    ),
+        }
+        Button(onClick = { selectedButton.value = "Incomes" },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if (selectedButton.value == "Incomes") Green3 else Color.White,
+                contentColor = if (selectedButton.value == "Incomes") Color.Black else Color.Black.copy(alpha = 0.5f)
+            ),
+            border = BorderStroke(0.dp, Color.Transparent),
+            modifier = Modifier.width(200.dp)
+        ) {
+            Text(
+                text = "Income",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                ),
+
                 )
+        }
+    }
+}
+@Composable
+fun PaymentHistory(movements: List<Management?>, selectedButton : MutableState<String>, searchedText : String){
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp), contentAlignment = Alignment.Center) {
+        LazyColumn(modifier = Modifier
+            .width(400.dp)
+            .height(200.dp)) {
+            if (movements != null) {
+                items(
+                    items = movements.filter {
+                        if (selectedButton.value == "Expenses") {
+                            it?.value?.startsWith("-") ?: false &&
+                                    it?.description?.contains(searchedText, ignoreCase = true)?: false
+                        } else {
+                            !it?.value?.startsWith("-")!! &&
+                                    it.description.contains(searchedText, ignoreCase = true)
+
+                        }
+                    },
+                    key = { it?.id ?: 0 }
+                ) { item ->
+                    MovementItem(movement = item)
+                }
             }
         }
     }
 }
 
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun Summary(movements: List<Management?>, managementViewModel: ManagementViewModel){
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "Balance",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                ),
+            )
+            val balance = managementViewModel.calculateBalance(movements)
+            Text(
+                text = "$balance$",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    color = if (balance < 0) Color.Red else Green4
+                ),
+            )
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "Total",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                ),
+            )
+            val total = managementViewModel.calculateTotal(movements)
+            Text(
+                text = "$total$",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    color = if (total < 0) Color.Red else Green4
+                ),
+            )
+        }
+    }
+}
 @Composable
 fun MovementItem(movement: Management?) {
     movement?.let {
@@ -210,7 +248,6 @@ fun MovementItem(movement: Management?) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(2.dp),
-           // border = BorderStroke(1.dp, border),
             colors = CardDefaults.cardColors(
                 containerColor = Color.Transparent
             )
