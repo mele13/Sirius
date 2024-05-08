@@ -31,7 +31,6 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
                         return@launch
                     }
                     val user = getUserByCredentials(username, password)
-                    val success = user != null
                     if (user != null) {
                         _currentUser.value = user
                         saveAuthenticationState(user)
@@ -97,8 +96,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
     }
 
     private suspend fun checkIfUserExists(username: String): Boolean {
-        if (getUserByUsername(username) != null) return true
-        return false
+        return getUserByUsername(username) != null
     }
 
     suspend fun getAllEmployers(): List<User> {

@@ -14,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -28,26 +27,17 @@ import com.example.sirius.view.components.EventCard
 import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
-import java.util.Calendar
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DiscouragedApi", "SuspiciousIndentation")
 @Composable
 fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel) {
     var showDialog by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf(Calendar.getInstance()) }
-    var fecha: String
-    fecha = "";
+    var date: String
+    date = ""
 
     val events by eventViewModel.getEvents().collectAsState(initial = null)
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
-    val username by remember { mutableStateOf(user?.username ?: "") }
-    val email by remember { mutableStateOf(user?.email ?: "") }
-    var imageUrl by remember { mutableStateOf(user?.photoUser ?: "") }
-    val likedAnimals by userViewModel.getLikedAnimals(user?.id ?: -1).collectAsState(emptyList())
-    val currentUser by userViewModel.currentUser.collectAsState()
-    var showUpdateImageDialog by remember { mutableStateOf(false) }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +48,7 @@ fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel)
         }
         item {
             Button(onClick = { showDialog = true }) {
-                Text(text = "crear evento")
+                Text(text = "Create event")
                 if (showDialog) {
                     user?.let {
                         CreateEventDialog(onDismiss = { showDialog = false },eventViewModel,
@@ -72,16 +62,14 @@ fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel)
         item {
             DatePickerItem(
                 state = System.currentTimeMillis(),
-                onDateSelected = { date ->
-                fecha = date
-                    events?.let { user?.let { it1 -> ShowEventsbyCalendar(it, it1,fecha, eventViewModel) } }
+                onDateSelected = { dateAux -> date = dateAux
+                    events?.let { user?.let { it1 -> ShowEventsbyCalendar(it, it1,date, eventViewModel) } }
                 },
                 title = "Entry Date"
             )
         }
         item{
-            Text("Eventos");
-           // events?.let { user?.let { it1 -> ShowEventsbyCalendar(it, it1,fecha) } }
+            Text("Events")
         }
 
         }
@@ -125,15 +113,13 @@ fun ShowEventsbyCalendar(events: List<Event>, user: User,fecha : String, eventVi
 }
 @Composable
 fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user: User) {
-    val context = LocalContext.current
-    var newFecha: String
-    newFecha = "";
-    var unit: Unit
+    var newDate: String
+    newDate = ""
     var selectedDate by remember { mutableStateOf(System.currentTimeMillis()) }
-    var titulo by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedItem by remember { mutableStateOf("") }
-    val itemsAOW = listOf("cite", "workeer", "volunteer")
+    val itemsAOW = listOf("cite", "worker", "volunteer")
     val itemsV = listOf("cite", "volunteer")
 
     Dialog(onDismissRequest = ({ onDismiss() })) {
@@ -150,26 +136,23 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                 horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
-                Text(text = "Crea un Evento")
+                Text(text = "Create event")
                 DatePickerItem(
                     state = selectedDate,
                     onDateSelected = { date ->
-                        newFecha = date
+                        newDate = date
                     },
-                    title = "Seleccione una fecha para el evento"
+                    title = "Select a date for the event"
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
-                    value = titulo,
-                    onValueChange = { titulo = it },
-                    label = { Text("Titulo del Evento") },
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Event title") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            // Ocultar el teclado cuando se presiona "Done"
-                            // No es necesario para Compose Desktop
-                            //hideKeyboard(context)
                         }
                     )
                 )
@@ -177,10 +160,10 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                 TextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descripción del evento") },
+                    label = { Text("Description of the event") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(90.dp), // Ajuste de altura a 90dp (3 líneas de altura),
+                        .height(90.dp),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
@@ -191,7 +174,7 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Selecciona una opción:")
+                Text("Select an option:")
                 val expanded = remember { mutableStateOf(false) }
 
                 IconButton(
@@ -239,9 +222,9 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                     Button(onClick = {
                         val newEvent = Event(
                             id = 0,
-                            titleEvent = titulo,
+                            titleEvent = title,
                             descriptionEvent = description,
-                            dateEvent = newFecha,
+                            dateEvent = newDate,
                             UserID = user.id.toString(),
                             eventType = eventViewModel.stringToTypeEvent(selectedItem)
                         )
@@ -251,7 +234,7 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                         onDismiss()
                     }) {
 
-                        Text(text = "Aceptar")
+                        Text(text = "Accept")
                     }
                 }
             }

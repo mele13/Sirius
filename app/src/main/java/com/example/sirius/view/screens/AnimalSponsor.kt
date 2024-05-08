@@ -37,7 +37,7 @@ import com.example.sirius.ui.theme.Gold
 import com.example.sirius.view.components.NotAvailableDialog
 
 @Composable
-fun AnimalSponsor(id: Int?, photo: String?, animalName: String?) {
+fun AnimalSponsor(photo: String?, animalName: String?) {
     val photoUrl = "res/drawable/${photo}"
     var showDialog by remember { mutableStateOf(false) }
 

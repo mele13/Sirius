@@ -58,9 +58,9 @@ import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeAnimal
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.CheckIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
+import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.tools.intToBoolean
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
@@ -95,23 +95,6 @@ fun AnimalCard(
     var inShelter by remember { mutableStateOf(false) }
     var lost by remember { mutableStateOf(false) }
 
-
-    var photoAnimal by remember { mutableStateOf("") }
-    var photoNews by remember { mutableStateOf("") }
-
-    val predefinedImageList = listOf(
-        "res/drawable/user_image1",
-        "res/drawable/user_image2",
-        "res/drawable/user_image3",
-        "res/drawable/user_image4",
-        "res/drawable/user_image5",
-        "res/drawable/user_image6",
-        "res/drawable/user_image7",
-        "res/drawable/user_image8",
-        "res/drawable/user_image9",
-        "res/drawable/user_image10"
-    )
-
     if (item is Animal) {
         nameAnimal = item.nameAnimal
         shortInfoAnimal = item.shortInfoAnimal
@@ -123,7 +106,7 @@ fun AnimalCard(
 
     if (item is Animal && user != null) {
         isFavorite =
-            item?.let { CheckIfAnimalIsFavorite(userId = user.id, animal = it, userViewModel = userViewModel) } == true
+            checkIfAnimalIsFavorite(userId = user.id, animal = item, userViewModel = userViewModel) == true
     }
 
     androidx.compose.material3.Card(
@@ -141,9 +124,6 @@ fun AnimalCard(
         shape = MaterialTheme.shapes.medium,
 
         ) {
-
-
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -179,7 +159,6 @@ fun AnimalCard(
                 )
 
 
-
                 if (resourceId != 0) {
                     val painter = painterResource(id = resourceId)
                     Box(
@@ -194,7 +173,7 @@ fun AnimalCard(
                                 .aspectRatio(1f)
                         )
 
-                        if (user!!.role == TypeUser.admin || user!!.role == TypeUser.owner) {
+                        if (user!!.role == TypeUser.admin || user.role == TypeUser.owner) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
@@ -217,9 +196,9 @@ fun AnimalCard(
                         if (showDialogDelete) {
                             var titleDialog = ""
                             if (item is Animal) {
-                                titleDialog = "Eliminar ${item.nameAnimal}"
+                                titleDialog = "Delete ${item.nameAnimal}"
                             } else if (item is News) {
-                                titleDialog = "Eliminar ${item.titleNews}"
+                                titleDialog = "Delete ${item.titleNews}"
                             }
 
                             DeleteDialog(
@@ -235,10 +214,8 @@ fun AnimalCard(
                 } else {
                     Log.e("AnimalImage", "Resource not found $photoPath")
                 }
-
-
                 if (user != null) {
-                    if (user!!.role == TypeUser.user) {
+                    if (user.role != TypeUser.admin) {
                         if (isFavorite) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
@@ -485,8 +462,6 @@ fun AnimalCard(
 }
 
 
-
-
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
@@ -509,24 +484,6 @@ fun NewsCard(
     var longInfoAnimal by remember { mutableStateOf("") }
 
     var goodNews by remember { mutableStateOf(false) }
-
-
-
-    var photoAnimal by remember { mutableStateOf("") }
-    var photoNews by remember { mutableStateOf("") }
-
-    val predefinedImageList = listOf(
-        "res/drawable/user_image1",
-        "res/drawable/user_image2",
-        "res/drawable/user_image3",
-        "res/drawable/user_image4",
-        "res/drawable/user_image5",
-        "res/drawable/user_image6",
-        "res/drawable/user_image7",
-        "res/drawable/user_image8",
-        "res/drawable/user_image9",
-        "res/drawable/user_image10"
-    )
 
     if (item is News) {
         title = item.titleNews
@@ -586,7 +543,6 @@ fun NewsCard(
                     context.packageName
                 )
 
-
                 if (resourceId != 0) {
                     val painter = painterResource(id = resourceId)
                     Box(
@@ -620,9 +576,9 @@ fun NewsCard(
                         if (showDialogDelete) {
                             var titleDialog = ""
                             if (item is Animal) {
-                                titleDialog = "Eliminar ${item.nameAnimal}"
+                                titleDialog = "Delete ${item.nameAnimal}"
                             } else if (item is News) {
-                                titleDialog = "Eliminar ${item.titleNews}"
+                                titleDialog = "Delete ${item.titleNews}"
                             }
 
                             DeleteDialog(
@@ -638,7 +594,7 @@ fun NewsCard(
                     Log.e("AnimalImage", "Resource not found $photoPath")
                 }
                 if (user != null) {
-                    if (user!!.role != TypeUser.admin) {
+                    if (user.role != TypeUser.admin) {
                         if (isFavorite) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,

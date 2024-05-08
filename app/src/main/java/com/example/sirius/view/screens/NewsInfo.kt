@@ -43,7 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sirius.R
-import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
@@ -53,7 +52,6 @@ import com.example.sirius.tools.intToBoolean
 import com.example.sirius.view.components.NewsFormData
 import com.example.sirius.view.components.NewsFormDialog
 import com.example.sirius.view.components.rememberNewsFormState
-import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 
@@ -64,14 +62,11 @@ fun NewsInfo(
     id: Int?,
     viewModel: NewsViewModel,
     userViewModel: UserViewModel,
-    chatViewModel: ChatViewModel,
     navController: NavController,
 ) {
     val user = userViewModel.getAuthenticatedUser()
-    var showDialog by remember { mutableStateOf(false) }
     var editMode = remember { mutableStateOf(false) }
 
-    var isFavorite by remember { mutableStateOf(false) }
     val news by viewModel.getNewsById(id ?: 0).collectAsState(initial = null)
     val context = LocalContext.current
     val userId = userViewModel.getAuthenticatedUser()?.id
@@ -102,46 +97,45 @@ fun NewsInfo(
             if(editMode.value){
                 var editedTitle by remember {
                     mutableStateOf(
-                        (news as? News)?.titleNews ?: ""
+                        news?.titleNews ?: ""
                     )
                 }
 
                 var editedShortInfo by remember {
                     mutableStateOf(
-                        (news as? News)?.shortInfoNews ?: ""
+                        news?.shortInfoNews ?: ""
                     )
                 }
 
                 var editedLongInfo by remember {
                     mutableStateOf(
-                        (news as? News)?.longInfoNews ?: ""
+                        news?.longInfoNews ?: ""
                     )
                 }
 
                 var editedPublishedDate by remember {
                     mutableStateOf(
-                        (news as? News)?.publishedDate ?: ""
+                        news?.publishedDate ?: ""
                     )
                 }
 
                 var editedCreatedAt by remember {
                     mutableStateOf(
-                        (news as? News)?.createdAt ?: ""
+                        news?.createdAt ?: ""
                     )
                 }
 
                 var editedUntilDate by remember {
                     mutableStateOf(
-                        (news as? News)?.untilDate ?: ""
+                        news?.untilDate ?: ""
                     )
                 }
 
                 var editedPhotoNews by remember {
                     mutableStateOf(
-                        (news as? News)?.photoNews ?: ""
+                        news?.photoNews ?: ""
                     )
                 }
-
 
                 var editedGoodNews by remember {
                     mutableStateOf(
@@ -150,7 +144,7 @@ fun NewsInfo(
                 }
 
 
-                var idNews = (news as? News)?.id
+                var idNews = news?.id
                 val newsFormData = idNews?.let {
 
                     NewsFormData(
@@ -164,7 +158,6 @@ fun NewsInfo(
                         editedPhotoNews,
                         editedGoodNews
                     )
-
                 }
 
                 val newsFormState = rememberNewsFormState()
@@ -173,7 +166,7 @@ fun NewsInfo(
                 NewsFormDialog(
                     showDialogAdd = editMode,
                     newsFormState = newsFormState,
-                    sectionType = if((news as? News)!!.goodNews == 1) SectionType.GOOD_NEWS else SectionType.WHATS_NEW,
+                    sectionType = if(news!!.goodNews == 1) SectionType.GOOD_NEWS else SectionType.WHATS_NEW,
                     newsFormData = newsFormData,
                     isEdit = true,
                 ) {
@@ -203,7 +196,7 @@ fun NewsInfo(
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
                             // Icono sponsor
-                            if (user != null && user!!.role != TypeUser.admin) {
+                            if (user != null && user.role != TypeUser.admin) {
                                 Box(
                                     modifier = Modifier
                                         .clickable {
@@ -242,7 +235,7 @@ fun NewsInfo(
                             )
 
                             if (userId != null) {
-                                if (user!!.role == TypeUser.admin || user!!.role == TypeUser.owner) {
+                                if (user!!.role == TypeUser.admin || user.role == TypeUser.owner) {
 
                                     Icon(
                                         imageVector = Icons.Default.Edit,

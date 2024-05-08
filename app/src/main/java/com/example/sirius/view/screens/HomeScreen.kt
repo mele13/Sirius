@@ -56,7 +56,6 @@ import com.example.sirius.view.components.NewsItem
 import com.example.sirius.view.components.rememberAnimalFormState
 import com.example.sirius.view.components.rememberNewsFormState
 import com.example.sirius.viewmodel.AnimalViewModel
-import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -69,8 +68,6 @@ fun HomeScreen(
     userViewModel: UserViewModel,
     typeList: List<String>,
 ) {
-    val dateState = System.currentTimeMillis()
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -85,7 +82,6 @@ fun HomeScreen(
                     isAnimalSection = false,
                     navController = navController,
                     userViewModel = userViewModel,
-                    dateState = dateState,
                     typeList = typeList,
                 )
                 Section(
@@ -94,7 +90,6 @@ fun HomeScreen(
                     isAnimalSection = true,
                     navController = navController,
                     userViewModel = userViewModel,
-                    dateState = dateState,
                     typeList = typeList,
                 )
                 Section(
@@ -103,7 +98,6 @@ fun HomeScreen(
                     isAnimalSection = true,
                     navController = navController,
                     userViewModel = userViewModel,
-                    dateState = dateState,
                     typeList = typeList,
                 )
                 Section(
@@ -112,7 +106,6 @@ fun HomeScreen(
                     isAnimalSection = false,
                     navController = navController,
                     userViewModel = userViewModel,
-                    dateState = dateState,
                     typeList = typeList,
                 )
             }
@@ -128,10 +121,7 @@ fun Section(
     isAnimalSection: Boolean,
     navController: NavController,
     userViewModel: UserViewModel,
-    dateState: Long,
     typeList: List<String>) {
-
-    val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
 
     val typeRuta = determineRoute(isAnimalSection, title)
 
@@ -312,7 +302,7 @@ fun DropdownFiltersHome(
     DropdownButtonHome(
         text = "Type",
         options = typeList.map { it },
-        selectedOption = if( animalFormData.type == null) selectedType else animalFormData.type,
+        selectedOption = animalFormData.type,
         onOptionSelected = {
             selectedType = it
             animalFormData.type = it

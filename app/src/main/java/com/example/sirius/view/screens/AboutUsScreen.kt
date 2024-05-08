@@ -81,12 +81,6 @@ fun LocationCard(location: String) {
                 text = "Location",
                 style = MaterialTheme.typography.headlineMedium,
             )
-//            Text(
-//                text = location,
-//                style = MaterialTheme.typography.labelLarge,
-//            )
-
-            // Mapa de Google
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

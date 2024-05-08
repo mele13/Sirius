@@ -65,9 +65,9 @@ fun calculateAgeCategory(birthDate: String): String {
     val age = calculateAge(birthDate)
 
     return when {
-        age <= 1 -> "Puppy" // Menos de un año
-        age in 2..3 -> "Young" // De 2 a 3 años
-        age in 4..7 -> "Adult" // De 4 a 7 años
+        age <= 1 -> "Puppy"
+        age in 2..3 -> "Young"
+        age in 4..7 -> "Adult"
         else -> "Senior"
     }
 }
@@ -100,7 +100,7 @@ fun getYearRangeFromCategory(ageRange: String): Pair<Int, Int> {
         "2-3" -> Pair(2, 3)
         "4-7" -> Pair(4, 7)
         ">= 8" -> Pair(8, Int.MAX_VALUE)
-        else -> Pair(0, Int.MAX_VALUE) // Rango predeterminado si no se encuentra ninguna categoría
+        else -> Pair(0, Int.MAX_VALUE)
     }
 }
 
@@ -119,13 +119,13 @@ fun stringToEnumTypeAnimal(value: String): TypeAnimal? {
 }
 
 @Composable
-fun CheckIfAnimalIsFavorite(userId: Int?, animal: Animal, userViewModel: UserViewModel): Boolean {
+fun checkIfAnimalIsFavorite(userId: Int?, animal: Animal, userViewModel: UserViewModel): Boolean {
     val isFavoriteState = remember { mutableStateOf(false) }
 
     LaunchedEffect(userId) {
         if (userId != null) {
             val likedAnimals = userViewModel.getLikedAnimals(userId).firstOrNull()
-            isFavoriteState.value = likedAnimals?.any { it.id == (animal.id ?: -1) } ?: false
+            isFavoriteState.value = likedAnimals?.any { it.id == animal.id } ?: false
         }
     }
 

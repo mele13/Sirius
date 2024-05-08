@@ -74,7 +74,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
         try {
             userList = userViewModel.getAllUsers()
         } catch (e: Exception) {
-            Log.e("Error : ", "Error al acceder a la BBDD", e)
+            Log.e("Error : ", "Error when accessing the database", e)
         }
     }
 
@@ -83,9 +83,6 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
     val unseenMessages by remember {
         unseenMessagesState
     }
-
-
-
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -104,7 +101,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
                                     val chatID = user?.let { chatViewModel.generateChatId(it.id, item.id) }
                                     lastMessage = chatID?.let { chatViewModel.getLastMessage(it) }
                                 } catch (e: Exception) {
-                                    Log.e("Firestore", "Error en ChildList", e)
+                                    Log.e("Firestore", "Error ChildList", e)
                                 }
                             }
                             UserEachRow(person = item, lastMessage = lastMessage, unseenMessages = unseenMessages) {
@@ -188,7 +185,7 @@ fun UserEachRow(
         Row(
             modifier = Modifier
                 .padding(16.dp).fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = CenterVertically) {
 
 
             UserImage(
@@ -237,22 +234,14 @@ fun UserEachRow(
                     if (person.id in unseenMessages) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
-                            contentDescription = "Recibido",
+                            contentDescription = "Receive",
                             tint = Green3,
                             modifier = Modifier.size(24.dp)
                         )
                     }
                 }
-
-
             }
-
-
         }
-
-
-
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -290,13 +279,11 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        //  contentAlignment = Alignment.TopCenter, // Alinea el texto en la parte superior y central
     ) {
 
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            //  verticalArrangement = Arrangement.Bottom
         ) {
 
 
@@ -351,7 +338,7 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
-                                contentDescription = "Boton de enviar",
+                                contentDescription = "Send button",
                                 tint = Green4
                             )
                         }

@@ -37,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -93,24 +92,23 @@ fun EventCard(event: Event, eventViewModel: EventViewModel,user: User) {
                 ) {
                     IconButton(onClick = {
                         //confirmDialog(event,eventViewModel)
-                        dialogActivated = true;
+                        dialogActivated = true
                     }) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
-                            contentDescription = "Eliminar"
+                            contentDescription = "Delete"
                         )
                     }
                     IconButton(onClick = { showDialog = true }) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
-                            contentDescription = "Eliminar"
+                            contentDescription = "Delete"
                         )
                     }
                     if (showDialog) {
                         EditEventDialog(
                             onDismiss = { showDialog = false },
                             eventViewModel = eventViewModel,
-                            user = user,
                             event = event
                         )
                     }
@@ -135,16 +133,14 @@ fun EventCard(event: Event, eventViewModel: EventViewModel,user: User) {
 }
 
 @Composable
-fun EditEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user: User,event: Event) {
-    val context = LocalContext.current
-    var newFecha: String
-    newFecha = "";
-    var unit: Unit
+fun EditEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,event: Event) {
+    var newDate: String
+    newDate = ""
     var selectedDate by remember { mutableStateOf(parseDateStringToLong(event.dateEvent)) }
-    var titulo by remember { mutableStateOf(event.titleEvent) }
+    var title by remember { mutableStateOf(event.titleEvent) }
     var description by remember { mutableStateOf(event.descriptionEvent) }
     var selectedItem by remember { mutableStateOf(event.eventType.toString()) }
-    val items = listOf("cite", "workeer", "volunteer")
+    val items = listOf("cite", "worker", "volunteer")
 
     Dialog(onDismissRequest = ({ onDismiss() })) {
         Surface(
@@ -164,14 +160,14 @@ fun EditEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user: U
                 DatePickerItem(
                     state = selectedDate,
                     onDateSelected = { date ->
-                        newFecha = date
+                        newDate = date
                     },
                     title = "Select a date for the event"
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
-                    value = titulo,
-                    onValueChange = { titulo = it },
+                    value = title,
+                    onValueChange = { title = it },
                     label = { Text("Title of the event") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -190,13 +186,10 @@ fun EditEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user: U
                     label = { Text("Description of the event") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(90.dp), // Ajuste de altura a 90dp (3 líneas de altura),
+                        .height(90.dp),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            // Ocultar el teclado cuando se presiona "Done"
-                            // No es necesario para Compose Desktop
-                            //hideKeyboard(context)
                         }
                     )
                 )
@@ -236,9 +229,9 @@ fun EditEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user: U
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    event.titleEvent = titulo
+                    event.titleEvent = title
                     event.descriptionEvent = description
-                    event.dateEvent = newFecha
+                    event.dateEvent = newDate
                     event.eventType = eventViewModel.stringToTypeEvent(selectedItem)
 
                     eventViewModel.viewModelScope.launch {

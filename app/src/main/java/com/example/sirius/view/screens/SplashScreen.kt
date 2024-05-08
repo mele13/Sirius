@@ -71,7 +71,7 @@ fun LoadingPage (navController: NavHostController, id: Int = -1){
             )
             Image(
                 painter = painterResource(id = R.drawable.loading_page_image2),
-                contentDescription = "Descripción de la imagen",
+                contentDescription = "Image description",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .width(50.dp)

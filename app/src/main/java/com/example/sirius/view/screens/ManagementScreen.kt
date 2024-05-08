@@ -42,19 +42,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.Management
 import com.example.sirius.ui.theme.Green3
 import com.example.sirius.ui.theme.Green4
 import com.example.sirius.view.components.BarSearch
 import com.example.sirius.viewmodel.ManagementViewModel
-import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HandlingScreen(id: Int?, navController: NavController, userViewModel: UserViewModel) {
+fun HandlingScreen(id: Int?) {
 
     val managementViewModel: ManagementViewModel = viewModel(factory = ManagementViewModel.factory)
     val lastMovements = id?.let { managementViewModel.getLastMovements(it).collectAsState(initial = emptyList()) }
@@ -81,19 +79,15 @@ fun HandlingScreen(id: Int?, navController: NavController, userViewModel: UserVi
                 modifier = Modifier.size(24.dp).clickable {
 
                     managementViewModel.viewModelScope.launch {
-                        managementViewModel.exportarTablaATexto(
+                        managementViewModel.exportTableAText(
                             context = context,
                             "movements.txt"
                         )
-
-                        Toast.makeText(context, "El archivo se ha exportado correctamente.", Toast.LENGTH_LONG).show()
-
+                        Toast.makeText(context, "The file has been exported successfully.", Toast.LENGTH_LONG).show()
                     }
                 }
-
             )
         }
-
         Text(
             text = "Last movement",
             style = TextStyle(
@@ -107,12 +101,10 @@ fun HandlingScreen(id: Int?, navController: NavController, userViewModel: UserVi
            Movement(movements = managementViewModel.getMovementsForCurrentMonth(movements))
 
         }
-
         BarSearch(state = textState, placeHolder = "Search here...",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 15.dp, end = 15.dp))
-
         val searchedText = textState.value.text
 
         Row(modifier = Modifier.fillMaxWidth() ,verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.Center
@@ -150,9 +142,6 @@ fun HandlingScreen(id: Int?, navController: NavController, userViewModel: UserVi
                 )
             }
         }
-
-
-
         Box(modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp), contentAlignment = Alignment.Center) {
@@ -164,8 +153,8 @@ fun HandlingScreen(id: Int?, navController: NavController, userViewModel: UserVi
                                 it?.value?.startsWith("-") ?: false &&
                                 it?.description?.contains(searchedText, ignoreCase = true)?: false
                             } else {
-                                !it?.value?.startsWith("-")!! ?: false &&
-                                it?.description?.contains(searchedText, ignoreCase = true) ?: false
+                                !it?.value?.startsWith("-")!! &&
+                                        it.description.contains(searchedText, ignoreCase = true)
 
                             }
                         },
@@ -176,10 +165,6 @@ fun HandlingScreen(id: Int?, navController: NavController, userViewModel: UserVi
                 }
             }
         }
-
-
-
-
         Row(modifier = Modifier.fillMaxWidth().padding(top= 20.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(

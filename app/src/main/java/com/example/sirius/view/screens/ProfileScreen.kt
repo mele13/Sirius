@@ -387,7 +387,6 @@ fun ProfileItem(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ShowEvents(events: List<Event>,user: User, eventViewModel: EventViewModel) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -395,24 +394,6 @@ fun ShowEvents(events: List<Event>,user: User, eventViewModel: EventViewModel) {
         events.forEach { event ->
             if (event.UserID == user.id.toString()) {
                 if (parseDateStringToLong(event.dateEvent) >= System.currentTimeMillis()) {
-                    /*
-                    Text(
-                        text = "Titulo: ${event.titleEvent}",
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    Text(
-                        text = event.descriptionEvent,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    Text(
-                        text = "Para: ${event.dateEvent}",
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    Text(
-                        text = "----------------------"
-                    )
-
-                     */
                     EventCard(event = event, eventViewModel = eventViewModel, user = user)
                 }
             }

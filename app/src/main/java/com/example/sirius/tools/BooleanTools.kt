@@ -10,10 +10,6 @@ fun stringToBoolean(value: String): Boolean {
     return value == "1"
 }
 
-
-
-
-
 /**
  * Converts a Boolean value to an integer (0 for false, 1 for true).
  *

@@ -27,7 +27,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,8 +43,6 @@ import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
 import com.example.sirius.tools.calculateAgeCategory
-import com.example.sirius.tools.getYearRangeFromCategory
-import com.example.sirius.tools.mapCategoryToYearRange
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.view.components.AnimalCard
 import com.example.sirius.view.components.NewsCard
@@ -53,7 +50,6 @@ import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
-import java.time.Year
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -175,69 +171,44 @@ fun AnimalsGallery(
             )
         }
 
-        val animalsByAgeCategory = if (selectedCategory.isNotBlank()) {
-            val ageRange = mapCategoryToYearRange(selectedCategory)
-
-            val (startYear, endYear) = getYearRangeFromCategory(ageRange)
-
-            val currentYear = Year.now().value
-            val startBirthYear = currentYear - endYear
-            val endBirthYear = currentYear - startYear
-
-            animalViewModel.getAnimalsByBirthYearRange(startBirthYear.toString().takeLast(4), endBirthYear.toString().takeLast(4)).collectAsState(emptyList()).value
-        } else {
-            animalViewModel.getAllAnimals().collectAsState(emptyList()).value
-        }
-
-        val animalsByBreed = if (selectedBreed.isNotBlank()) {
-            animalViewModel.getAnimalsByBreed(selectedBreed).collectAsState(emptyList()).value
-        } else {
-            animalViewModel.getAllAnimals().collectAsState(emptyList()).value
-        }
-
-        val animalsByType = if (selectedType.isNotBlank()) {
-            animalViewModel.getAnimalsByTypeAnimal(selectedType).collectAsState(emptyList()).value
-        } else {
-            animalViewModel.getAllAnimals().collectAsState(emptyList()).value
-        }
-
-        val filteredAnimals = animalsByAgeCategory.intersect(animalsByBreed.toSet()).intersect(animalsByType.toSet())
         val columns = 2
         var items by remember { mutableStateOf<List<Any>>(emptyList()) }
 
         if (isAnimal){
-            if (type == "AnimalsInShelter"){
-                if (animalViewModel != null) {
+            when (type) {
+                "AnimalsInShelter" -> {
                     userViewModel.viewModelScope.launch {
                         animalViewModel.getOurFriends().collect { animals ->
                             items = animals
                         }
                     }
                 }
-            } else if (type == "LostAnimals"){
-                userViewModel.viewModelScope.launch {
-                    animalViewModel?.getLostAnimals()?.collect { animals ->
-                        items = animals
+                "LostAnimals" -> {
+                    userViewModel.viewModelScope.launch {
+                        animalViewModel.getLostAnimals().collect { animals ->
+                            items = animals
+                        }
+
+                    }
+                }
+                else -> {
+                    userViewModel.viewModelScope.launch {
+                        animalViewModel.getAllAnimals().collect { animals ->
+                            items = animals
+                        }
                     }
 
                 }
-            } else {
-                userViewModel.viewModelScope.launch {
-                    animalViewModel?.getAllAnimals()?.collect { animals ->
-                        items = animals
-                    }
-                }
-
             }
         } else {
             if (type == "GoodNews"){
-                newsViewModel?.viewModelScope?.launch {
+                newsViewModel.viewModelScope.launch {
                     newsViewModel.getGoodNews().collect { news ->
                         items = news
                     }
                 }
             } else if (type == "AllNews"){
-                newsViewModel?.viewModelScope?.launch {
+                newsViewModel.viewModelScope.launch {
                     newsViewModel.getWhatNews().collect { news ->
                         items = news
                     }
@@ -253,7 +224,7 @@ fun AnimalsGallery(
             items(items.size) { index ->
                 val item = items.getOrNull(index)
                 item?.let {
-                    if (newsViewModel != null && item is Animal) {
+                    if (item is Animal) {
                         AnimalCard(
                             item = item,
                             navController = navController,
@@ -263,7 +234,7 @@ fun AnimalsGallery(
                         )
                     }
 
-                    if(newsViewModel != null && item is News){
+                    if(item is News){
                         NewsCard(
                             item = item,
                             navController = navController,
@@ -305,26 +276,26 @@ fun ClearFilterIconButton(
 
 @Composable
 fun TextWithSplit(text: String, color: Color) {
-    val texto = text.ifBlank { "Empty text" }
-    val espacioIndex = texto.indexOf(' ')
+    val text = text.ifBlank { "Empty text" }
+    val spaceIndex = text.indexOf(' ')
 
-    if (espacioIndex != -1) {
-        val primeraParte = texto.substring(0, espacioIndex)
-        val segundaParte = texto.substring(espacioIndex + 1)
+    if (spaceIndex != -1) {
+        val firstPart = text.substring(0, spaceIndex)
+        val secondPart = text.substring(spaceIndex + 1)
 
         Column {
             Text(
-                text = primeraParte,
+                text = firstPart,
                 color = color,
             )
             Text(
-                text = segundaParte,
+                text = secondPart,
                 color = color
             )
         }
     } else {
         Text(
-            text = texto,
+            text = text,
             color = color
         )
     }
@@ -408,23 +379,4 @@ fun DropdownButton(
             }
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
-@Composable
-fun AnimalCard(
-    item: Any,
-    navController: NavController,
-    animalViewModel: AnimalViewModel,
-    userViewModel: UserViewModel,
-    newsViewModel: NewsViewModel,
-) {
-    AnimalCard(
-        item = item,
-        navController = navController,
-        animalViewModel = animalViewModel,
-        userViewModel = userViewModel,
-        newsViewModel = newsViewModel,
-    )
 }

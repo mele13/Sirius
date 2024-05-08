@@ -22,7 +22,7 @@ import java.time.YearMonth
 
 class ManagementViewModel(private val managementDao: ManagementDao) : ViewModel() {
 
-    val exportacionCompletada = MutableLiveData<Boolean>()
+    private val exportCompleted = MutableLiveData<Boolean>()
 
     fun getLastMovements(id : Int) : Flow<List<Management?>> = managementDao.getLastMovements(id)
 
@@ -56,7 +56,7 @@ class ManagementViewModel(private val managementDao: ManagementDao) : ViewModel(
                 val movementYearMonth = YearMonth.of(movementDate.year, movementDate.month)
                 if (movementYearMonth == currentMonth) {
                     val value = movement.value.toDoubleOrNull() ?: 0.0
-                    balance += value // Suma el valor completo del movimiento
+                    balance += value
                 }
             }
         }
@@ -79,18 +79,17 @@ class ManagementViewModel(private val managementDao: ManagementDao) : ViewModel(
                 }
             }
         }
-
-        return currentMonthMovements.filterNotNull()
+        return currentMonthMovements.toList()
     }
-
-    suspend fun exportarTablaATexto(context: Context, archivoSalida: String) {
+    //
+    //
+    suspend fun exportTableAText(context: Context, outputFile: String) {
         withContext(Dispatchers.IO) {
             val items = managementDao.getManagement()
 
-            val file = File(context.getExternalFilesDir(null), archivoSalida)
+            val file = File(context.getExternalFilesDir(null), outputFile)
             val writer = FileWriter(file)
 
-            // Escribir los datos en el archivo
             items.forEach { item ->
                 writer.append(item.toString())
                 writer.append('\n')
@@ -99,19 +98,13 @@ class ManagementViewModel(private val managementDao: ManagementDao) : ViewModel(
             writer.flush()
             writer.close()
 
-            // Copiar el archivo a la carpeta de descargas pública
-            val sourceFile = File(context.getExternalFilesDir(null), archivoSalida)
-            val destinationFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), archivoSalida)
+            val sourceFile = File(context.getExternalFilesDir(null), outputFile)
+            val destinationFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), outputFile)
             sourceFile.copyTo(destinationFile, true)
 
-            // Notificar a la UI que la exportación ha sido completada
-            exportacionCompletada.postValue(true)
+            exportCompleted.postValue(true)
         }
     }
-
-
-
-
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {

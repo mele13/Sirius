@@ -216,7 +216,6 @@ fun NavigationContent(
                         it.arguments?.getInt("id"),
                         newsViewModel,
                         userViewModel,
-                        chatViewModel,
                         navController,
                         )
                 }
@@ -229,7 +228,7 @@ fun NavigationContent(
                 }
                 composable(route = Routes.MANAGEMENT) {
                     val shelterId = shelterViewModel.getSheltersOwner(userViewModel.getAuthenticatedUser()!!.id).collectAsState(null).value
-                    HandlingScreen(id = shelterId, navController = navController, userViewModel = userViewModel)
+                    HandlingScreen(id = shelterId)
                 }
                 composable(route = Routes.LOGIN) {
                     LoginScreen(navController = navController, userViewModel = userViewModel)
@@ -287,7 +286,6 @@ fun NavigationContent(
                     )) {
 
                     AnimalSponsor(
-                        id = it.arguments?.getInt("id"),
                         photo = it.arguments?.getString("photo"),
                         animalName = it.arguments?.getString("animalName"),
                     )

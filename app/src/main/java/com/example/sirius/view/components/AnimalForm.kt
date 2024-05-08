@@ -33,7 +33,6 @@ import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.view.screens.DropdownFiltersHome
 import com.example.sirius.viewmodel.AnimalViewModel
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun animalFormFields(
@@ -180,7 +179,6 @@ fun animalFormFields(
             }
         }
         item {
-          //  var selectedType by remember { mutableStateOf(formData.type) }
             var selectedType = formData.type
             Text("Type animal")
                 DropdownFiltersHome(

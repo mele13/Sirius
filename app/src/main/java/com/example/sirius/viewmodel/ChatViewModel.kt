@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: UserViewModel) : ViewModel() {
 
     private var _recipientUserId = MutableLiveData<Int>()
-    val recipientUserId: LiveData<Int> = _recipientUserId
+    private val recipientUserId: LiveData<Int> = _recipientUserId
 
 
     private val _message = MutableLiveData("")
@@ -23,10 +23,6 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
 
     private val _messages = MutableLiveData<List<Chat>>(emptyList())
     val messages: LiveData<List<Chat>> = _messages
-
-
-    private var _isMessageSeen = MutableLiveData<Boolean>(false)
-    val isMessageSeen: LiveData<Boolean> = _isMessageSeen
 
     init {
         recipientUserId.observeForever { userId ->
@@ -37,8 +33,6 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
             }
         }
     }
-
-
 
     fun generateChatId(user1Id: Int, user2Id: Int): String {
         return if (user1Id < user2Id) {
@@ -79,7 +73,7 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
 
 
     fun addMessageAdoption(recipientUserId: Int, animal : Animal){
-        val message: String = "Hello, I would like to start the process of adopting ${animal.nameAnimal} from your shelter."
+        val message = "Hello, I would like to start the process of adopting ${animal.nameAnimal} from your shelter."
         if (message.isNotEmpty()) {
             val currentUser = userViewModel.getAuthenticatedUser()
             val chatId = currentUser?.let { generateChatId(it.id, recipientUserId) }

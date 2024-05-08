@@ -30,7 +30,6 @@ fun newsFormFields(
     state: Long,
     newsFormState: NewsFormState,
     newsFormData: NewsFormData?,
-    isEdit: Boolean
 ): NewsFormData {
 
     val formData = newsFormData ?: NewsFormData(

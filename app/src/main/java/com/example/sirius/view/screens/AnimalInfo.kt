@@ -64,7 +64,7 @@ import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeAnimal
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.CheckIfAnimalIsFavorite
+import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.intToBoolean
@@ -101,29 +101,14 @@ fun AnimalInfo(
     val context = LocalContext.current
     val userId = userViewModel.getAuthenticatedUser()?.id
 
-    var nameAnimal by remember { mutableStateOf("") }
-    var shortInfoAnimal by remember { mutableStateOf("") }
-    var waitingAdoptionAnimal by remember { mutableStateOf(false) }
-    var fosterCareAnimal by remember { mutableStateOf(false) }
-    var inShelter by remember { mutableStateOf(false) }
-
-/*
-    nameAnimal = animal!!.nameAnimal
-    shortInfoAnimal = animal!!.shortInfoAnimal
-    waitingAdoptionAnimal = intToBoolean(animal!!.waitingAdoption)
-    fosterCareAnimal = intToBoolean(animal!!.fosterCare)
-    inShelter = intToBoolean(animal!!.inShelter)
-*/
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
-
-
         editedName = animal?.nameAnimal.toString()
         editedLongInfo = animal?.longInfoAnimal.toString()
 
         isFavorite =
-            animal?.let { CheckIfAnimalIsFavorite(userId = userId, animal = it, userViewModel = userViewModel) } == true
+            animal?.let { checkIfAnimalIsFavorite(userId = userId, animal = it, userViewModel = userViewModel) } == true
 
         Box(
             modifier = Modifier
@@ -134,33 +119,33 @@ fun AnimalInfo(
                 //Animal
                 var editedName by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.nameAnimal ?: ""
+                        animal?.nameAnimal ?: ""
                     )
                 }
 
                 var editedBirthDate by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.birthDate ?: ""
+                        animal?.birthDate ?: ""
                     )
                 }
 
                 var editedAnimalSex by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.sexAnimal ?: ""
+                        animal?.sexAnimal ?: ""
                     )
                 }
 
                 var editedWaitingAdoption by remember {
                     mutableStateOf(
 
-                        intToBoolean((animal as? Animal)?.waitingAdoption ?: 0)
+                        intToBoolean(animal?.waitingAdoption ?: 0)
 
                     )
                 }
 
                 var editedFosterCare by remember {
                     mutableStateOf(
-                        intToBoolean((animal as? Animal)?.fosterCare ?: 0)
+                        intToBoolean(animal?.fosterCare ?: 0)
 
 
                     )
@@ -168,45 +153,45 @@ fun AnimalInfo(
 
                 var editedShortInfoAnimal by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.shortInfoAnimal ?: ""
+                        animal?.shortInfoAnimal ?: ""
                     )
                 }
 
                 var editedLongInfoAnimal by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.longInfoAnimal ?: ""
+                        animal?.longInfoAnimal ?: ""
                     )
                 }
 
                 var editedBreed by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.breedAnimal ?: ""
+                        animal?.breedAnimal ?: ""
                     )
                 }
 
                 var editedTypeAnimal by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.typeAnimal ?: "" as TypeAnimal
+                        animal?.typeAnimal ?: "" as TypeAnimal
                     )
                 }
 
 
                 var editedEntryDate by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.entryDate ?: ""
+                        animal?.entryDate ?: ""
                     )
                 }
 
                 var editedPhotoAnimal by remember {
                     mutableStateOf(
-                        (animal as? Animal)?.photoAnimal ?: ""
+                        animal?.photoAnimal ?: ""
                     )
                 }
 
                 var editedInShelter by remember {
                     mutableStateOf(
 
-                        intToBoolean((animal as? Animal)?.inShelter ?: 0)
+                        intToBoolean(animal?.inShelter ?: 0)
 
                     )
                 }
@@ -226,7 +211,7 @@ fun AnimalInfo(
                         editedPhotoAnimal,
                         editedInShelter,
 
-                            intToBoolean((animal as? Animal)?.lost ?: 0)
+                        intToBoolean(animal?.lost ?: 0)
 
                         )
                 }
@@ -266,8 +251,7 @@ fun AnimalInfo(
                                     .align(Alignment.BottomStart),
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
-                            // Icono sponsor
-                            if (user != null && user!!.role != TypeUser.admin) {
+                            if (user != null && user.role != TypeUser.admin) {
                                 Box(
                                     modifier = Modifier
                                         .clickable {
@@ -289,7 +273,6 @@ fun AnimalInfo(
                                     )
                                 }
                             }
-                            // Botón "Adopt me"
                             Button(
                                 onClick = { showDialog = true },
                                 modifier = Modifier
@@ -322,9 +305,20 @@ fun AnimalInfo(
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Start,
                                 )
+                                /*
+                            } else {
+                                var editedNameAux by remember { mutableStateOf(animal?.nameAnimal ?: "") }
+                                editedName = editedNameAux
+                                TextField(
+                                    value = editedNameAux,
+                                    onValueChange = { editedNameAux = it },
+                                    label = { Text("Name animal") },
+                                )
+                            }
 
+                                 */
                             if (userId != null) {
-                                if (user!!.role != TypeUser.admin &&  user!!.role != TypeUser.owner) {
+                                if (user!!.role != TypeUser.admin &&  user.role != TypeUser.owner) {
                                     if (isFavorite) {
                                         Icon(
                                             imageVector = Icons.Default.Favorite,
@@ -422,8 +416,8 @@ fun AnimalInfo(
         val shelter by shelterViewModel.getShelterById(1).collectAsState(initial = null)
 
         animal?.let {animal->
-            shelter?.let { shelter ->
-                AdoptAnAnimal(animal, shelter, chatViewModel, userViewModel) {
+            shelter?.let {
+                AdoptAnAnimal(animal, chatViewModel, userViewModel) {
                     showDialog = false
                 }
             }

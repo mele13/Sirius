@@ -69,7 +69,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
             }
         }
 
-        if (user!!.role == TypeUser.admin) {
+        if (user != null && user!!.role == TypeUser.admin) {
             AddButton(
                 showDialogAdd,
                 Modifier.align(End)

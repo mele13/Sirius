@@ -27,7 +27,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
-import com.example.sirius.model.Shelter
 import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.viewmodel.AnimalViewModel
@@ -44,7 +43,6 @@ fun DeleteDialog(
     newsViewModel: NewsViewModel,
     item: Any
 ) {
-
         AlertDialog(
             onDismissRequest = onDismissRequest,
             title = {
@@ -107,7 +105,7 @@ fun OutlinedIcon(icon: ImageVector, modifier: Modifier, onClick: (() -> Unit)? =
 }
 
 @Composable
-fun AdoptAnAnimal(item: Animal, shelter: Shelter, chatViewModel: ChatViewModel, userViewModel: UserViewModel, onDismiss: () -> Unit) {
+fun AdoptAnAnimal(item: Animal, chatViewModel: ChatViewModel, userViewModel: UserViewModel, onDismiss: () -> Unit) {
     val randomUser by userViewModel.getRandomUser().collectAsState(initial = null)
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -207,7 +205,6 @@ fun AnimalFormDialog(
             Button(
                 onClick = {
                     if (isEdit){
-                        println("updateAnimal")
                         onAddClick()
                         showDialogAdd.value = false
                         animalViewModel.viewModelScope.launch {
@@ -224,7 +221,6 @@ fun AnimalFormDialog(
                         }
                         onAddClick()
                         showDialogAdd.value = false
-                        println(formData)
                         animalViewModel.viewModelScope.launch {
                             stringToEnumTypeAnimal(formData.type)?.let {
                                 Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
@@ -233,8 +229,6 @@ fun AnimalFormDialog(
                             }?.let { animalViewModel.insertAnimal(it) }
                             animalFormState.clear()
                         }
-
-                        println("insertAnimal")
                     }
 
                 },
@@ -254,9 +248,6 @@ fun AnimalFormDialog(
         dismissButton = {
             Button(
                 onClick = {
-                    println("formData")
-                    println(formData)
-                    println(animalFormData)
                     showDialogAdd.value = false
                     animalFormState.clear()
                 }
@@ -313,14 +304,12 @@ fun NewsFormDialog(
                 state = dateState,
                 newsFormState = newsFormState,
                 newsFormData,
-                isEdit
             )
         },
         confirmButton = {
             Button(
                 onClick = {
                     if (isEdit){
-                        println("updateAnimal")
                         onAddClick()
                         showDialogAdd.value = false
                         newsViewmodel.viewModelScope.launch {
@@ -333,13 +322,10 @@ fun NewsFormDialog(
                         }
                         onAddClick()
                         showDialogAdd.value = false
-                        println(formData)
                         newsViewmodel.viewModelScope.launch {
                             newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
                             newsFormState.clear()
                         }
-
-                        println("insertAnimal")
                     }
                 },
                 enabled = newsFormState.title.isNotEmpty() &&
