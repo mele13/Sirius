@@ -206,6 +206,7 @@ private fun RowWithTitle(
     typeRuta: String,
     navController: NavController
 ) {
+    var user = userViewModel.getAuthenticatedUser()
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -214,7 +215,7 @@ private fun RowWithTitle(
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(6.dp)
         )
-        if (userViewModel.getAuthenticatedUser()?.role != TypeUser.user) {
+        if (user != null && user.role != TypeUser.user) {
             EditIcon(navController, typeRuta)
         }
     }

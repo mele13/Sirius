@@ -31,10 +31,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,16 +54,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeAnimal
 import com.example.sirius.model.TypeUser
+import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.checkIfAnimalIsFavorite
+import com.example.sirius.tools.getAdoptionText
 import com.example.sirius.tools.intToBoolean
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
@@ -75,19 +81,21 @@ import kotlinx.coroutines.launch
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
 fun AnimalCard(
-    item: Any,
+    item: Animal,
     navController: NavController,
-    animalViewModel: AnimalViewModel,
     userViewModel: UserViewModel,
-    newsViewModel: NewsViewModel,
 ) {
     var isFavorite by remember { mutableStateOf(false) }
-    val age = if (item is Animal) calculateAge(item.birthDate) else ""
+    var age by remember { mutableStateOf(calculateAge(item)) }
+
+    LaunchedEffect(item, item.birthDate) {
+        age = calculateAge(item)
+    }
+
     val user = userViewModel.getAuthenticatedUser()
 
     var showDialogDelete by remember { mutableStateOf(false) }
     var showDialogEdit = remember { mutableStateOf(false) }
-
     var nameAnimal by remember { mutableStateOf("") }
     var shortInfoAnimal by remember { mutableStateOf("") }
     var waitingAdoptionAnimal by remember { mutableStateOf(false) }
@@ -95,19 +103,14 @@ fun AnimalCard(
     var inShelter by remember { mutableStateOf(false) }
     var lost by remember { mutableStateOf(false) }
 
-    if (item is Animal) {
-        nameAnimal = item.nameAnimal
-        shortInfoAnimal = item.shortInfoAnimal
-        waitingAdoptionAnimal = intToBoolean(item.waitingAdoption)
-        fosterCareAnimal = intToBoolean(item.fosterCare)
-        inShelter = intToBoolean(item.inShelter)
-        lost = intToBoolean(item.lost)
-    }
+    nameAnimal = item.nameAnimal
+    shortInfoAnimal = item.shortInfoAnimal
+    waitingAdoptionAnimal = intToBoolean(item.waitingAdoption)
+    fosterCareAnimal = intToBoolean(item.fosterCare)
+    inShelter = intToBoolean(item.inShelter)
+    lost = intToBoolean(item.lost)
 
-    if (item is Animal && user != null) {
-        isFavorite =
-            checkIfAnimalIsFavorite(userId = user.id, animal = item, userViewModel = userViewModel) == true
-    }
+    isFavorite = user?.let { checkIfAnimalIsFavorite(userId = it.id, animal = item, userViewModel = userViewModel) } ?: false
 
     androidx.compose.material3.Card(
         modifier = Modifier
@@ -136,17 +139,7 @@ fun AnimalCard(
                     .padding(4.dp)
             ) {
                 val context = LocalContext.current
-                val photoPath = when (item) {
-                    is Animal -> {
-                        item.photoAnimal
-                    }
-                    is News -> {
-                        item.photoNews
-                    }
-                    else -> {
-                        null
-                    }
-                }
+                val photoPath = getPhotoPath(item)
                 val firstImagePath = photoPath?.split(", ")?.get(0)?.trim()
                 val resourceName = firstImagePath?.substringAfterLast("/")
                 val defaultResourceName =
@@ -158,229 +151,31 @@ fun AnimalCard(
                     context.packageName
                 )
 
+                CustomImage(
+                    resourceId = resourceId,
+                    photoPath = photoPath,
+                    item = item,
+                    user = user,
+                    showDialogDelete = showDialogDelete,
+                    onShowDialogDeleteChanged = { showDialogDelete = it },
+                    modifier = Modifier.fillMaxSize()
+                )
 
-                if (resourceId != 0) {
-                    val painter = painterResource(id = resourceId)
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Image(
-                            painter = painter,
-                            contentDescription = if (item is Animal) item.shortInfoAnimal else if (item is News) item.shortInfoNews else null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .aspectRatio(1f)
-                        )
+                val dialogData = remember { EditDialogDataAnimal(
+                    waitingAdoptionAnimal = waitingAdoptionAnimal,
+                    fosterCareAnimal = fosterCareAnimal,
+                    inShelter = inShelter
+                ) }
 
-                        if (user!!.role == TypeUser.admin || user.role == TypeUser.owner) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = Color.Red,
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(50.dp)
-                                    .alpha(0.5f)
-                                    .pointerInput(Unit) {
-                                        detectTapGestures {
-                                            showDialogDelete = true
-                                        }
-                                    }
-
-                            )
-                        }
-
-
-
-                        if (showDialogDelete) {
-                            var titleDialog = ""
-                            if (item is Animal) {
-                                titleDialog = "Delete ${item.nameAnimal}"
-                            } else if (item is News) {
-                                titleDialog = "Delete ${item.titleNews}"
-                            }
-
-                            DeleteDialog(
-                                onDismissRequest = { showDialogDelete = false },
-                                titleDialog = titleDialog,
-                                animalViewModel = animalViewModel,
-                                newsViewModel = newsViewModel,
-                                item = item
-                            )
-                        }
-
-                    }
-                } else {
-                    Log.e("AnimalImage", "Resource not found $photoPath")
-                }
-                if (user != null) {
-                    if (user.role == TypeUser.user) {
-                        if (isFavorite) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = null,
-                                tint = Wine,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .clickable {
-                                        isFavorite = !isFavorite
-                                        animalViewModel.viewModelScope.launch {
-                                            animalViewModel.removeLikedAnimal(
-                                                animalId = (item as Animal).id,
-                                                userId = user.id
-                                            )
-                                        }
-                                    }
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
-                                contentDescription = null,
-                                tint = Wine,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .clickable {
-                                        isFavorite = !isFavorite
-                                        userViewModel.viewModelScope.launch {
-                                            animalViewModel.insertLikedAnimal(
-                                                animalId = (item as Animal).id,
-                                                userId = user.id
-                                            )
-                                        }
-                                    }
-                            )
-                        }
-                    } else {
-
-                        OutlinedIcon(icon = Icons.Default.Edit, modifier = Modifier.align(Alignment.TopEnd)){
-                            showDialogEdit.value = true
-
-                        }
-
-                        if (showDialogEdit.value) {
-
-
-                            //Animal
-                            var editedName by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.nameAnimal ?: ""
-                                )
-                            }
-
-                            var editedBirthDate by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.birthDate ?: ""
-                                )
-                            }
-
-                            var editedAnimalSex by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.sexAnimal ?: ""
-                                )
-                            }
-
-                            var editedWaitingAdoption by remember {
-                                mutableStateOf(
-                                    waitingAdoptionAnimal
-                                )
-                            }
-
-                            var editedFosterCare by remember {
-                                mutableStateOf(
-                                    fosterCareAnimal
-
-                                )
-                            }
-
-                            var editedShortInfoAnimal by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.shortInfoAnimal ?: ""
-                                )
-                            }
-
-                            var editedLongInfoAnimal by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.longInfoAnimal ?: ""
-                                )
-                            }
-
-                            var editedBreed by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.breedAnimal ?: ""
-                                )
-                            }
-
-                            var editedTypeAnimal by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.typeAnimal ?: "" as TypeAnimal
-                                )
-                            }
-
-
-                            var editedEntryDate by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.entryDate ?: ""
-                                )
-                            }
-
-                            var editedPhotoAnimal by remember {
-                                mutableStateOf(
-                                    (item as? Animal)?.photoAnimal ?: ""
-                                )
-                            }
-
-                            var editedInShelter by remember {
-                                mutableStateOf(
-                                    inShelter
-                                )
-                            }
-
-                            var editedLost by remember {
-                                mutableStateOf(
-                                    inShelter
-                                )
-                            }
-
-                            var idAnimal = (item as? Animal)?.id
-                            val animalFormData = idAnimal?.let {
-                                AnimalFormData(
-                                    it, editedName,
-                                    editedBirthDate,
-                                    editedAnimalSex,
-                                    editedWaitingAdoption,
-                                    editedFosterCare,
-                                    editedShortInfoAnimal,
-                                    editedLongInfoAnimal,
-                                    editedBreed,
-                                    editedTypeAnimal.name,
-                                    editedEntryDate,
-                                    editedPhotoAnimal,
-                                    editedInShelter,
-                                    editedLost)
-                            }
-
-                            val animalFormState = rememberAnimalFormState()
-
-
-                            val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
-
-                            AnimalFormDialog(
-                                showDialogAdd = showDialogEdit,
-                                animalFormState = animalFormState,
-                                typeList = typeList,
-                                sectionType = if((item as? Animal)!!.lost == 1) SectionType.LOST else SectionType.IN_SHELTER,
-                                animalFormData = animalFormData,
-                                isEdit = true,
-                            ) {
-
-                            }
-
-
-                        }
-
-                    }
-                }
+                DisplayFavoriteOrEdit(
+                    item = item,
+                    isFavorite = isFavorite,
+                    user = user,
+                    showDialogEdit = showDialogEdit,
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    onFavoriteChanged = { newValue -> isFavorite = newValue },
+                    dialogData = dialogData
+                )
             }
             Spacer(Modifier.padding(4.dp))
             Column(
@@ -390,46 +185,25 @@ fun AnimalCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
 
-                if (item is Animal) {
-                    val adoptionText = if (item.waitingAdoption == 1) {
-                        "Adoption"
-                    } else {
-                        "Pre Adoption"
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = adoptionText,
-                            style = TextStyle(
-                                fontSize = 10.sp,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier
-                                .background(color = Orange, shape = RoundedCornerShape(4.dp))
-                                .padding(horizontal = 2.dp, vertical = 4.dp)
-                        )
+                val adoptionText = getAdoptionText(item.waitingAdoption)
 
-                        if (item.fosterCare == 1) {
-                            Text(
-                                text = "In Foster Care",
-                                style = TextStyle(
-                                    fontSize = 10.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                modifier = Modifier
-                                    .background(color = Orange, shape = RoundedCornerShape(4.dp))
-                                    .padding(horizontal = 2.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = adoptionText,
+                        style = TextStyle(
+                            fontSize = 10.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier
+                            .background(color = Orange, shape = RoundedCornerShape(4.dp))
+                            .padding(horizontal = 2.dp, vertical = 4.dp)
+                    )
+                    FosterCareText(item)
+
                 }
-                var title = ""
-                if (item is Animal) {
-                    title = "${item.nameAnimal}, ${buildAnAgeText(age, item.birthDate, true)}"
-                } else if (item is News) {
-                    title = item.titleNews
-                }
+                var title = "${item.nameAnimal}, ${buildAnAgeText(age, item.birthDate, true)}"
+
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
@@ -439,12 +213,7 @@ fun AnimalCard(
                         .padding(4.dp)
                         .align(Alignment.CenterHorizontally)
                 )
-                var description = ""
-                if (item is Animal) {
-                    description = item.shortInfoAnimal
-                } else if (item is News) {
-                    description = item.shortInfoNews
-                }
+                var description = item.shortInfoAnimal
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
@@ -461,19 +230,14 @@ fun AnimalCard(
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
 fun NewsCard(
-    item: Any,
+    item: News,
     navController: NavController,
-    animalViewModel: AnimalViewModel,
     userViewModel: UserViewModel,
-    newsViewModel: NewsViewModel,
 ) {
-    var isFavorite by remember { mutableStateOf(false) }
-    val age = if (item is Animal) calculateAge(item.birthDate) else ""
     val user = userViewModel.getAuthenticatedUser()
 
     var showDialogDelete by remember { mutableStateOf(false) }
@@ -485,14 +249,10 @@ fun NewsCard(
 
     var goodNews by remember { mutableStateOf(false) }
 
-    if (item is News) {
-        title = item.titleNews
-        shortInfoAnimal = item.shortInfoNews
-        longInfoAnimal = item.longInfoNews
-        goodNews = intToBoolean(item.goodNews)
-
-    }
-
+    title = item.titleNews
+    shortInfoAnimal = item.shortInfoNews
+    longInfoAnimal = item.longInfoNews
+    goodNews = intToBoolean(item.goodNews)
 
     androidx.compose.material3.Card(
         modifier = Modifier
@@ -521,213 +281,34 @@ fun NewsCard(
                     .padding(4.dp)
             ) {
                 val context = LocalContext.current
-                val photoPath = when (item) {
-                    is Animal -> {
-                        item.photoAnimal
-                    }
-                    is News -> {
-                        item.photoNews
-                    }
-                    else -> {
-                        null
-                    }
-                }
-                val firstImagePath = photoPath?.split(", ")?.get(0)?.trim()
-                val resourceName = firstImagePath?.substringAfterLast("/")
-                val defaultResourceName =
-                    "default_image"
+                val photoPath = item.photoNews
+                val firstImagePath = photoPath.split(", ")[0].trim()
+                val resourceName = firstImagePath.substringAfterLast("/")
 
                 val resourceId = context.resources.getIdentifier(
-                    resourceName?.replace(".jpg", "") ?: defaultResourceName,
+                    resourceName.replace(".jpg", ""),
                     "drawable",
                     context.packageName
                 )
-
-                if (resourceId != 0) {
-                    val painter = painterResource(id = resourceId)
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Image(
-                            painter = painter,
-                            contentDescription = if (item is Animal) item.shortInfoAnimal else if (item is News) item.shortInfoNews else null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .aspectRatio(1f)
-                        )
-
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = Color.Red,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .size(50.dp)
-                                .alpha(0.5f)
-                                .pointerInput(Unit) {
-                                    detectTapGestures {
-                                        showDialogDelete = true
-                                    }
-                                }
-
-                        )
-
-                        if (showDialogDelete) {
-                            var titleDialog = ""
-                            if (item is Animal) {
-                                titleDialog = "Delete ${item.nameAnimal}"
-                            } else if (item is News) {
-                                titleDialog = "Delete ${item.titleNews}"
-                            }
-
-                            DeleteDialog(
-                                onDismissRequest = { showDialogDelete = false },
-                                titleDialog = titleDialog,
-                                animalViewModel = animalViewModel,
-                                newsViewModel = newsViewModel,
-                                item = item
-                            )
-                        }
-                    }
-                } else {
-                    Log.e("AnimalImage", "Resource not found $photoPath")
-                }
-                if (user != null) {
-                    if (user.role != TypeUser.admin) {
-                        if (isFavorite) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = null,
-                                tint = Wine,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .clickable {
-                                        isFavorite = !isFavorite
-                                        animalViewModel.viewModelScope.launch {
-                                            animalViewModel.removeLikedAnimal(
-                                                animalId = (item as Animal).id,
-                                                userId = user.id
-                                            )
-                                        }
-                                    }
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
-                                contentDescription = null,
-                                tint = Wine,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .clickable {
-                                        isFavorite = !isFavorite
-                                        userViewModel.viewModelScope.launch {
-                                            animalViewModel.insertLikedAnimal(
-                                                animalId = (item as Animal).id,
-                                                userId = user.id
-                                            )
-                                        }
-                                    }
-                            )
-                        }
-                    } else {
-
-
-                        OutlinedIcon(icon = Icons.Default.Edit, modifier = Modifier.align(Alignment.TopEnd)){
-                            showDialogEdit.value = true
-
-                        }
-                        if (showDialogEdit.value) {
-
-
-                            //Animal
-                            var editedTitle by remember {
-                                mutableStateOf(
-                                    (item as? News)?.titleNews ?: ""
-                                )
-                            }
-
-                            var editedShortInfo by remember {
-                                mutableStateOf(
-                                    (item as? News)?.shortInfoNews ?: ""
-                                )
-                            }
-
-                            var editedLongInfo by remember {
-                                mutableStateOf(
-                                    (item as? News)?.longInfoNews ?: ""
-                                )
-                            }
-
-                            var editedPublishedDate by remember {
-                                mutableStateOf(
-                                    (item as? News)?.publishedDate ?: ""
-                                )
-                            }
-
-                            var editedCreatedAt by remember {
-                                mutableStateOf(
-                                    (item as? News)?.createdAt ?: ""
-                                )
-                            }
-
-                            var editedUntilDate by remember {
-                                mutableStateOf(
-                                    (item as? News)?.untilDate ?: ""
-                                )
-                            }
-
-                            var editedPhotoNews by remember {
-                                mutableStateOf(
-                                    (item as? News)?.photoNews ?: ""
-                                )
-                            }
-
-
-                            var editedGoodNews by remember {
-                                mutableStateOf(
-                                    goodNews
-                                )
-                            }
-
-
-                            var idNews = (item as? News)?.id
-                            val newsFormData = idNews?.let {
-
-                                NewsFormData(
-                                    it,
-                                    editedTitle,
-                                    editedShortInfo,
-                                    editedLongInfo,
-                                    editedPublishedDate,
-                                    editedCreatedAt,
-                                    editedUntilDate,
-                                    editedPhotoNews,
-                                    editedGoodNews
-                                )
-
-                            }
-
-                            val newsFormState = rememberNewsFormState()
-
-
-                            NewsFormDialog(
-                                showDialogAdd = showDialogEdit,
-                                newsFormState = newsFormState,
-                                sectionType = if((item as? News)!!.goodNews == 1) SectionType.GOOD_NEWS else SectionType.WHATS_NEW,
-                                newsFormData = newsFormData,
-                                isEdit = true,
-                            ) {
-
-                            }
-
-
-
-
-                        }
-
-                    }
-                }
+                CustomImage(
+                    resourceId = resourceId,
+                    photoPath = photoPath,
+                    item = item,
+                    user = user,
+                    showDialogDelete = showDialogDelete,
+                    onShowDialogDeleteChanged = { showDialogDelete = it },
+                    modifier = Modifier.fillMaxSize()
+                )
+                val dialogData = remember { EditDialogDataNews(
+                    goodNews = goodNews,
+                ) }
+                DisplayFavoriteOrEdit(
+                    item = item,
+                    user = user,
+                    showDialogEdit = showDialogEdit,
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    dialogData = dialogData
+                )
             }
             Spacer(Modifier.padding(4.dp))
             Column(
@@ -737,46 +318,7 @@ fun NewsCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
 
-                if (item is Animal) {
-                    val adoptionText = if (item.waitingAdoption == 1) {
-                        "Adoption"
-                    } else {
-                        "Pre Adoption"
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = adoptionText,
-                            style = TextStyle(
-                                fontSize = 10.sp,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier
-                                .background(color = Orange, shape = RoundedCornerShape(4.dp))
-                                .padding(horizontal = 2.dp, vertical = 4.dp)
-                        )
-
-                        if (item.fosterCare == 1) {
-                            Text(
-                                text = "In Foster Care",
-                                style = TextStyle(
-                                    fontSize = 10.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                modifier = Modifier
-                                    .background(color = Orange, shape = RoundedCornerShape(4.dp))
-                                    .padding(horizontal = 2.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-                }
-                var title = ""
-                if (item is Animal) {
-                    title = "${item.nameAnimal}, ${buildAnAgeText(age, item.birthDate, true)}"
-                } else if (item is News) {
-                    title = item.titleNews
-                }
+                val title = item.titleNews
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
@@ -786,12 +328,7 @@ fun NewsCard(
                         .padding(4.dp)
                         .align(Alignment.CenterHorizontally)
                 )
-                var description = ""
-                if (item is Animal) {
-                    description = item.shortInfoAnimal
-                } else if (item is News) {
-                    description = item.shortInfoNews
-                }
+                var description = item.shortInfoNews
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
@@ -817,3 +354,355 @@ private fun navigateToDetails(item: Any, navController: NavController) {
     }
 }
 
+@Composable
+fun CustomImage(
+    resourceId: Int,
+    photoPath: String?,
+    item: Any,
+    user: User?,
+    showDialogDelete: Boolean,
+    onShowDialogDeleteChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val newsViewModel: NewsViewModel = viewModel(factory = NewsViewModel.factory)
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+
+    if (resourceId != 0) {
+        val painter = painterResource(id = resourceId)
+        Box(
+            modifier = modifier.fillMaxSize()
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = if (item is Animal) item.shortInfoAnimal else if (item is News) item.shortInfoNews else null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .aspectRatio(1f)
+            )
+
+            if (user != null && (user!!.role == TypeUser.admin || user.role == TypeUser.owner)) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    tint = Color.Red,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(50.dp)
+                        .alpha(0.5f)
+                        .pointerInput(Unit) {
+                            detectTapGestures {
+                                onShowDialogDeleteChanged(true)
+                            }
+                        }
+                )
+            }
+
+            if (showDialogDelete) {
+                var titleDialog = ""
+                if (item is Animal) {
+                    titleDialog = "Delete ${item.nameAnimal}"
+                } else if (item is News) {
+                    titleDialog = "Delete ${item.titleNews}"
+                }
+
+                DeleteDialog(
+                    onDismissRequest = { onShowDialogDeleteChanged(false) },
+                    titleDialog = titleDialog,
+                    animalViewModel = animalViewModel,
+                    newsViewModel = newsViewModel,
+                    item = item
+                )
+            }
+
+        }
+    } else {
+        Log.e("AnimalImage", "Resource not found $photoPath")
+    }
+}
+
+@Composable
+fun FavoriteIcon(
+    isFavorite: Boolean,
+    item: Animal,
+    user: User,
+    modifier: Modifier,
+    onFavoriteChanged: (Boolean) -> Unit
+) {
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+    val userViewModel: UserViewModel = viewModel(factory = UserViewModel.factory)
+
+    var currentFavorite by rememberSaveable { mutableStateOf(isFavorite) }
+
+    LaunchedEffect(isFavorite) {
+        currentFavorite = isFavorite
+    }
+
+    val onClickAction: () -> Unit = {
+        val newFavorite = !currentFavorite
+        currentFavorite = newFavorite
+        onFavoriteChanged(newFavorite)
+
+        if (newFavorite) {
+            userViewModel.viewModelScope.launch {
+                animalViewModel.insertLikedAnimal(
+                    animalId = item.id,
+                    userId = user.id
+                )
+            }
+        } else {
+            userViewModel.viewModelScope.launch {
+                animalViewModel.removeLikedAnimal(
+                    animalId = item.id,
+                    userId = user.id
+                )
+            }
+        }
+    }
+
+    val icon = if (currentFavorite) {
+        Icons.Default.Favorite
+    } else {
+        Icons.Default.FavoriteBorder
+    }
+
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = Wine,
+        modifier = modifier
+            .clickable(onClick = onClickAction)
+    )
+}
+
+private fun getPhotoPath(item: Any): String? {
+    return when (item) {
+        is Animal -> item.photoAnimal
+        is News -> item.photoNews
+        else -> null
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun DisplayEditDialogAnimal(
+    item: Any,
+    showDialogEdit: MutableState<Boolean>,
+    waitingAdoptionAnimal: Boolean,
+    fosterCareAnimal: Boolean,
+    inShelter: Boolean
+) {
+    if (showDialogEdit.value) {
+        var editedName by remember { mutableStateOf((item as? Animal)?.nameAnimal ?: "") }
+        var editedBirthDate by remember { mutableStateOf((item as? Animal)?.birthDate ?: "") }
+        var editedAnimalSex by remember { mutableStateOf((item as? Animal)?.sexAnimal ?: "") }
+        var editedWaitingAdoption by remember { mutableStateOf(waitingAdoptionAnimal) }
+        var editedFosterCare by remember { mutableStateOf(fosterCareAnimal) }
+        var editedShortInfoAnimal by remember { mutableStateOf((item as? Animal)?.shortInfoAnimal ?: "") }
+        var editedLongInfoAnimal by remember { mutableStateOf((item as? Animal)?.longInfoAnimal ?: "") }
+        var editedBreed by remember { mutableStateOf((item as? Animal)?.breedAnimal ?: "") }
+        var editedTypeAnimal by remember { mutableStateOf((item as? Animal)?.typeAnimal ?: "" as TypeAnimal) }
+        var editedEntryDate by remember { mutableStateOf((item as? Animal)?.entryDate ?: "") }
+        var editedPhotoAnimal by remember { mutableStateOf((item as? Animal)?.photoAnimal ?: "") }
+        var editedInShelter by remember { mutableStateOf(inShelter) }
+        var editedLost by remember { mutableStateOf(inShelter) }
+
+        val idAnimal = (item as? Animal)?.id
+        val animalFormData = idAnimal?.let {
+            AnimalFormData(
+                it,
+                editedName,
+                editedBirthDate,
+                editedAnimalSex,
+                editedWaitingAdoption,
+                editedFosterCare,
+                editedShortInfoAnimal,
+                editedLongInfoAnimal,
+                editedBreed,
+                editedTypeAnimal.name,
+                editedEntryDate,
+                editedPhotoAnimal,
+                editedInShelter,
+                editedLost
+            )
+        }
+
+        val animalFormState = rememberAnimalFormState()
+        val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+
+        val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
+
+        val sectionType = if (item is Animal && item.lost == 1) SectionType.LOST else SectionType.IN_SHELTER
+
+        AnimalFormDialog(
+            showDialogAdd = showDialogEdit,
+            animalFormState = animalFormState,
+            typeList = typeList,
+            sectionType = sectionType,
+            animalFormData = animalFormData,
+            isEdit = true
+        ) {
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun DisplayEditDialogNews(
+    item: News,
+    showDialogEdit: MutableState<Boolean>,
+    goodNews: Boolean
+) {
+    if (showDialogEdit.value) {
+        var editedTitle by remember { mutableStateOf((item as? News)?.titleNews ?: "") }
+
+        var editedShortInfo by remember { mutableStateOf((item as? News)?.shortInfoNews ?: "") }
+
+        var editedLongInfo by remember { mutableStateOf((item as? News)?.longInfoNews ?: "") }
+
+        var editedPublishedDate by remember { mutableStateOf((item as? News)?.publishedDate ?: "") }
+
+        var editedCreatedAt by remember { mutableStateOf((item as? News)?.createdAt ?: "") }
+
+        var editedUntilDate by remember { mutableStateOf((item as? News)?.untilDate ?: "") }
+
+        var editedPhotoNews by remember { mutableStateOf((item as? News)?.photoNews ?: "") }
+
+
+        var editedGoodNews by remember { mutableStateOf(goodNews) }
+
+        var idNews = (item as? News)?.id
+        val newsFormData = idNews?.let {
+
+            NewsFormData(
+                it,
+                editedTitle,
+                editedShortInfo,
+                editedLongInfo,
+                editedPublishedDate,
+                editedCreatedAt,
+                editedUntilDate,
+                editedPhotoNews,
+                editedGoodNews
+            )
+
+        }
+
+        val newsFormState = rememberNewsFormState()
+
+        val sectionType =
+            if ((item as? News)!!.goodNews == 1) SectionType.GOOD_NEWS else SectionType.WHATS_NEW
+
+        NewsFormDialog(
+            showDialogAdd = showDialogEdit,
+            newsFormState = newsFormState,
+            sectionType = sectionType,
+            newsFormData = newsFormData,
+            isEdit = true,
+        ) {
+
+        }
+    }
+}
+
+@Composable
+fun FosterCareText(item: Animal) {
+    if (item.fosterCare == 1) {
+        Text(
+            text = "In Foster Care",
+            style = TextStyle(
+                fontSize = 10.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            ),
+            modifier = Modifier
+                .background(color = Orange, shape = RoundedCornerShape(4.dp))
+                .padding(horizontal = 2.dp, vertical = 4.dp)
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DisplayFavoriteOrEdit(
+    item: Any,
+    isFavorite: Boolean? = null,
+    user: User?,
+    showDialogEdit: MutableState<Boolean>,
+    modifier: Modifier,
+    onFavoriteChanged: ((Boolean) -> Unit)? = null,
+    dialogData: Any
+) {
+    if (user != null){
+        if (onFavoriteChanged != null && isFavorite != null && user.role == TypeUser.user) {
+            DisplayFavoriteIcon(
+                item = item as Animal,
+                isFavorite = isFavorite,
+                user = user,
+                modifier = modifier,
+                onFavoriteChanged = onFavoriteChanged
+            )
+        }  else {
+            DisplayEditIcon(
+                showDialogEdit = showDialogEdit,
+                modifier = modifier
+            )
+            if (showDialogEdit.value) {
+                if (dialogData is EditDialogDataAnimal && item is Animal){
+                    DisplayEditDialogAnimal(
+                        item = item,
+                        showDialogEdit = showDialogEdit,
+                        waitingAdoptionAnimal = dialogData.waitingAdoptionAnimal,
+                        fosterCareAnimal = dialogData.fosterCareAnimal,
+                        inShelter = dialogData.inShelter
+                    )
+                } else if (dialogData is EditDialogDataNews && item is News) {
+                    DisplayEditDialogNews(
+                        item = item,
+                        showDialogEdit = showDialogEdit,
+                        goodNews = dialogData.goodNews
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DisplayFavoriteIcon(
+    item: Animal,
+    isFavorite: Boolean,
+    user: User,
+    modifier: Modifier,
+    onFavoriteChanged: (Boolean) -> Unit
+) {
+    FavoriteIcon(
+        isFavorite = isFavorite,
+        item = item,
+        user = user,
+        modifier = modifier,
+        onFavoriteChanged = onFavoriteChanged
+    )
+}
+
+@Composable
+fun DisplayEditIcon(
+    showDialogEdit: MutableState<Boolean>,
+    modifier: Modifier
+) {
+    OutlinedIcon(
+        icon = Icons.Default.Edit,
+        modifier = modifier,
+        onClick = { showDialogEdit.value = true }
+    )
+}
+
+data class EditDialogDataAnimal(
+    val waitingAdoptionAnimal: Boolean,
+    val fosterCareAnimal: Boolean,
+    val inShelter: Boolean
+)
+
+data class EditDialogDataNews(
+    val goodNews: Boolean
+)

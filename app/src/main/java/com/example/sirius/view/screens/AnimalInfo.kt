@@ -25,8 +25,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -54,7 +52,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.R
@@ -69,16 +66,15 @@ import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.intToBoolean
 import com.example.sirius.ui.theme.Orange
-import com.example.sirius.ui.theme.Wine
 import com.example.sirius.view.components.AdoptAnAnimal
 import com.example.sirius.view.components.AnimalFormData
 import com.example.sirius.view.components.AnimalFormDialog
+import com.example.sirius.view.components.FavoriteIcon
 import com.example.sirius.view.components.rememberAnimalFormState
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
-import kotlinx.coroutines.launch
 
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -305,53 +301,18 @@ fun AnimalInfo(
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Start,
                                 )
-                                /*
-                            } else {
-                                var editedNameAux by remember { mutableStateOf(animal?.nameAnimal ?: "") }
-                                editedName = editedNameAux
-                                TextField(
-                                    value = editedNameAux,
-                                    onValueChange = { editedNameAux = it },
-                                    label = { Text("Name animal") },
-                                )
-                            }
-
-                                 */
                             if (userId != null) {
                                 if (user!!.role != TypeUser.admin &&  user.role != TypeUser.owner) {
-                                    if (isFavorite) {
-                                        Icon(
-                                            imageVector = Icons.Default.Favorite,
-                                            contentDescription = null,
-                                            tint = Wine,
-                                            modifier = Modifier
-                                                .clickable {
-                                                    isFavorite = !isFavorite
-                                                    userViewModel.viewModelScope.launch {
-                                                        viewModel.removeLikedAnimal(
-                                                            animalId = animal!!.id,
-                                                            userId = userId
-                                                        )
-                                                    }
-                                                }
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Default.FavoriteBorder,
-                                            contentDescription = null,
-                                            tint = Wine,
-                                            modifier = Modifier
-                                                .clickable {
-                                                    isFavorite = !isFavorite
-                                                    userViewModel.viewModelScope.launch {
-                                                        viewModel.insertLikedAnimal(
-                                                            animalId = animal!!.id,
-                                                            userId = userId
-                                                        )
-                                                    }
-                                                }
+                                    Box() {
+                                        FavoriteIcon(
+                                            isFavorite = isFavorite,
+                                            item = animal!!,
+                                            user = user,
+                                            modifier = Modifier.align(Alignment.TopEnd),
+                                            onFavoriteChanged = { newValue -> isFavorite = newValue }
                                         )
                                     }
+
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.Edit,
@@ -403,11 +364,9 @@ fun AnimalInfo(
                                 .padding(start = 20.dp)
                         )
                     }
-
                 }
             }
         }
-
     }
     if (showDialog) {
         val shelterViewModel  : ShelterViewModel = viewModel(factory = ShelterViewModel.factory)

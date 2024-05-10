@@ -109,6 +109,8 @@ dependencies {
     implementation ("androidx.constraintlayout:constraintlayout-compose:$constraintLayout")
     implementation("io.coil-kt:coil-compose:$coilCompose")
 
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
     testImplementation("io.mockk:mockk:$mockitoVersion")

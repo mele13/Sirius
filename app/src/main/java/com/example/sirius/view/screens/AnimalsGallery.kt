@@ -228,9 +228,7 @@ fun AnimalsGallery(
                         AnimalCard(
                             item = item,
                             navController = navController,
-                            animalViewModel = animalViewModel,
                             userViewModel = userViewModel,
-                            newsViewModel = newsViewModel,
                         )
                     }
 
@@ -238,9 +236,7 @@ fun AnimalsGallery(
                         NewsCard(
                             item = item,
                             navController = navController,
-                            animalViewModel = animalViewModel,
                             userViewModel = userViewModel,
-                            newsViewModel = newsViewModel,
                         )
                     }
                 }

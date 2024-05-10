@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewModelScope
 import com.example.sirius.model.Event
-import com.example.sirius.model.TypeEvent
+import com.example.sirius.model.TypeEvent.*
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.tools.parseDateStringToLong
@@ -52,82 +52,69 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
-fun EventCard(event: Event, eventViewModel: EventViewModel,user: User) {
-    var showDialog by remember { mutableStateOf(false) }
-    var permission by remember { mutableStateOf(false)}
-    var dialogActivated by remember { mutableStateOf(false) }
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+fun EventCard(event: Event, eventViewModel: EventViewModel, user: User) {
+    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+    val (dialogActivated, setDialogActivated) = remember { mutableStateOf(false) }
+
+    val permission = when (event.eventType) {
+        volunteer -> user.role != TypeUser.volunteer || user.id.toString() == event.userId
+        worker -> user.role == TypeUser.admin || user.role == TypeUser.owner ||
+                (user.role == TypeUser.worker && user.id.toString() == event.userId)
+        cite -> user.role == TypeUser.admin || user.role == TypeUser.owner || user.id.toString() == event.userId
+        medical -> TODO()
+    }
+
+    if (permission) {
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
         ) {
-            if(event.eventType == TypeEvent.volunteer && (user.role != TypeUser.volunteer || user.id.toString() == event.userId)){
-                permission = true
-            }
-            if(event.eventType == TypeEvent.worker){
-                if(user.role == TypeUser.admin || user.role == TypeUser.owner){
-                    permission = true
-                }
-                if(user.role == TypeUser.worker && user.id.toString() == event.userId)     {
-                    permission = true
-                    }
-                }
-            if(event.eventType == TypeEvent.cite){
-                if(user.role == TypeUser.admin || user.role == TypeUser.owner){
-                    permission = true
-                }
-                if(user.id.toString() == event.userId)     {
-                    permission = true
-                }
-            }
-            if(permission) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
                 ) {
-                    IconButton(onClick = {
-                        dialogActivated = true
-                    }) {
+                    IconButton(onClick = { setDialogActivated(true) }) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
                             contentDescription = "Delete"
                         )
                     }
-                    IconButton(onClick = { showDialog = true }) {
+                    IconButton(onClick = { setShowDialog(true) }) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
-                            contentDescription = "Delete"
-                        )
-                    }
-                    if (showDialog) {
-                        EditEventDialog(
-                            onDismiss = { showDialog = false },
-                            eventViewModel = eventViewModel,
-                            event = event
-                        )
-                    }
-
-                    if (dialogActivated) {
-                        ConfirmDialog(
-                            onDismiss = { dialogActivated = false },
-                            event,
-                            eventViewModel
+                            contentDescription = "Edit"
                         )
                     }
                 }
-            }
-            Text(text = event.titleEvent)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = event.descriptionEvent)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = event.dateEvent)
-        }
+                if (showDialog) {
+                    EditEventDialog(
+                        onDismiss = { setShowDialog(false) },
+                        eventViewModel = eventViewModel,
+                        event = event
+                    )
+                }
 
+                if (dialogActivated) {
+                    ConfirmDialog(
+                        onDismiss = { setDialogActivated(false) },
+                        event,
+                        eventViewModel
+                    )
+                }
+                Text(text = event.titleEvent)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = event.descriptionEvent)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = event.dateEvent)
+            }
+        }
     }
 }
+
 
 @Composable
 fun EditEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,event: Event) {

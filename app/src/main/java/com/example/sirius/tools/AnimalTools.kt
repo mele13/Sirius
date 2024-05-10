@@ -19,11 +19,15 @@ import java.time.Year
  * @return The calculated age.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-fun calculateAge(birthDate: String): Int {
-    val birthYear = birthDate.substring(0, 4).toInt()
-    val currentYear = Year.now().value
+fun calculateAge(item: Any): Int {
+    return if (item is Animal){
+        val birthYear = item.birthDate.substring(0, 4).toInt()
+        val currentYear = Year.now().value
 
-    return (currentYear - birthYear)
+        (currentYear - birthYear)
+    } else {
+        0
+    }
 }
 
 /**
@@ -62,7 +66,14 @@ fun buildAnAgeText(age: Comparable<*>, birthDate: String, isShorten: Boolean = f
  */
 @RequiresApi(Build.VERSION_CODES.O)
 fun calculateAgeCategory(birthDate: String): String {
+
+    print("birthDate")
+    print(birthDate)
+
     val age = calculateAge(birthDate)
+
+    print("age")
+    print(age)
 
     return when {
         age <= 1 -> "Puppy"
@@ -130,4 +141,8 @@ fun checkIfAnimalIsFavorite(userId: Int?, animal: Animal, userViewModel: UserVie
     }
 
     return isFavoriteState.value
+}
+
+fun getAdoptionText(waitingAdoption: Int): String {
+    return if (waitingAdoption == 1) "Adoption" else "Pre Adoption"
 }
