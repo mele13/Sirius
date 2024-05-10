@@ -27,7 +27,9 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sirius.model.Animal
@@ -49,7 +50,6 @@ import com.example.sirius.view.components.NewsCard
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
-import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -147,9 +147,8 @@ fun AnimalsGallery(
     type: String?,
     isAnimal: Boolean
 ) {
-
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
-    val newsViewModel  : NewsViewModel = viewModel(factory = NewsViewModel.factory)
+    val newsViewModel: NewsViewModel = viewModel(factory = NewsViewModel.factory)
 
     var selectedCategory by remember { mutableStateOf("") }
     var selectedBreed by remember { mutableStateOf("") }
@@ -162,7 +161,8 @@ fun AnimalsGallery(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (type != "") {
-            DropdownFilters(ageList,
+            DropdownFilters(
+                ageList,
                 breedList,
                 typeList,
                 onCategorySelected = { selectedCategory = it },
@@ -171,80 +171,49 @@ fun AnimalsGallery(
             )
         }
 
-        val columns = 2
-        var items by remember { mutableStateOf<List<Any>>(emptyList()) }
+        val items = remember { mutableStateListOf<Any>() }
 
-        if (isAnimal){
-            when (type) {
-                "AnimalsInShelter" -> {
-                    userViewModel.viewModelScope.launch {
-                        animalViewModel.getOurFriends().collect { animals ->
-                            items = animals
-                        }
-                    }
-                }
-                "LostAnimals" -> {
-                    userViewModel.viewModelScope.launch {
-                        animalViewModel.getLostAnimals().collect { animals ->
-                            items = animals
-                        }
-
-                    }
-                }
-                else -> {
-                    userViewModel.viewModelScope.launch {
-                        animalViewModel.getAllAnimals().collect { animals ->
-                            items = animals
-                        }
-                    }
-
-                }
-            }
-        } else {
-            if (type == "GoodNews"){
-                newsViewModel.viewModelScope.launch {
-                    newsViewModel.getGoodNews().collect { news ->
-                        items = news
-                    }
-                }
-            } else if (type == "AllNews"){
-                newsViewModel.viewModelScope.launch {
-                    newsViewModel.getWhatNews().collect { news ->
-                        items = news
-                    }
-                }
-            }
+        LaunchedEffect(isAnimal, type) {
+            fetchItems(isAnimal, type, animalViewModel, newsViewModel, items)
         }
+
         LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
+            columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(items.size) { index ->
                 val item = items.getOrNull(index)
-                item?.let {
-                    if (item is Animal) {
-                        AnimalCard(
-                            item = item,
-                            navController = navController,
-                            userViewModel = userViewModel,
-                        )
-                    }
-
-                    if(item is News){
-                        NewsCard(
-                            item = item,
-                            navController = navController,
-                            userViewModel = userViewModel,
-                        )
-                    }
+                when (item) {
+                    is Animal -> AnimalCard(item = item, navController = navController, userViewModel = userViewModel)
+                    is News -> NewsCard(item = item, navController = navController, userViewModel = userViewModel)
                 }
             }
         }
     }
 }
 
+private suspend fun fetchItems(
+    isAnimal: Boolean,
+    type: String?,
+    animalViewModel: AnimalViewModel,
+    newsViewModel: NewsViewModel,
+    items: MutableList<Any>
+) {
+    if (isAnimal) {
+        when (type) {
+            "AnimalsInShelter" -> animalViewModel.getOurFriends().collect { items.addAll(it) }
+            "LostAnimals" -> animalViewModel.getLostAnimals().collect { items.addAll(it) }
+            else -> animalViewModel.getAllAnimals().collect { items.addAll(it) }
+        }
+    } else {
+        when (type) {
+            "GoodNews" -> newsViewModel.getGoodNews().collect { items.addAll(it) }
+            "AllNews" -> newsViewModel.getWhatNews().collect { items.addAll(it) }
+        }
+    }
+}
 @Composable
 fun ClearFilterIconButton(
     onClick: () -> Unit,
@@ -310,20 +279,15 @@ fun DropdownButton(
 ) {
 
     val viewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+
     Box {
-        Button(
-            onClick = { onExpandedChange(!expanded) },
-            modifier = Modifier
-                .padding(5.dp),
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(Gold),
-            contentPadding = PaddingValues(5.dp)
-        ) {
-            TextWithSplit(
-                text = selectedOption.ifBlank { text },
-                color = Color.White
-            )
-        }
+        DropdownButtonBox(
+            text = text,
+            selectedOption = selectedOption,
+            onExpandedChange = onExpandedChange,
+            expanded = expanded
+        )
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) },
@@ -333,46 +297,81 @@ fun DropdownButton(
                 .border(1.dp, Color.Black)
                 .clip(RoundedCornerShape(20.dp))
         ) {
-            val uniqueOptions = if (aux) {
-                val ageCategories = options.map { calculateAgeCategory(it) }.distinct()
-                ageCategories.map { it }
-            } else {
-                options.distinct()
-            }
+            val uniqueOptions = getUniqueOptions(options, aux)
             uniqueOptions.forEachIndexed { index, option ->
                 if (index > 0) {
                     Divider(color = Color.Black, thickness = 1.dp)
                 }
                 DropdownMenuItem(
-                    {
-                        Text(text = option)
-                    },
+                    text = { Text(option) },
                     onClick = {
-                        when (text) {
-                            "Age range" -> {
-                                when (option) {
-                                    "Puppy", "Young", "Adult", "Senior" -> {
-                                        viewModel.getAnimalsByAgeDesc(option)
-                                    }
-                                }
-                            }
-                            "Breed" -> {
-                                if (option.isNotBlank()) {
-                                    viewModel.getAnimalsByBreed(option)
-                                }
-                            }
-
-                            "Type" -> {
-                                if (option.isNotBlank()) {
-                                    viewModel.getAnimalsByTypeAnimal(option)
-                                }
-                            }
-                        }
-                        onOptionSelected(option)
-                        onExpandedChange(false)
+                        handleDropdownItemClick(text, option, viewModel, onOptionSelected, onExpandedChange)
                     }
                 )
             }
         }
     }
+}
+
+@Composable
+private fun DropdownButtonBox(
+    text: String,
+    selectedOption: String,
+    onExpandedChange: (Boolean) -> Unit,
+    expanded: Boolean
+) {
+    Button(
+        onClick = { onExpandedChange(!expanded) },
+        modifier = Modifier
+            .padding(5.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(Gold),
+        contentPadding = PaddingValues(5.dp)
+    ) {
+        TextWithSplit(
+            text = selectedOption.ifBlank { text },
+            color = Color.White
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun getUniqueOptions(options: List<String>, aux: Boolean): List<String> {
+    return if (aux) {
+        val ageCategories = options.map { calculateAgeCategory(it) }.distinct()
+        ageCategories.map { it }
+    } else {
+        options.distinct()
+    }
+}
+
+private fun handleDropdownItemClick(
+    text: String,
+    option: String,
+    viewModel: AnimalViewModel,
+    onOptionSelected: (String) -> Unit,
+    onExpandedChange: (Boolean) -> Unit
+) {
+    when (text) {
+        "Age range" -> {
+            when (option) {
+                "Puppy", "Young", "Adult", "Senior" -> {
+                    viewModel.getAnimalsByAgeDesc(option)
+                }
+            }
+        }
+        "Breed" -> {
+            if (option.isNotBlank()) {
+                viewModel.getAnimalsByBreed(option)
+            }
+        }
+
+        "Type" -> {
+            if (option.isNotBlank()) {
+                viewModel.getAnimalsByTypeAnimal(option)
+            }
+        }
+    }
+    onOptionSelected(option)
+    onExpandedChange(false)
 }
