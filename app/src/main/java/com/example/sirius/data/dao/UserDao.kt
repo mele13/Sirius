@@ -49,4 +49,6 @@ interface UserDao {
 
     @Query("SELECT * FROM User WHERE role = 'worker' OR role = 'owner' ORDER BY RANDOM() LIMIT 1")
     fun getRandomWorkerOrOwner() : Flow<User?>
+    @Query("SELECT * FROM User WHERE id != :id")
+    suspend fun getAllUsersExceptAuthenticated(id : Int): List<User>
 }

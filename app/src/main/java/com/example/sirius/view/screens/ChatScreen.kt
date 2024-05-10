@@ -72,7 +72,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
 
     LaunchedEffect(Unit) {
         try {
-            userList = userViewModel.getAllUsers()
+            userList = user?.let { userViewModel.getAllUsersExceptAuthenticated(it.id) }!!
         } catch (e: Exception) {
             Log.e("Error : ", "Error when accessing the database", e)
         }
@@ -84,6 +84,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
         unseenMessagesState
     }
 
+    println(userList)
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -271,16 +272,18 @@ fun Content(lastMessage: String?, person: User, unseenMessages: List<Int>, userV
             )
         }
 
-        val chatIdParts = chatViewModel.splitChatId(chatId.value)
 
-        if (authenticatedUserId.toString() in chatIdParts && person.id in unseenMessages) {
-            Icon(
-                imageVector = Icons.Default.Notifications,
-                contentDescription = "Recibido",
-                tint = Green3,
-                modifier = Modifier.size(24.dp)
-            )
+        val chatID = chatViewModel.generateChatId(authenticatedUserId.toInt(), person.id)
+
+        if(chatID in chatId.value && person.id in unseenMessages ){
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Recibido",
+                    tint = Green3,
+                    modifier = Modifier.size(24.dp)
+                )
         }
+
 
     }
 }

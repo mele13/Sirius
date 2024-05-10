@@ -173,6 +173,10 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return userDao.getAllUsers()
     }
 
+    suspend fun getAllUsersExceptAuthenticated(id:Int): List<User> {
+        return userDao.getAllUsersExceptAuthenticated(id)
+    }
+
     private suspend fun insertUser(user: User) {
         userDao.insertUser(user)
     }
