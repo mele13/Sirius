@@ -46,6 +46,7 @@ import com.example.sirius.R
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
+import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.intToBoolean
@@ -156,7 +157,7 @@ fun NewsInfo(
                         editedCreatedAt,
                         editedUntilDate,
                         editedPhotoNews,
-                        editedGoodNews
+                        booleanToInt(editedGoodNews)
                     )
                 }
 

@@ -142,16 +142,16 @@ fun Section(
     var animalFormData = AnimalFormData(
         0,
         "", "", "",
-        waitingAdoption = false,
-        fosterCare = false,
+        waitingAdoption = 0,
+        fosterCare = 0,
         shortInfo = "",
         longInfo = "",
         breed = "",
         type = "",
         entryDate = "",
         photoAnimal = "",
-        inShelter = false,
-        lost = false
+        inShelter = 0,
+        lost = 0
     )
 
     var newsFormData = NewsFormData(
@@ -163,7 +163,7 @@ fun Section(
         "",
         "",
         "",
-        false)
+        0)
     if (showDialogAdd.value) {
         if (isAnimalSection){
             AnimalFormDialog(
@@ -173,8 +173,7 @@ fun Section(
                 sectionType = determineSectionType(title),
                 animalFormData = animalFormData,
                 isEdit = false
-            ) {
-            }
+            )
         } else {
             NewsFormDialog(
                 showDialogAdd = showDialogAdd,
@@ -182,7 +181,6 @@ fun Section(
                 sectionType = determineSectionType(title),
                 newsFormData,
                 false
-
             ) {
             }
         }

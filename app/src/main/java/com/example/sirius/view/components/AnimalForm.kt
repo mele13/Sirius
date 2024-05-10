@@ -29,6 +29,8 @@ import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.SectionType
 import com.example.sirius.navigation.Routes
+import com.example.sirius.tools.booleanToInt
+import com.example.sirius.tools.intToBoolean
 import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.view.screens.DropdownFiltersHome
 import com.example.sirius.viewmodel.AnimalViewModel
@@ -74,7 +76,7 @@ fun animalFormFields(
         item {
             StatusCheckbox(
                 labelText = "Waiting Adoption",
-                checked = animalFormState.waitingAdoption,
+                checked = intToBoolean(animalFormState.waitingAdoption),
                 onCheckedChange = { isChecked ->
                     updateWaitingAdoption(animalFormState, formData, isChecked)
                 }
@@ -83,10 +85,10 @@ fun animalFormFields(
         item {
             StatusCheckbox(
                 labelText = "Foster Care",
-                checked = animalFormState.fosterCare,
+                checked = intToBoolean(animalFormState.fosterCare),
                 onCheckedChange = { isChecked ->
-                    animalFormState.fosterCare = isChecked
-                    formData.fosterCare = isChecked
+                    animalFormState.fosterCare = booleanToInt(isChecked)
+                    formData.fosterCare = booleanToInt(isChecked)
 
                 }
             )
@@ -183,10 +185,10 @@ fun animalFormFields(
             item {
                 StatusCheckbox(
                     labelText = "In shelter",
-                    checked = animalFormState.inShelter,
+                    checked = intToBoolean(animalFormState.inShelter),
                     onCheckedChange = { isChecked ->
-                        animalFormState.inShelter = isChecked
-                        formData.inShelter = isChecked
+                        animalFormState.inShelter = booleanToInt(isChecked)
+                        formData.inShelter = booleanToInt(isChecked)
                     }
                 )
             }
@@ -195,10 +197,10 @@ fun animalFormFields(
             item {
                 StatusCheckbox(
                     labelText = "Lost",
-                    checked = animalFormState.lost,
+                    checked = intToBoolean(animalFormState.lost),
                     onCheckedChange = { isChecked ->
-                        animalFormState.lost = isChecked
-                        formData.lost = isChecked
+                        animalFormState.lost = booleanToInt(isChecked)
+                        formData.lost = booleanToInt(isChecked)
 
                     }
                 )
@@ -219,8 +221,8 @@ private fun updateBirthDate(animalFormState: AnimalFormState, formData: AnimalFo
 }
 
 private fun updateWaitingAdoption(animalFormState: AnimalFormState, formData: AnimalFormData, isChecked: Boolean) {
-    animalFormState.waitingAdoption = isChecked
-    formData.waitingAdoption = isChecked
+    animalFormState.waitingAdoption = booleanToInt(isChecked)
+    formData.waitingAdoption = booleanToInt(isChecked)
 }
 
 private fun selectedBirthday(formData: AnimalFormData, dateState: Long) : Long{
@@ -312,16 +314,16 @@ data class AnimalFormData(
     var name: String,
     var birthDate: String,
     var sex: String,
-    var waitingAdoption: Boolean,
-    var fosterCare: Boolean,
+    var waitingAdoption: Int,
+    var fosterCare: Int,
     var shortInfo: String,
     var longInfo: String,
     var breed: String,
     var type: String,
     var entryDate: String,
     var photoAnimal: String,
-    var inShelter: Boolean,
-    var lost: Boolean
+    var inShelter: Int,
+    var lost: Int
 )
 
 @Stable
@@ -330,23 +332,23 @@ class AnimalFormState {
         name = ""
         birthDate = ""
         sex = ""
-        waitingAdoption = false
-        fosterCare = false
+        waitingAdoption = 0
+        fosterCare = 0
         shortInfo = ""
         longInfo = ""
         breed = ""
         typeAnimal = ""
         entryDate = ""
         photoAnimal = ""
-        inShelter = false
-        lost = false
+        inShelter = 0
+        lost = 0
     }
 
     var id by mutableStateOf(0)
     var name by mutableStateOf("")
     var sex by mutableStateOf("")
-    var waitingAdoption by mutableStateOf(false)
-    var fosterCare by mutableStateOf(false)
+    var waitingAdoption by mutableStateOf(0)
+    var fosterCare by mutableStateOf(0)
     var shortInfo by mutableStateOf("")
     var longInfo by mutableStateOf("")
     var breed by mutableStateOf("")
@@ -354,6 +356,6 @@ class AnimalFormState {
     var photoAnimal by mutableStateOf("")
     var birthDate by mutableStateOf("")
     var entryDate by mutableStateOf("")
-    var inShelter by mutableStateOf(false)
-    var lost by mutableStateOf(false)
+    var inShelter by mutableStateOf(0)
+    var lost by mutableStateOf(0)
 }

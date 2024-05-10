@@ -27,7 +27,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sirius.model.Animal
 import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
-import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
@@ -154,7 +153,6 @@ fun AnimalFormDialog(
     sectionType: SectionType,
     animalFormData: AnimalFormData? =  null,
     isEdit : Boolean,
-    onAddClick: () -> Unit,
 
     ) {
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
@@ -165,16 +163,16 @@ fun AnimalFormDialog(
     var formData = animalFormData ?: AnimalFormData(
         0,
         "", "", "",
-        waitingAdoption = false,
-        fosterCare = false,
+        waitingAdoption = 0,
+        fosterCare = 0,
         shortInfo = "",
         longInfo = "",
         breed = "",
         type = "",
         entryDate = "",
         photoAnimal = "",
-        inShelter = false,
-        lost = false
+        inShelter = 0,
+        lost = 0
     )
 
     if (animalFormData != null) {
@@ -182,9 +180,9 @@ fun AnimalFormDialog(
     }
 
     if (sectionType ==  SectionType.LOST) {
-        animalFormState.lost = true
+        animalFormState.lost = 1
     } else if (sectionType ==  SectionType.IN_SHELTER){
-        animalFormState.inShelter = true
+        animalFormState.inShelter = 1
     }
 
     AlertDialog(
@@ -205,13 +203,11 @@ fun AnimalFormDialog(
             Button(
                 onClick = {
                     if (isEdit){
-                        onAddClick()
                         showDialogAdd.value = false
                         animalViewModel.viewModelScope.launch {
                             stringToEnumTypeAnimal(formData.type)?.let {
-                                Animal(formData.id, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
-                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
-                                )
+                                Animal(formData.id, formData.name, formData.birthDate, formData.sex, formData.waitingAdoption, formData.fosterCare, formData.shortInfo, formData.longInfo, formData.breed,
+                                    it, formData.entryDate, formData.photoAnimal, formData.inShelter, formData.lost                                )
                             }?.let { animalViewModel.updateAnimal(it) }
                             animalFormState.clear()
                         }
@@ -219,12 +215,11 @@ fun AnimalFormDialog(
                         if (formData.photoAnimal.isEmpty()){
                             formData.photoAnimal = "res/drawable/user_image1.jpg"
                         }
-                        onAddClick()
                         showDialogAdd.value = false
                         animalViewModel.viewModelScope.launch {
                             stringToEnumTypeAnimal(formData.type)?.let {
-                                Animal(0, formData.name, formData.birthDate, formData.sex, booleanToInt(formData.waitingAdoption), booleanToInt(formData.fosterCare), formData.shortInfo, formData.longInfo, formData.breed,
-                                    it, formData.entryDate, formData.photoAnimal, booleanToInt(formData.lost), booleanToInt(formData.inShelter)
+                                Animal(0, formData.name, formData.birthDate, formData.sex, formData.waitingAdoption, formData.fosterCare, formData.shortInfo, formData.longInfo, formData.breed,
+                                    it, formData.entryDate, formData.photoAnimal, formData.lost, formData.inShelter
                                 )
                             }?.let { animalViewModel.insertAnimal(it) }
                             animalFormState.clear()
@@ -258,8 +253,6 @@ fun AnimalFormDialog(
     )
 }
 
-
-
 @Composable
 fun NewsFormDialog(
     showDialogAdd: MutableState<Boolean>,
@@ -284,16 +277,16 @@ fun NewsFormDialog(
         "",
         "",
         "",
-        false)
+        0)
 
     if (newsFormData != null) {
         formData = newsFormData
     }
 
     if (sectionType ==  SectionType.GOOD_NEWS) {
-        newsFormState.goodNews = true
+        newsFormState.goodNews = 1
     } else if (sectionType ==  SectionType.WHATS_NEW){
-        newsFormState.goodNews = false
+        newsFormState.goodNews = 0
     }
 
     AlertDialog(
@@ -313,7 +306,7 @@ fun NewsFormDialog(
                         onAddClick()
                         showDialogAdd.value = false
                         newsViewmodel.viewModelScope.launch {
-                            newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
+                            newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews))
                             newsFormState.clear()
                         }
                     } else {
@@ -323,7 +316,7 @@ fun NewsFormDialog(
                         onAddClick()
                         showDialogAdd.value = false
                         newsViewmodel.viewModelScope.launch {
-                            newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, booleanToInt(formData.goodNews)))
+                            newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews))
                             newsFormState.clear()
                         }
                     }

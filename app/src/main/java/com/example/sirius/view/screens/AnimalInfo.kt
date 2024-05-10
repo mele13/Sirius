@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,11 +65,11 @@ import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
-import com.example.sirius.tools.intToBoolean
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.AdoptAnAnimal
 import com.example.sirius.view.components.AnimalFormData
 import com.example.sirius.view.components.AnimalFormDialog
+import com.example.sirius.view.components.AnimalFormState
 import com.example.sirius.view.components.FavoriteIcon
 import com.example.sirius.view.components.rememberAnimalFormState
 import com.example.sirius.viewmodel.AnimalViewModel
@@ -111,119 +112,12 @@ fun AnimalInfo(
                 .fillMaxSize()
         ) {
 
-            if(editMode.value){
-                //Animal
-                var editedName by remember {
-                    mutableStateOf(
-                        animal?.nameAnimal ?: ""
-                    )
-                }
-
-                var editedBirthDate by remember {
-                    mutableStateOf(
-                        animal?.birthDate ?: ""
-                    )
-                }
-
-                var editedAnimalSex by remember {
-                    mutableStateOf(
-                        animal?.sexAnimal ?: ""
-                    )
-                }
-
-                var editedWaitingAdoption by remember {
-                    mutableStateOf(
-
-                        intToBoolean(animal?.waitingAdoption ?: 0)
-
-                    )
-                }
-
-                var editedFosterCare by remember {
-                    mutableStateOf(
-                        intToBoolean(animal?.fosterCare ?: 0)
-
-
-                    )
-                }
-
-                var editedShortInfoAnimal by remember {
-                    mutableStateOf(
-                        animal?.shortInfoAnimal ?: ""
-                    )
-                }
-
-                var editedLongInfoAnimal by remember {
-                    mutableStateOf(
-                        animal?.longInfoAnimal ?: ""
-                    )
-                }
-
-                var editedBreed by remember {
-                    mutableStateOf(
-                        animal?.breedAnimal ?: ""
-                    )
-                }
-
-                var editedTypeAnimal by remember {
-                    mutableStateOf(
-                        animal?.typeAnimal ?: "" as TypeAnimal
-                    )
-                }
-
-
-                var editedEntryDate by remember {
-                    mutableStateOf(
-                        animal?.entryDate ?: ""
-                    )
-                }
-
-                var editedPhotoAnimal by remember {
-                    mutableStateOf(
-                        animal?.photoAnimal ?: ""
-                    )
-                }
-
-                var editedInShelter by remember {
-                    mutableStateOf(
-
-                        intToBoolean(animal?.inShelter ?: 0)
-
-                    )
-                }
-
-                val animalFormData = animal!!.id?.let {
-                    AnimalFormData(
-                        it, editedName,
-                        editedBirthDate,
-                        editedAnimalSex,
-                        editedWaitingAdoption,
-                        editedFosterCare,
-                        editedShortInfoAnimal,
-                        editedLongInfoAnimal,
-                        editedBreed,
-                        editedTypeAnimal.name,
-                        editedEntryDate,
-                        editedPhotoAnimal,
-                        editedInShelter,
-
-                        intToBoolean(animal?.lost ?: 0)
-
-                        )
-                }
+            if (editMode.value) {
+                val animalFormData = createAnimalFormDataFromAnimal(animal)
 
                 val animalFormState = rememberAnimalFormState()
 
-                AnimalFormDialog(
-                    showDialogAdd = editMode,
-                    animalFormState = animalFormState,
-                    typeList = TypeAnimal.getAllDisplayNames(),
-                    sectionType = if(animal!!.lost == 1) SectionType.LOST else SectionType.IN_SHELTER,
-                    animalFormData = animalFormData,
-                    isEdit = true,
-                ) {
-
-                }
+                ShowAnimalFormDialog(editMode, animalFormState, animalFormData, animal)
             }
             LazyColumn(
                 verticalArrangement = Arrangement.Bottom
@@ -295,15 +189,15 @@ fun AnimalInfo(
                             modifier = Modifier
                                 .padding(start = 20.dp)
                         ) {
-                          //  if (!editMode) {
-                                Text(
-                                    text = animal!!.nameAnimal,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Start,
-                                )
+                            //  if (!editMode) {
+                            Text(
+                                text = animal!!.nameAnimal,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Start,
+                            )
                             if (userId != null) {
                                 if (user!!.role != TypeUser.admin &&  user.role != TypeUser.owner) {
-                                    Box() {
+                                    Box {
                                         FavoriteIcon(
                                             isFavorite = isFavorite,
                                             item = animal!!,
@@ -341,14 +235,14 @@ fun AnimalInfo(
                                 .padding(start = 20.dp)
                         ) {
                             Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = animal!!.longInfoAnimal,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 20.dp, end = 20.dp)
-                                )
+                            Text(
+                                text = animal!!.longInfoAnimal,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 20.dp, end = 20.dp)
+                            )
 
                         }
                     }
@@ -433,5 +327,44 @@ fun GetImage(painter: Int, description: String) {
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .fillMaxSize()
+    )
+}
+
+private fun createAnimalFormDataFromAnimal(animal: Animal?): AnimalFormData? {
+    return animal?.let {
+        AnimalFormData(
+            it.id,
+            it.nameAnimal,
+            it.birthDate,
+            it.sexAnimal,
+            it.waitingAdoption,
+            it.fosterCare,
+            it.shortInfoAnimal,
+            it.longInfoAnimal,
+            it.breedAnimal,
+            it.typeAnimal.name,
+            it.entryDate,
+            it.photoAnimal,
+            it.inShelter,
+            it.lost
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun ShowAnimalFormDialog(
+    editMode: MutableState<Boolean>,
+    animalFormState: AnimalFormState,
+    animalFormData: AnimalFormData?,
+    animal: Animal?
+) {
+    AnimalFormDialog(
+        showDialogAdd = editMode,
+        animalFormState = animalFormState,
+        typeList = TypeAnimal.getAllDisplayNames(),
+        sectionType = if (animal?.lost == 1) SectionType.LOST else SectionType.IN_SHELTER,
+        animalFormData = animalFormData,
+        isEdit = true
     )
 }

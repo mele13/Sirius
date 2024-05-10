@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sirius.model.News
 import com.example.sirius.navigation.Routes
+import com.example.sirius.tools.booleanToInt
+import com.example.sirius.tools.intToBoolean
 import com.example.sirius.tools.parseDateStringToLong
 
 @Composable
@@ -43,8 +45,6 @@ fun newsFormFields(
         photoNews = newsFormState.photoNews,
         goodNews = newsFormState.goodNews,
     )
-
-
 
     newsFormState.id = formData.id
     newsFormState.title = formData.title
@@ -125,7 +125,15 @@ fun newsFormFields(
                 onImageSelected = { imagePath ->
                     newsFormState.photoNews = imagePath
                     formData.photoNews = imagePath
-
+                }
+            )
+        }
+        item {
+            StatusCheckbox(
+                labelText = "Good News",
+                checked = intToBoolean(newsFormState.goodNews),
+                onCheckedChange = { isChecked ->
+                    updateGoodNews(newsFormState, formData, isChecked)
                 }
             )
         }
@@ -169,7 +177,7 @@ fun rememberNewsFormState(): NewsFormState {
 }
 
 data class NewsFormData(
-    var id : Int,
+    var id: Int,
     var title: String,
     var shortInfo: String,
     var longInfo: String,
@@ -177,7 +185,7 @@ data class NewsFormData(
     var createdAt: String,
     var untilDate: String,
     var photoNews: String,
-    var goodNews: Boolean
+    var goodNews: Int
 )
 
 @Stable
@@ -190,7 +198,7 @@ class NewsFormState {
         createdAt = ""
         untilDate = ""
         photoNews = ""
-        goodNews = false
+        goodNews = 0
     }
     var id by mutableStateOf(0)
     var title by mutableStateOf("")
@@ -200,5 +208,10 @@ class NewsFormState {
     var createdAt by mutableStateOf("")
     var untilDate by mutableStateOf("")
     var photoNews by mutableStateOf("")
-    var goodNews by mutableStateOf(false)
+    var goodNews by mutableStateOf(0)
+}
+
+private fun updateGoodNews(newsFormData: NewsFormState, formData: NewsFormData, isChecked: Boolean) {
+    newsFormData.goodNews = booleanToInt(isChecked)
+    formData.goodNews = booleanToInt(isChecked)
 }
