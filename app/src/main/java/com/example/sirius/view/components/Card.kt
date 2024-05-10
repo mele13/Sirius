@@ -364,61 +364,77 @@ fun CustomImage(
     onShowDialogDeleteChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val newsViewModel: NewsViewModel = viewModel(factory = NewsViewModel.factory)
-    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
-
     if (resourceId != 0) {
-        val painter = painterResource(id = resourceId)
         Box(
             modifier = modifier.fillMaxSize()
         ) {
+            val painter = painterResource(id = resourceId)
             Image(
                 painter = painter,
-                contentDescription = if (item is Animal) item.shortInfoAnimal else if (item is News) item.shortInfoNews else null,
+                contentDescription = getContentDescription(item),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .aspectRatio(1f)
             )
-
-            if (user != null && (user!!.role == TypeUser.admin || user.role == TypeUser.owner)) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = null,
-                    tint = Color.Red,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(50.dp)
-                        .alpha(0.5f)
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                onShowDialogDeleteChanged(true)
-                            }
-                        }
-                )
+            if (shouldShowDeleteIcon(user)) {
+                DeleteIcon(onShowDialogDeleteChanged, Modifier.align(Alignment.Center))
             }
-
             if (showDialogDelete) {
-                var titleDialog = ""
-                if (item is Animal) {
-                    titleDialog = "Delete ${item.nameAnimal}"
-                } else if (item is News) {
-                    titleDialog = "Delete ${item.titleNews}"
-                }
-
-                DeleteDialog(
-                    onDismissRequest = { onShowDialogDeleteChanged(false) },
-                    titleDialog = titleDialog,
-                    animalViewModel = animalViewModel,
-                    newsViewModel = newsViewModel,
-                    item = item
-                )
+                ShowDeleteDialog(item, onShowDialogDeleteChanged)
             }
-
         }
     } else {
         Log.e("AnimalImage", "Resource not found $photoPath")
     }
+}
+
+private fun getContentDescription(item: Any): String? {
+    return when (item) {
+        is Animal -> item.shortInfoAnimal
+        is News -> item.shortInfoNews
+        else -> null
+    }
+}
+
+private fun shouldShowDeleteIcon(user: User?): Boolean {
+    return user != null && (user.role == TypeUser.admin || user.role == TypeUser.owner)
+}
+
+@Composable
+private fun DeleteIcon(onShowDialogDeleteChanged: (Boolean) -> Unit, modifier: Modifier) {
+    Icon(
+        imageVector = Icons.Default.Delete,
+        contentDescription = null,
+        tint = Color.Red,
+        modifier = modifier
+            .size(50.dp)
+            .alpha(0.5f)
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    onShowDialogDeleteChanged(true)
+                }
+            }
+    )
+}
+
+@Composable
+private fun ShowDeleteDialog(
+    item: Any,
+    onShowDialogDeleteChanged: (Boolean) -> Unit
+) {
+    val titleDialog = when (item) {
+        is Animal -> "Delete ${item.nameAnimal}"
+        is News -> "Delete ${item.titleNews}"
+        else -> ""
+    }
+    DeleteDialog(
+        onDismissRequest = { onShowDialogDeleteChanged(false) },
+        titleDialog = titleDialog,
+        animalViewModel = viewModel(factory = AnimalViewModel.factory),
+        newsViewModel = viewModel(factory = NewsViewModel.factory),
+        item = item
+    )
 }
 
 @Composable
