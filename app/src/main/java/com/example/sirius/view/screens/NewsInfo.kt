@@ -37,15 +37,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeUser
-import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.booleanToInt
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
@@ -63,7 +60,6 @@ fun NewsInfo(
     id: Int?,
     viewModel: NewsViewModel,
     userViewModel: UserViewModel,
-    navController: NavController,
 ) {
     val user = userViewModel.getAuthenticatedUser()
     var editMode = remember { mutableStateOf(false) }
@@ -82,13 +78,10 @@ fun NewsInfo(
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
-
-
         title = news?.titleNews.toString()
         shortInfoAnimal = news?.shortInfoNews.toString()
         longInfoAnimal = news?.longInfoNews.toString()
         goodNews = news?.let { intToBoolean(it.goodNews) } == true
-
 
         Box(
             modifier = Modifier
@@ -196,30 +189,6 @@ fun NewsInfo(
                                     .align(Alignment.BottomStart),
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
-                            // Icono sponsor
-                            if (user != null && user.role != TypeUser.admin) {
-                                Box(
-                                    modifier = Modifier
-                                        .clickable {
-                                            navController.navigate(
-                                                route = Routes.SPONSORING + "/${id}-${
-                                                    photoPaths[0].substringAfterLast(
-                                                        '/'
-                                                    )
-                                                }-${news!!.titleNews}"
-                                            )
-                                        }
-                                        .align(Alignment.BottomStart)
-                                        .size(65.dp)
-                                        .padding(start = 30.dp, bottom = 25.dp)
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.sponsor_icon),
-                                        contentDescription = stringResource(id = R.string.sponsor)
-                                    )
-                                }
-                            }
-
                         }
                     }
                     item {

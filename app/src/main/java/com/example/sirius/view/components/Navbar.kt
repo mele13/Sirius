@@ -216,7 +216,6 @@ fun NavigationContent(
                         it.arguments?.getInt("id"),
                         newsViewModel,
                         userViewModel,
-                        navController,
                         )
                 }
                 composable(route = Routes.SHELTER) {
