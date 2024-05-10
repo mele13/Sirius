@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +38,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,14 +49,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -77,6 +76,7 @@ import com.example.sirius.tools.isPasswordValid
 import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.ui.theme.Green1
+import com.example.sirius.view.components.ChangePasswordInputText
 import com.example.sirius.view.components.CustomSnackbar
 import com.example.sirius.view.components.EventCard
 import com.example.sirius.view.components.ListEmployed
@@ -117,115 +117,131 @@ fun ProfileScreen(
 
     Column {
 
-        if (userViewModel.getAuthenticatedUser()?.role == TypeUser.admin) {
-            Icon(
-                imageVector = Icons.Outlined.Settings,
-                contentDescription = "Settings",
-                tint = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(10.dp)
-                    .clickable {
-                        navController.navigate(Routes.SETTIGNS)
-                    }
-
-            )
-        }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(end = 16.dp, start = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                item {
-                    Row(
+        Settings(userViewModel, navController, Modifier.align(Alignment.End)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 16.dp, start = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = { showUpdateImageDialog = true },
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
+                            .size(20.dp)
+                            .zIndex(20f)
+                            .offset(x = (-70).dp, y = (30).dp)
                     ) {
-                        IconButton(
-                            onClick = { showUpdateImageDialog = true },
-                            modifier = Modifier
-                                .size(20.dp)
-                                .zIndex(20f)
-                                .offset(x = (-70).dp, y = (30).dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Edit,
-                                contentDescription = null,
-                                tint = Color.Black
-                            )
-                        }
-                    }
-                    UserImage(imageUrl = imageUrl)
-                }
-                item {
-                    if (showUpdateImageDialog) {
-                        user?.let {
-                            ShowAlertDialog(
-                                predefinedImageList = predefinedImageList,
-                                onImageSelected = { newImage ->
-                                    userViewModel.viewModelScope.launch {
-                                        user?.let { userViewModel.updateProfilePhoto(it, newImage) }
-                                    }
-                                    currentUser?.let {
-                                        imageUrl = it.photoUser
-                                    }
-                                },
-                                onDismiss = { showUpdateImageDialog = false }
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = null,
+                            tint = Color.Black
+                        )
                     }
                 }
-                // User info
-                item {
-                    ProfileItem(labelId = R.string.username, initialValue = username, userViewModel)
-                    ProfileItem(labelId = R.string.email, initialValue = email, userViewModel)
-                    // Change Password Button
-                    user?.let { ChangePasswordButton(userViewModel, it) }
-                }
-                // Log Out Button
-                item {
-                    LogoutButton(
-                        onLogoutClick = {
-                            userViewModel.viewModelScope.launch {
-                                userViewModel.logout()
-                                navController.navigate(Routes.LOGIN)
-                            }
-                        }
-                    )
-                }
-                // Friends you like
-                item {
-                    if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true){
-                        Spacer(modifier = Modifier.height(16.dp))
-                        if (likedAnimals.isNotEmpty()) {
-                            LikedAnimalsSection(likedAnimals, navController)
-                        } else {
-                            Text(
-                                text = stringResource(id = R.string.no_liked_friends),
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    } else if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.owner) == true) {
-                        Text(text = stringResource(id = R.string.list_employees))
-                        ListEmployed(userViewModel)
-                    }
-                }
-                item{
-                    if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == false){
-                        Text(text = "Events for you")
-                        events?.let { user?.let { it1 -> ShowEvents(it, it1, eventViewModel) } }
-
+                UserImage(imageUrl = imageUrl)
+            }
+            item {
+                if (showUpdateImageDialog) {
+                    user?.let {
+                        ShowAlertDialog(
+                            predefinedImageList = predefinedImageList,
+                            onImageSelected = { newImage ->
+                                userViewModel.viewModelScope.launch {
+                                    user?.let { userViewModel.updateProfilePhoto(it, newImage) }
+                                }
+                                currentUser?.let {
+                                    imageUrl = it.photoUser
+                                }
+                            },
+                            onDismiss = { showUpdateImageDialog = false }
+                        )
                     }
                 }
             }
+            // User info
+            item {
+                ProfileItem(labelId = R.string.username, initialValue = username, userViewModel)
+                ProfileItem(labelId = R.string.email, initialValue = email, userViewModel)
+                // Change Password Button
+                user?.let { ChangePasswordButton(userViewModel, it) }
+            }
+            // Log Out Button
+            item {
+                LogoutButton(
+                    onLogoutClick = {
+                        userViewModel.viewModelScope.launch {
+                            userViewModel.logout()
+                            navController.navigate(Routes.LOGIN)
+                        }
+                    }
+                )
+            }
+            // Friends you like
+            item {
+                Likes(userViewModel, likedAnimals, navController)
+            }
+            item{
+                Events(userViewModel = userViewModel, events = events, user = user, eventViewModel = eventViewModel)
+            }
+        }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun Events(userViewModel: UserViewModel, events: List<Event>?, user: User?, eventViewModel: EventViewModel){
+    if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == false){
+        Text(text = "Events for you")
+        events?.let { user?.let { it1 -> ShowEvents(it, it1, eventViewModel) } }
+
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun Likes(userViewModel: UserViewModel, likedAnimals: List<Animal>, navController: NavController){
+    if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true){
+        Spacer(modifier = Modifier.height(16.dp))
+        if (likedAnimals.isNotEmpty()) {
+            LikedAnimalsSection(likedAnimals, navController)
+        } else {
+            Text(
+                text = stringResource(id = R.string.no_liked_friends),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+    } else if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.owner) == true) {
+        Text(text = stringResource(id = R.string.list_employees))
+        ListEmployed(userViewModel)
+    }
+}
+
+@Composable
+fun Settings(userViewModel: UserViewModel, navController: NavController, modifier: Modifier){
+    if (userViewModel.getAuthenticatedUser()?.role == TypeUser.admin) {
+        Icon(
+            imageVector = Icons.Outlined.Settings,
+            contentDescription = "Settings",
+            tint = Color.Black,
+            modifier = modifier
+                .padding(10.dp)
+                .clickable {
+                    navController.navigate(Routes.SETTIGNS)
+                }
+
+        )
+    }
+}
 @Composable
 fun ShowAlertDialog(
     predefinedImageList: List<String>,
@@ -271,7 +287,6 @@ fun ShowAlertDialog(
         confirmButton = {}
     )
 }
-
 @Composable
 fun ProfileItem(
     labelId: Int,
@@ -280,14 +295,14 @@ fun ProfileItem(
     onEditClick: (() -> Unit)? = null,
 ) {
     var isEditing by remember { mutableStateOf(false) }
-    var editedValue by remember { mutableStateOf(initialValue) }
-    val originalValue by remember { mutableStateOf(initialValue) }
-    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    var editedValue = remember { mutableStateOf(initialValue) }
+    val originalValue = remember { initialValue }
+    var errorMessage = rememberSaveable { mutableStateOf<String?>(null) }
     val label = stringResource(id = labelId)
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
 
     LaunchedEffect(originalValue) {
-        editedValue = originalValue
+        editedValue.value = originalValue
     }
 
     Column(
@@ -302,86 +317,108 @@ fun ProfileItem(
             if (labelId != R.string.password) {
                 Text(text = label)
             }
-            if (!isEditing) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(18.dp)
-                        .clickable {
+            val icon = EditMode(isEditing)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(18.dp)
+                    .clickable {
+                        if (!isEditing) {
                             isEditing = true
                             onEditClick?.invoke()
-                        }
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable {
-                            isEditing = false
-                            if (editedValue.isBlank()) {
-                                errorMessage = "Fields cannot be empty"
-                                editedValue = originalValue
-                            } else {
-                                when (labelId) {
-                                    R.string.username ->
-                                        userViewModel.viewModelScope.launch {
-                                            user?.let {
-                                                userViewModel.updateUserName(
-                                                    user = it,
-                                                    newUserName = editedValue
-                                                )
-                                            }
-                                        }
-
-                                    R.string.email ->
-                                        userViewModel.viewModelScope.launch {
-                                            if (isEmailValid(editedValue)) {
-                                                user?.let {
-                                                    val updateSuccessful =
-                                                        userViewModel.updateEmail(
-                                                            user = it,
-                                                            newEmail = editedValue
-                                                        )
-                                                    if (!updateSuccessful) {
-                                                        errorMessage =
-                                                            "Unable to update email. Please try again."
-                                                        editedValue = originalValue
-                                                    }
-                                                }
-                                            } else {
-                                                errorMessage =
-                                                    "Invalid email format.\nExpected format: name@example.com\n"
-                                                editedValue = originalValue
-                                            }
-                                        }
-                                }
+                        } else {
+                            // Confirmar cambios
+                            if (validateAndSaveChanges(
+                                    labelId,
+                                    user,
+                                    userViewModel,
+                                    editedValue,
+                                    errorMessage
+                            )
+                            ) {
+                                isEditing = false
                             }
                         }
+                    }
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Validate(editedValue, isEditing, errorMessage)
+    }
+    errorMessage.value?.let { message ->
+        CustomSnackbar(
+            message = message,
+            onDismiss = { errorMessage.value = null },
+        )
+    }
+}
+
+fun EditMode(isEditing: Boolean) : ImageVector{
+
+    return if (isEditing) {
+        Icons.Default.Check
+    } else {
+        Icons.Default.Edit
+    }
+}
+@Composable
+fun Validate(editedValue: MutableState<String>, isEditing : Boolean, errorMessage: MutableState<String?>){
+    OutlinedTextField(
+        value = editedValue.value,
+        onValueChange = { editedValue.value = it },
+        singleLine = true,
+        readOnly = !isEditing,
+        modifier = Modifier.fillMaxWidth(),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = if (!errorMessage.value.isNullOrBlank() || editedValue.value.isBlank()) Color.Red else Green1,
+            unfocusedBorderColor = if (!errorMessage.value.isNullOrBlank() || editedValue.value.isBlank()) Color.Red else Green1
+        )
+    )
+}
+private fun validateAndSaveChanges(
+    labelId: Int,
+    user: User?,
+    userViewModel: UserViewModel,
+    editedValue: MutableState<String>,
+    errorMessage: MutableState<String?>
+): Boolean {
+    if (labelId == R.string.username) {
+        userViewModel.viewModelScope.launch {
+            user?.let {
+                userViewModel.updateUserName(
+                    user = it,
+                    newUserName = editedValue.value
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        OutlinedTextField(
-            value = editedValue,
-            onValueChange = { editedValue = it },
-            singleLine = true,
-            readOnly = !isEditing,
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = if (!errorMessage.isNullOrBlank() || editedValue.isBlank()) Color.Red else Green1,
-                unfocusedBorderColor = if (!errorMessage.isNullOrBlank() || editedValue.isBlank()) Color.Red else Green1
-            )
-        )
+        return true
+
+
+    } else if (labelId == R.string.email) {
+        if (isEmailValid(editedValue.value)) {
+            userViewModel.viewModelScope.launch {
+                user?.let {
+                     val updateSuccessful = userViewModel.updateEmail(
+                        user = it,
+                        newEmail = editedValue.value
+                    )
+
+                    if (updateSuccessful) {
+                        return@launch
+                    } else {
+                        errorMessage.value = "Unable to update email. Please try again."
+                    }
+
+
+                }
+            }
+            return true
+        } else {
+            errorMessage.value = "Invalid email format.\nExpected format: name@example.com\n"
+        }
     }
-    errorMessage?.let { message ->
-        CustomSnackbar(
-            message = message,
-            onDismiss = { errorMessage = null },
-        )
-    }
+    return false
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -431,148 +468,98 @@ fun LogoutButton(onLogoutClick: () -> Unit) {
 
 @Composable
 fun ChangePasswordButton(userViewModel: UserViewModel, user: User) {
-    var isChangePasswordVisible by remember { mutableStateOf(false) }
-    var currentPassword by remember { mutableStateOf("") }
-    var newPassword by remember { mutableStateOf("") }
-    var successfulPasswordChange by remember { mutableStateOf(true) }
-    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
-    var passwordChangeButton by remember { mutableStateOf(false) }
-    var passwordVisibilityCp by remember { mutableStateOf(false) }
-    var passwordVisibilityNp by remember { mutableStateOf(false) }
+    var isChangePasswordVisible = remember { mutableStateOf(false) }
+
+    var successfulPasswordChange = remember { mutableStateOf(true) }
+    var errorMessage = rememberSaveable { mutableStateOf<String?>(null) }
+
 
     IconButton(
         onClick = {
-            isChangePasswordVisible = true
+            isChangePasswordVisible.value = true
         },
         modifier = Modifier
             .fillMaxWidth()
     ) {
         Text(text = stringResource(id = R.string.change_password))
     }
-    if (isChangePasswordVisible) {
-        AlertDialog(
-            onDismissRequest = {
-                isChangePasswordVisible = false
-                currentPassword = ""
-                newPassword = ""
-            },
-            title = { Text(stringResource(id = R.string.change_password)) },
-            text = {
-                Column {
-                    OutlinedTextField(
-                        value = currentPassword,
-                        onValueChange = {
-                            currentPassword = it
-                        },
-                        label = { Text(stringResource(id = R.string.current_password)) },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (passwordChangeButton && currentPassword.isBlank()) Color.Red else Green1,
-                            unfocusedBorderColor = if (passwordChangeButton && currentPassword.isBlank()) Color.Red else Green1
-                        ),
-                        visualTransformation = if (passwordVisibilityCp) VisualTransformation.None
-                                               else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            if (currentPassword.isNotBlank()) {
-                                IconButton(onClick = { passwordVisibilityCp = !passwordVisibilityCp }) {
-                                    Icon(
-                                        painter = if (passwordVisibilityCp) painterResource(id = R.drawable.visibility)
-                                        else painterResource(id = R.drawable.visibility_off),
-                                        contentDescription = if (passwordVisibilityCp) "Hide password" else "Show password",
-                                        modifier = Modifier.aspectRatio(0.5f)
-                                    )
-                                }
-                            }
-                        },
-                    )
-                    OutlinedTextField(
-                        value = newPassword,
-                        onValueChange = {
-                            newPassword = it
-                        },
-                        label = { Text(stringResource(id = R.string.new_password)) },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (passwordChangeButton && currentPassword.isBlank()) Color.Red else Green1,
-                            unfocusedBorderColor = if (passwordChangeButton && currentPassword.isBlank()) Color.Red else Green1
-                        ),
-                        visualTransformation = if (passwordVisibilityNp) VisualTransformation.None
-                                               else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            if (newPassword.isNotBlank()) {
-                                IconButton(onClick = { passwordVisibilityNp = !passwordVisibilityNp }) {
-                                    Icon(
-                                        painter = if (passwordVisibilityNp) painterResource(id = R.drawable.visibility)
-                                        else painterResource(id = R.drawable.visibility_off),
-                                        contentDescription = if (passwordVisibilityNp) "Hide password" else "Show password",
-                                        modifier = Modifier.aspectRatio(0.5f)
-                                    )
-                                }
-                            }
-                        },
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        passwordChangeButton = true
-                        userViewModel.viewModelScope.launch {
-                            try {
-                                if (isPasswordValid(newPassword)) {
-                                    successfulPasswordChange = userViewModel.updatePassword(
-                                        user,
-                                        currentPassword = currentPassword,
-                                        newPassword = newPassword
-                                    )
-                                    if (successfulPasswordChange) {
-                                        isChangePasswordVisible = false
-                                    } else {
-                                        errorMessage = "Failed to update password."
-                                    }
-                                } else {
-                                    errorMessage = "Invalid password format.\nPassword must " +
-                                            "have at least 6 characters, 1 uppercase letter, " +
-                                            "and 1 special symbol\n"
-                                }
-                            } catch (e: Exception) {
-                                errorMessage = "Failed to update password."
-                                isChangePasswordVisible = false
-                            } finally {
-                                currentPassword = ""
-                                newPassword = ""
-                                passwordChangeButton = true
-                                isChangePasswordVisible = false
-                            }
-                        }
-                    }
-                ) {
-                    Text(stringResource(id = R.string.save))
-                }
-            },
-            dismissButton = { passwordChangeButton = false }
-        )
+    if (isChangePasswordVisible.value) {
+        ChangePasswordDialog(userViewModel, isChangePasswordVisible, successfulPasswordChange, errorMessage, user)
     }
-    errorMessage?.let { message ->
+    errorMessage.value?.let { message ->
         CustomSnackbar(
             message = message,
-            onDismiss = { errorMessage = null },
+            onDismiss = { errorMessage.value = null },
         )
     }
-    if (errorMessage.isNullOrBlank() && !successfulPasswordChange) {
+    if (errorMessage.value.isNullOrBlank() && !successfulPasswordChange.value) {
         CustomSnackbar(
             message = "${stringResource(id = R.string.error_wd_title)}\n${stringResource(id = R.string.error_wd_text)}\n",
-            onDismiss = { successfulPasswordChange = true }
+            onDismiss = { successfulPasswordChange.value = true }
         )
     }
 }
 
+
+@Composable
+fun ChangePasswordDialog(userViewModel: UserViewModel, isChangePasswordVisible : MutableState<Boolean>, successfulPasswordChange :MutableState<Boolean>, errorMessage: MutableState<String?>, user: User){
+    var currentPassword = remember { mutableStateOf("") }
+    var newPassword = remember { mutableStateOf("") }
+    var passwordChangeButton = remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = {
+            isChangePasswordVisible.value = false
+            currentPassword.value = ""
+            newPassword.value = ""
+        },
+        title = { Text(stringResource(id = R.string.change_password)) },
+        text = {
+            Column {
+                ChangePasswordInputText(currentPassword, passwordChangeButton, R.string.current_password)
+                ChangePasswordInputText(newPassword, passwordChangeButton, R.string.new_password)
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    passwordChangeButton.value = true
+                    userViewModel.viewModelScope.launch {
+                        try {
+                            if (isPasswordValid(newPassword.value)) {
+                                successfulPasswordChange.value = userViewModel.updatePassword(
+                                    user,
+                                    currentPassword = currentPassword.value,
+                                    newPassword = newPassword.value
+                                )
+                                if (successfulPasswordChange.value) {
+                                    isChangePasswordVisible.value = false
+                                } else {
+                                    errorMessage.value = "Failed to update password."
+                                }
+                            } else {
+                                errorMessage.value = "Invalid password format.\nPassword must " +
+                                        "have at least 6 characters, 1 uppercase letter, " +
+                                        "and 1 special symbol\n"
+                            }
+                        } catch (e: Exception) {
+                            errorMessage.value = "Failed to update password."
+                            isChangePasswordVisible.value = false
+                        } finally {
+                            currentPassword.value = ""
+                            newPassword.value = ""
+                            passwordChangeButton.value = true
+                            isChangePasswordVisible.value = false
+                        }
+                    }
+                }
+            ) {
+                Text(stringResource(id = R.string.save))
+            }
+        },
+        dismissButton = { passwordChangeButton.value = false }
+    )
+}
 @SuppressLint("DiscouragedApi")
 @Composable
 fun UserImage(imageUrl: String,

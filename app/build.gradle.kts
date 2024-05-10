@@ -76,6 +76,7 @@ val constraintLayout = "1.0.0-alpha07"
 val mockitoVersion = "4.5.1"
 val espressoCoreVersion = "3.5.1"
 val junitVersion = "1.1.5"
+val jupiterVersion = "5.8.1"
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2023.05.01"))
     implementation("androidx.activity:activity-compose:$activityCompose3")
@@ -109,7 +110,7 @@ dependencies {
     implementation ("androidx.constraintlayout:constraintlayout-compose:$constraintLayout")
     implementation("io.coil-kt:coil-compose:$coilCompose")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:$jupiterVersion")
 
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 

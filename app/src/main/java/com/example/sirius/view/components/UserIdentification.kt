@@ -228,3 +228,44 @@ fun HaveAnAccount(navController : NavController, route : String, resource: Int){
         )
     }
 }
+
+@Composable
+
+fun ChangePasswordInputText(
+    password : MutableState<String>,
+    passwordChangeButton : MutableState<Boolean>,
+    resource: Int
+
+){
+    var passwordVisibilityCp by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = password.value,
+        onValueChange = {
+            password.value = it
+        },
+        label = { Text(stringResource(id = resource)) },
+        singleLine = true,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = if (passwordChangeButton.value && password.value.isBlank()) Color.Red else Green1,
+            unfocusedBorderColor = if (passwordChangeButton.value && password.value.isBlank()) Color.Red else Green1
+        ),
+        visualTransformation = if (passwordVisibilityCp) VisualTransformation.None
+        else PasswordVisualTransformation(),
+        trailingIcon = {
+            if (password.value.isNotBlank()) {
+                IconButton(onClick = { passwordVisibilityCp = !passwordVisibilityCp }) {
+                    Icon(
+                        painter = if (passwordVisibilityCp) painterResource(id = R.drawable.visibility)
+                        else painterResource(id = R.drawable.visibility_off),
+                        contentDescription = if (passwordVisibilityCp) "Hide password" else "Show password",
+                        modifier = Modifier.aspectRatio(0.5f)
+                    )
+                }
+            }
+        },
+    )
+}
