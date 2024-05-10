@@ -161,12 +161,6 @@ fun AnimalCard(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                val dialogData = remember { EditDialogDataAnimal(
-                    waitingAdoptionAnimal = waitingAdoptionAnimal,
-                    fosterCareAnimal = fosterCareAnimal,
-                    inShelter = inShelter
-                ) }
-
                 DisplayFavoriteOrEdit(
                     item = item,
                     isFavorite = isFavorite,
@@ -174,7 +168,6 @@ fun AnimalCard(
                     showDialogEdit = showDialogEdit,
                     modifier = Modifier.align(Alignment.TopEnd),
                     onFavoriteChanged = { newValue -> isFavorite = newValue },
-                    dialogData = dialogData
                 )
             }
             Spacer(Modifier.padding(4.dp))
@@ -299,15 +292,11 @@ fun NewsCard(
                     onShowDialogDeleteChanged = { showDialogDelete = it },
                     modifier = Modifier.fillMaxSize()
                 )
-                val dialogData = remember { EditDialogDataNews(
-                    goodNews = goodNews,
-                ) }
                 DisplayFavoriteOrEdit(
                     item = item,
                     user = user,
                     showDialogEdit = showDialogEdit,
                     modifier = Modifier.align(Alignment.TopEnd),
-                    dialogData = dialogData
                 )
             }
             Spacer(Modifier.padding(4.dp))
@@ -502,26 +491,35 @@ private fun getPhotoPath(item: Any): String? {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DisplayEditDialogAnimal(
-    item: Any,
+    item: Animal,
     showDialogEdit: MutableState<Boolean>,
-    waitingAdoptionAnimal: Boolean,
-    fosterCareAnimal: Boolean,
-    inShelter: Boolean
 ) {
     if (showDialogEdit.value) {
         var editedName by remember { mutableStateOf((item as? Animal)?.nameAnimal ?: "") }
         var editedBirthDate by remember { mutableStateOf((item as? Animal)?.birthDate ?: "") }
         var editedAnimalSex by remember { mutableStateOf((item as? Animal)?.sexAnimal ?: "") }
-        var editedWaitingAdoption by remember { mutableStateOf(waitingAdoptionAnimal) }
-        var editedFosterCare by remember { mutableStateOf(fosterCareAnimal) }
-        var editedShortInfoAnimal by remember { mutableStateOf((item as? Animal)?.shortInfoAnimal ?: "") }
-        var editedLongInfoAnimal by remember { mutableStateOf((item as? Animal)?.longInfoAnimal ?: "") }
+        var editedWaitingAdoption by remember { mutableStateOf(item.waitingAdoption) }
+        var editedFosterCare by remember { mutableStateOf(item.fosterCare) }
+        var editedShortInfoAnimal by remember {
+            mutableStateOf(
+                (item as? Animal)?.shortInfoAnimal ?: ""
+            )
+        }
+        var editedLongInfoAnimal by remember {
+            mutableStateOf(
+                (item as? Animal)?.longInfoAnimal ?: ""
+            )
+        }
         var editedBreed by remember { mutableStateOf((item as? Animal)?.breedAnimal ?: "") }
-        var editedTypeAnimal by remember { mutableStateOf((item as? Animal)?.typeAnimal ?: "" as TypeAnimal) }
+        var editedTypeAnimal by remember {
+            mutableStateOf(
+                (item as? Animal)?.typeAnimal ?: "" as TypeAnimal
+            )
+        }
         var editedEntryDate by remember { mutableStateOf((item as? Animal)?.entryDate ?: "") }
         var editedPhotoAnimal by remember { mutableStateOf((item as? Animal)?.photoAnimal ?: "") }
-        var editedInShelter by remember { mutableStateOf(inShelter) }
-        var editedLost by remember { mutableStateOf(inShelter) }
+        var editedInShelter by remember { mutableStateOf(item.inShelter) }
+        var editedLost by remember { mutableStateOf(item.lost) }
 
         val idAnimal = (item as? Animal)?.id
         val animalFormData = idAnimal?.let {
@@ -548,7 +546,8 @@ private fun DisplayEditDialogAnimal(
 
         val typeList by animalViewModel.getTypeAnimal().collectAsState(emptyList())
 
-        val sectionType = if (item is Animal && item.lost == 1) SectionType.LOST else SectionType.IN_SHELTER
+        val sectionType =
+            if (item.lost == 1) SectionType.LOST else SectionType.IN_SHELTER
 
         AnimalFormDialog(
             showDialogAdd = showDialogEdit,
@@ -557,8 +556,7 @@ private fun DisplayEditDialogAnimal(
             sectionType = sectionType,
             animalFormData = animalFormData,
             isEdit = true
-        ) {
-        }
+        )
     }
 }
 
@@ -567,7 +565,7 @@ private fun DisplayEditDialogAnimal(
 private fun DisplayEditDialogNews(
     item: News,
     showDialogEdit: MutableState<Boolean>,
-    goodNews: Boolean
+    goodNews: Int
 ) {
     if (showDialogEdit.value) {
         var editedTitle by remember { mutableStateOf((item as? News)?.titleNews ?: "") }
@@ -647,7 +645,6 @@ fun DisplayFavoriteOrEdit(
     showDialogEdit: MutableState<Boolean>,
     modifier: Modifier,
     onFavoriteChanged: ((Boolean) -> Unit)? = null,
-    dialogData: Any
 ) {
     if (user != null){
         if (onFavoriteChanged != null && isFavorite != null && user.role == TypeUser.user) {
@@ -664,19 +661,16 @@ fun DisplayFavoriteOrEdit(
                 modifier = modifier
             )
             if (showDialogEdit.value) {
-                if (dialogData is EditDialogDataAnimal && item is Animal){
+                if (item is Animal){
                     DisplayEditDialogAnimal(
                         item = item,
                         showDialogEdit = showDialogEdit,
-                        waitingAdoptionAnimal = dialogData.waitingAdoptionAnimal,
-                        fosterCareAnimal = dialogData.fosterCareAnimal,
-                        inShelter = dialogData.inShelter
                     )
-                } else if (dialogData is EditDialogDataNews && item is News) {
+                } else if (item is News) {
                     DisplayEditDialogNews(
                         item = item,
                         showDialogEdit = showDialogEdit,
-                        goodNews = dialogData.goodNews
+                        goodNews = item.goodNews
                     )
                 }
             }
@@ -712,13 +706,3 @@ fun DisplayEditIcon(
         onClick = { showDialogEdit.value = true }
     )
 }
-
-data class EditDialogDataAnimal(
-    val waitingAdoptionAnimal: Boolean,
-    val fosterCareAnimal: Boolean,
-    val inShelter: Boolean
-)
-
-data class EditDialogDataNews(
-    val goodNews: Boolean
-)
