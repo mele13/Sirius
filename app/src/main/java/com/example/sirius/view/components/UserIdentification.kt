@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -183,19 +184,32 @@ fun UserInputField(
                 contentDescription = null
             )
         },
-        colors = if (isEmail) {
-            OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = if (value.value.isNotBlank() && !isEmailValid(value.value)
-                    || logInButtonClicked && value.value.isBlank()) Color.Red else Green1,
-                unfocusedBorderColor = if (value.value.isNotBlank() && !isEmailValid(value.value)
-                    || logInButtonClicked && value.value.isBlank()) Color.Red else Green1,
-            )
-        } else {
-            OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = if (logInButtonClicked && value.value.isBlank()) Color.Red else Green1,
-                unfocusedBorderColor = if (logInButtonClicked && value.value.isBlank()) Color.Red else Green1,
-            )
-        }
+        colors = getTextFieldColors(logInButtonClicked, value.value, isEmail)
+    )
+}
+
+@Composable
+private fun getTextFieldColors(
+    logInButtonClicked: Boolean,
+    textValue: String,
+    isEmail: Boolean
+): TextFieldColors {
+
+    var focusedBorderColor = if (logInButtonClicked && textValue.isBlank()) Color.Red else Green1
+    var unfocusedBorderColor = if (logInButtonClicked && textValue.isBlank()) Color.Red else Green1
+
+    if (isEmail) {
+
+            focusedBorderColor = if (textValue.isNotBlank() && !isEmailValid(textValue)
+                || logInButtonClicked && textValue.isBlank()) Color.Red else Green1
+            unfocusedBorderColor = if (textValue.isNotBlank() && !isEmailValid(textValue)
+                || logInButtonClicked && textValue.isBlank()) Color.Red else Green1
+
+    }
+
+    return OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = focusedBorderColor,
+        unfocusedBorderColor = unfocusedBorderColor
     )
 }
 @Composable
