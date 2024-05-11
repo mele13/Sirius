@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,14 +33,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sirius.R
 import com.example.sirius.ui.theme.Gold
 import com.example.sirius.view.components.NotAvailableDialog
+import com.example.sirius.viewmodel.AnimalViewModel
 
 @Composable
-fun AnimalSponsor(photo: String?, animalName: String?) {
-    val photoUrl = "res/drawable/${photo}"
+fun AnimalSponsor(id: Int) {
+    val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
+    val animal by animalViewModel.getAnimalById(id).collectAsState(initial = null)
+    println("ruta animal")
+    println(animal)
+    println(animal?.photoAnimal)
+
+    val photoUrl = animal?.photoAnimal
     var showDialog by remember { mutableStateOf(false) }
+
+    println("photoUrl")
+    println(photoUrl)
 
     if (showDialog) {
         NotAvailableDialog(
@@ -82,11 +94,13 @@ fun AnimalSponsor(photo: String?, animalName: String?) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(id = R.string.sponsorAnimal) + " $animalName?",
+                        text = stringResource(id = R.string.sponsorAnimal) + " ${animal?.nameAnimal}?",
                         style = MaterialTheme.typography.h5,
                         textAlign = TextAlign.Center,
                     )
-                    AnimalImage(photoUrl = photoUrl)
+                    if (photoUrl != null) {
+                        AnimalImage(photoUrl = photoUrl)
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
@@ -116,7 +130,8 @@ fun AnimalSponsor(photo: String?, animalName: String?) {
 @Composable
 fun AnimalImage(photoUrl: String) {
     val context = LocalContext.current
-    val resourceName = photoUrl.substringAfterLast("/").replace(".jpg", "")
+    val firstImagePath = photoUrl.split(", ")[0].trim()
+    val resourceName = firstImagePath.substringAfterLast("/").replace(".jpg", "")
     val resourceId = context.resources.getIdentifier(
         resourceName, "drawable", context.packageName
     )

@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,6 +62,7 @@ import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeAnimal
 import com.example.sirius.model.TypeUser
+import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
@@ -111,14 +113,8 @@ fun AnimalInfo(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            DisplayAnimalFormDialogIfNeeded(editMode, animal)
 
-            if (editMode.value) {
-                val animalFormData = createAnimalFormDataFromAnimal(animal)
-
-                val animalFormState = rememberAnimalFormState()
-
-                ShowAnimalFormDialog(editMode, animalFormState, animalFormData, animal)
-            }
             LazyColumn(
                 verticalArrangement = Arrangement.Bottom
             ) {
@@ -141,28 +137,12 @@ fun AnimalInfo(
                                     .align(Alignment.BottomStart),
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
-                            if (user != null && user.role != TypeUser.admin) {
-                                Box(
-                                    modifier = Modifier
-                                        .clickable {
-                                            navController.navigate(
-                                                route = Routes.SPONSORING + "/${id}-${
-                                                    photoPaths[0].substringAfterLast(
-                                                        '/'
-                                                    )
-                                                }-${animal!!.nameAnimal}"
-                                            )
-                                        }
-                                        .align(Alignment.BottomStart)
-                                        .size(65.dp)
-                                        .padding(start = 30.dp, bottom = 25.dp)
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.sponsor_icon),
-                                        contentDescription = stringResource(id = R.string.sponsor)
-                                    )
-                                }
+                            if (id != null) {
+                                println("id animal")
+                                println(animal!!.id)
+                                DisplaySponsorButton(user = user, navController = navController, id = animal!!.id, modifier = Modifier.align(Alignment.BottomStart))
                             }
+
                             Button(
                                 onClick = { showDialog = true },
                                 modifier = Modifier
@@ -189,42 +169,20 @@ fun AnimalInfo(
                             modifier = Modifier
                                 .padding(start = 20.dp)
                         ) {
-                            //  if (!editMode) {
                             Text(
                                 text = animal!!.nameAnimal,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Start,
                             )
-                            if (userId != null) {
-                                if (user!!.role != TypeUser.admin &&  user.role != TypeUser.owner) {
-                                    Box {
-                                        FavoriteIcon(
-                                            isFavorite = isFavorite,
-                                            item = animal!!,
-                                            user = user,
-                                            modifier = Modifier.align(Alignment.TopEnd),
-                                            onFavoriteChanged = { newValue -> isFavorite = newValue }
-                                        )
-                                    }
-
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = null,
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                            .clickable { editMode.value = true }
-                                            .size(15.dp)
-                                    )
-                                    Icon(
-                                        imageVector = Icons.Default.List,
-                                        contentDescription = null,
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                            .clickable { navController.navigate(route = Routes.CLINICALRECORD + "/" + id) }
-                                            .size(15.dp)
-                                    )
-                                }
+                            HandleUserActions(
+                                userId,
+                                user,
+                                isFavorite,
+                                animal,
+                                editMode,
+                                navController,
+                            ) { newValue ->
+                                isFavorite = newValue
                             }
                         }
                     }
@@ -262,22 +220,7 @@ fun AnimalInfo(
             }
         }
     }
-    if (showDialog) {
-        val shelterViewModel  : ShelterViewModel = viewModel(factory = ShelterViewModel.factory)
-
-
-        val shelter by shelterViewModel.getShelterById(1).collectAsState(initial = null)
-
-        animal?.let {animal->
-            shelter?.let {
-                AdoptAnAnimal(animal, chatViewModel, userViewModel) {
-                    showDialog = false
-                }
-            }
-        }
-
-
-    }
+    HandleAdoptionDialog(showDialog, animal, chatViewModel, userViewModel)
 }
 
 
@@ -359,12 +302,121 @@ private fun ShowAnimalFormDialog(
     animalFormData: AnimalFormData?,
     animal: Animal?
 ) {
+    var sectionType = if (animal?.lost == 1) SectionType.LOST else SectionType.IN_SHELTER
+
     AnimalFormDialog(
         showDialogAdd = editMode,
         animalFormState = animalFormState,
         typeList = TypeAnimal.getAllDisplayNames(),
-        sectionType = if (animal?.lost == 1) SectionType.LOST else SectionType.IN_SHELTER,
+        sectionType = sectionType,
         animalFormData = animalFormData,
         isEdit = true
     )
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DisplayAnimalFormDialogIfNeeded(
+    editMode: MutableState<Boolean>,
+    animal: Animal?
+) {
+    if (editMode.value) {
+        val animalFormData = createAnimalFormDataFromAnimal(animal)
+        val animalFormState = rememberAnimalFormState()
+        ShowAnimalFormDialog(editMode, animalFormState, animalFormData, animal)
+    }
+}
+
+@Composable
+fun HandleAdoptionDialog(showDialog: Boolean, animal: Animal?, chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
+    var showDialogMutable by remember { mutableStateOf(showDialog) }
+
+    if (showDialogMutable) {
+        val shelterViewModel: ShelterViewModel = viewModel(factory = ShelterViewModel.factory)
+
+        val shelter by shelterViewModel.getShelterById(1).collectAsState(initial = null)
+
+        animal?.let { animal ->
+            shelter?.let {
+                AdoptAnAnimal(animal, chatViewModel, userViewModel) {
+                    showDialogMutable = false
+                }
+            }
+        }
+        LaunchedEffect(showDialogMutable) {
+            showDialogMutable = showDialog
+        }
+    }
+
+}
+
+@Composable
+fun HandleUserActions(
+    userId: Int?,
+    user: User?,
+    isFavorite: Boolean,
+    animal: Animal?,
+    editMode: MutableState<Boolean>,
+    navController: NavController,
+    onFavoriteChanged: (Boolean) -> Unit
+) {
+    if (userId != null) {
+        if (user?.role != TypeUser.admin && user?.role != TypeUser.owner) {
+            Box {
+                if (user != null) {
+                    FavoriteIcon(
+                        isFavorite = isFavorite,
+                        item = animal!!,
+                        user = user,
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        onFavoriteChanged = onFavoriteChanged
+                    )
+                }
+            }
+        } else {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = null,
+                tint = Color.Black,
+                modifier = Modifier
+                    .clickable { editMode.value = true }
+                    .size(15.dp)
+            )
+            Icon(
+                imageVector = Icons.Default.List,
+                contentDescription = null,
+                tint = Color.Black,
+                modifier = Modifier
+                    .clickable { navController.navigate(route = Routes.CLINICALRECORD + "/" + animal?.id) }
+                    .size(15.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun DisplaySponsorButton(
+    user: User?,
+    navController: NavController,
+    id: Int,
+    modifier: Modifier
+) {
+    if (user != null && user.role != TypeUser.admin) {
+        Box(
+            modifier = modifier
+                .clickable {
+                    navController.navigate(
+                        route = Routes.SPONSORING + "/${id}"
+                    )
+                }
+                .size(65.dp)
+                .padding(start = 30.dp, bottom = 25.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.sponsor_icon),
+                contentDescription = stringResource(id = R.string.sponsor)
+            )
+        }
+    }
+}
+

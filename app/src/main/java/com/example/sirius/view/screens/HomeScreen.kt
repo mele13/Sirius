@@ -181,8 +181,7 @@ fun Section(
                 sectionType = determineSectionType(title),
                 newsFormData,
                 false
-            ) {
-            }
+            )
         }
     }
 }
