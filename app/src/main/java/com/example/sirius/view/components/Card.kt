@@ -613,9 +613,7 @@ private fun DisplayEditDialogNews(
             sectionType = sectionType,
             newsFormData = newsFormData,
             isEdit = true,
-        ) {
-
-        }
+        )
     }
 }
 

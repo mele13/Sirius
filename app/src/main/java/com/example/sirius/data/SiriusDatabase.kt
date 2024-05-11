@@ -55,7 +55,7 @@ abstract class SiriusDatabase: RoomDatabase() {
                     "app_database"
                 )
                     .createFromAsset(database_path)
-                    .fallbackToDestructiveMigration()
+                //    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 return instance

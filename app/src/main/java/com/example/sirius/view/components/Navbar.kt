@@ -99,7 +99,8 @@ fun NavigationContent(
                     Routes.ANIMALINFO,
                     Routes.ANIMALINFO + "/{id}",
                     Routes.PROFILE,
-                    Routes.SIGNUPSHELTER
+                    Routes.SIGNUPSHELTER,
+                    Routes.SHELTERLIST
                 )
             ) {
                 ProfileButton(
@@ -271,23 +272,11 @@ fun NavigationContent(
                     ClinicalRecord(it.arguments?.getInt("id"))
                 }
 
-                composable(route = Routes.SPONSORING + "/{id}-{photo}-{animalName}",
-                    arguments = listOf(
-                        navArgument(name = "id") {
+                composable(route = Routes.SPONSORING + "/{id}",
+                    arguments = listOf(navArgument(name = "id") {
                             type = NavType.IntType
-                        },
-                        navArgument(name = "photo") {
-                            type = NavType.StringType
-                        },
-                        navArgument(name = "animalName") {
-                            type = NavType.StringType
-                        }
-                    )) {
-
-                    AnimalSponsor(
-                        photo = it.arguments?.getString("photo"),
-                        animalName = it.arguments?.getString("animalName"),
-                    )
+                    })) {
+                    it.arguments?.getInt("id")?.let { it1 -> AnimalSponsor(id = it1) }
                 }
                 composable(route = Routes.SHELTERLIST) {
                     ShelterList(navController = navController, shelterViewModel = shelterViewModel, userViewModel = userViewModel)
@@ -295,7 +284,7 @@ fun NavigationContent(
             }
             if (currentRoute !in listOf(
                     Routes.LANDINGPAGE, Routes.SIGNUP, Routes.LOGIN,
-                    Routes.LOADING, Routes.LOADING + "/{id}", Routes.SIGNUPSHELTER
+                    Routes.LOADING, Routes.LOADING + "/{id}", Routes.SIGNUPSHELTER, Routes.SHELTERLIST
                 )
             ) {
                 Navbar(

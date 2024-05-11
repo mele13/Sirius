@@ -138,7 +138,9 @@ fun AnimalInfo(
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
                             if (id != null) {
-                                DisplaySponsorButton(user = user, navController = navController, id = id, photoPaths = photoPaths, animal = animal, modifier = Modifier.align(Alignment.BottomStart))
+                                println("id animal")
+                                println(animal!!.id)
+                                DisplaySponsorButton(user = user, navController = navController, id = animal!!.id, modifier = Modifier.align(Alignment.BottomStart))
                             }
 
                             Button(
@@ -167,7 +169,6 @@ fun AnimalInfo(
                             modifier = Modifier
                                 .padding(start = 20.dp)
                         ) {
-                            //  if (!editMode) {
                             Text(
                                 text = animal!!.nameAnimal,
                                 fontWeight = FontWeight.Bold,
@@ -220,7 +221,6 @@ fun AnimalInfo(
         }
     }
     HandleAdoptionDialog(showDialog, animal, chatViewModel, userViewModel)
-
 }
 
 
@@ -302,11 +302,13 @@ private fun ShowAnimalFormDialog(
     animalFormData: AnimalFormData?,
     animal: Animal?
 ) {
+    var sectionType = if (animal?.lost == 1) SectionType.LOST else SectionType.IN_SHELTER
+
     AnimalFormDialog(
         showDialogAdd = editMode,
         animalFormState = animalFormState,
         typeList = TypeAnimal.getAllDisplayNames(),
-        sectionType = if (animal?.lost == 1) SectionType.LOST else SectionType.IN_SHELTER,
+        sectionType = sectionType,
         animalFormData = animalFormData,
         isEdit = true
     )
@@ -397,8 +399,6 @@ fun DisplaySponsorButton(
     user: User?,
     navController: NavController,
     id: Int,
-    photoPaths: List<String>,
-    animal: Animal?,
     modifier: Modifier
 ) {
     if (user != null && user.role != TypeUser.admin) {
@@ -406,9 +406,7 @@ fun DisplaySponsorButton(
             modifier = modifier
                 .clickable {
                     navController.navigate(
-                        route = Routes.SPONSORING + "/${id}-${
-                            photoPaths[0].substringAfterLast('/')
-                        }-${animal!!.nameAnimal}"
+                        route = Routes.SPONSORING + "/${id}"
                     )
                 }
                 .size(65.dp)

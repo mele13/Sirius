@@ -260,7 +260,6 @@ fun NewsFormDialog(
     sectionType: SectionType,
     newsFormData: NewsFormData? =  null,
     isEdit : Boolean,
-    onAddClick: () -> Unit,
 ) {
 
 
@@ -303,7 +302,6 @@ fun NewsFormDialog(
             Button(
                 onClick = {
                     if (isEdit){
-                        onAddClick()
                         showDialogAdd.value = false
                         newsViewmodel.viewModelScope.launch {
                             newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews))
@@ -313,7 +311,6 @@ fun NewsFormDialog(
                         if (formData.photoNews.isEmpty()){
                             formData.photoNews = "res/drawable/user_image1.jpg"
                         }
-                        onAddClick()
                         showDialogAdd.value = false
                         newsViewmodel.viewModelScope.launch {
                             newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews))

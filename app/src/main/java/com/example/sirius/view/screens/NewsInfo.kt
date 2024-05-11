@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,14 +42,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.sirius.R
+import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeUser
-import com.example.sirius.tools.booleanToInt
+import com.example.sirius.model.User
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
 import com.example.sirius.tools.intToBoolean
 import com.example.sirius.view.components.NewsFormData
 import com.example.sirius.view.components.NewsFormDialog
+import com.example.sirius.view.components.NewsFormState
 import com.example.sirius.view.components.rememberNewsFormState
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -87,86 +90,8 @@ fun NewsInfo(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            DisplayNewsFormDialogIfNeeded(editMode, news)
 
-            if(editMode.value){
-                var editedTitle by remember {
-                    mutableStateOf(
-                        news?.titleNews ?: ""
-                    )
-                }
-
-                var editedShortInfo by remember {
-                    mutableStateOf(
-                        news?.shortInfoNews ?: ""
-                    )
-                }
-
-                var editedLongInfo by remember {
-                    mutableStateOf(
-                        news?.longInfoNews ?: ""
-                    )
-                }
-
-                var editedPublishedDate by remember {
-                    mutableStateOf(
-                        news?.publishedDate ?: ""
-                    )
-                }
-
-                var editedCreatedAt by remember {
-                    mutableStateOf(
-                        news?.createdAt ?: ""
-                    )
-                }
-
-                var editedUntilDate by remember {
-                    mutableStateOf(
-                        news?.untilDate ?: ""
-                    )
-                }
-
-                var editedPhotoNews by remember {
-                    mutableStateOf(
-                        news?.photoNews ?: ""
-                    )
-                }
-
-                var editedGoodNews by remember {
-                    mutableStateOf(
-                        goodNews
-                    )
-                }
-
-
-                var idNews = news?.id
-                val newsFormData = idNews?.let {
-
-                    NewsFormData(
-                        it,
-                        editedTitle,
-                        editedShortInfo,
-                        editedLongInfo,
-                        editedPublishedDate,
-                        editedCreatedAt,
-                        editedUntilDate,
-                        editedPhotoNews,
-                        booleanToInt(editedGoodNews)
-                    )
-                }
-
-                val newsFormState = rememberNewsFormState()
-
-
-                NewsFormDialog(
-                    showDialogAdd = editMode,
-                    newsFormState = newsFormState,
-                    sectionType = if(news!!.goodNews == 1) SectionType.GOOD_NEWS else SectionType.WHATS_NEW,
-                    newsFormData = newsFormData,
-                    isEdit = true,
-                ) {
-
-                }
-            }
             LazyColumn(
                 verticalArrangement = Arrangement.Bottom
             ) {
@@ -202,16 +127,7 @@ fun NewsInfo(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Start,
                             )
-                            if (userId != null && (user!!.role == TypeUser.admin || user.role == TypeUser.owner)) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    tint = Color.Black,
-                                    modifier = Modifier
-                                        .clickable { editMode.value = true }
-                                        .size(15.dp)
-                                )
-                            }
+                            DisplayEditIconIfAdminOrOwner(userId, user, editMode)
                         }
                     }
                     item {
@@ -221,7 +137,6 @@ fun NewsInfo(
                                 .padding(start = 20.dp)
                         ) {
                             Spacer(modifier = Modifier.height(8.dp))
-                            // if (!editMode) {
                             Text(
                                 text = news!!.longInfoNews,
                                 style = MaterialTheme.typography.bodyMedium,
@@ -254,5 +169,70 @@ fun NewsInfo(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun ShowNewsFormDialog(
+    editMode: MutableState<Boolean>,
+    newsFormState: NewsFormState,
+    newsFormData: NewsFormData?,
+    news: News?
+) {
+    var sectionType = if(news!!.goodNews == 1) SectionType.GOOD_NEWS else SectionType.WHATS_NEW
 
+    NewsFormDialog(
+        showDialogAdd = editMode,
+        newsFormState = newsFormState,
+        sectionType = sectionType,
+        newsFormData = newsFormData,
+        isEdit = true,
+    )
+}
 
+private fun createNewsFormDataFromNews(news: News?): NewsFormData? {
+    return news?.let {
+        it.untilDate?.let { it1 ->
+            NewsFormData(
+                it.id,
+                it.titleNews,
+                it.shortInfoNews,
+                it.longInfoNews,
+                it.publishedDate,
+                it.createdAt,
+                it1,
+                it.photoNews,
+                it.goodNews
+            )
+        }
+    }
+}
+
+@Composable
+fun DisplayEditIconIfAdminOrOwner(
+    userId: Int?,
+    user: User?,
+    editMode: MutableState<Boolean>
+) {
+    if (userId != null && (user?.role == TypeUser.admin || user?.role == TypeUser.owner)) {
+        Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = null,
+            tint = Color.Black,
+            modifier = Modifier
+                .clickable { editMode.value = true }
+                .size(15.dp)
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun DisplayNewsFormDialogIfNeeded(
+    editMode: MutableState<Boolean>,
+    news: News?
+) {
+    if (editMode.value) {
+        val newsFormData = createNewsFormDataFromNews(news)
+        val newsFormState = rememberNewsFormState()
+        ShowNewsFormDialog(editMode, newsFormState, newsFormData, news)
+    }
+}
