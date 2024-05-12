@@ -200,7 +200,8 @@ private fun createNewsFormDataFromNews(news: News?): NewsFormData? {
                 it.createdAt,
                 it1,
                 it.photoNews,
-                it.goodNews
+                it.goodNews,
+                it.shelter_id
             )
         }
     }

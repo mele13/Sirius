@@ -250,7 +250,8 @@ private fun createDefaultFormData(animalFormState: AnimalFormState): AnimalFormD
         entryDate = animalFormState.entryDate,
         photoAnimal = animalFormState.photoAnimal,
         inShelter = animalFormState.inShelter,
-        lost = animalFormState.lost
+        lost = animalFormState.lost,
+        shelter_id = animalFormState.shelter_id
     )
 }
 
@@ -270,6 +271,7 @@ private fun updateFormStateFromData(animalFormState: AnimalFormState, formData: 
         photoAnimal = formData.photoAnimal
         inShelter = formData.inShelter
         lost = formData.lost
+        shelter_id = formData.shelter_id
     }
 }
 @SuppressLint("DiscouragedApi")
@@ -323,7 +325,8 @@ data class AnimalFormData(
     var entryDate: String,
     var photoAnimal: String,
     var inShelter: Int,
-    var lost: Int
+    var lost: Int,
+    var shelter_id: Int
 )
 
 @Stable
@@ -342,6 +345,7 @@ class AnimalFormState {
         photoAnimal = ""
         inShelter = 0
         lost = 0
+        shelter_id = 0
     }
 
     var id by mutableStateOf(0)
@@ -358,4 +362,5 @@ class AnimalFormState {
     var entryDate by mutableStateOf("")
     var inShelter by mutableStateOf(0)
     var lost by mutableStateOf(0)
+    var shelter_id by mutableStateOf(0)
 }

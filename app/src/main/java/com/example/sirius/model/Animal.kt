@@ -50,4 +50,7 @@ data class Animal(
     @NonNull
     @ColumnInfo(name = "lost")
     var lost: Int,
+    @NonNull
+    @ColumnInfo(name = "shelter_id")
+    var shelter_id: Int
 )

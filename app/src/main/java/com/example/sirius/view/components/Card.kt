@@ -520,6 +520,7 @@ private fun DisplayEditDialogAnimal(
         var editedPhotoAnimal by remember { mutableStateOf((item as? Animal)?.photoAnimal ?: "") }
         var editedInShelter by remember { mutableStateOf(item.inShelter) }
         var editedLost by remember { mutableStateOf(item.lost) }
+        var editedShelterid by remember { mutableStateOf(item.shelter_id) }
 
         val idAnimal = (item as? Animal)?.id
         val animalFormData = idAnimal?.let {
@@ -537,7 +538,8 @@ private fun DisplayEditDialogAnimal(
                 editedEntryDate,
                 editedPhotoAnimal,
                 editedInShelter,
-                editedLost
+                editedLost,
+                editedShelterid
             )
         }
 
@@ -585,6 +587,8 @@ private fun DisplayEditDialogNews(
 
         var editedGoodNews by remember { mutableStateOf(goodNews) }
 
+        var editedShelterid by remember { mutableStateOf((item as? News)?.shelter_id ?: 0) }
+
         var idNews = (item as? News)?.id
         val newsFormData = idNews?.let {
 
@@ -597,7 +601,8 @@ private fun DisplayEditDialogNews(
                 editedCreatedAt,
                 editedUntilDate,
                 editedPhotoNews,
-                editedGoodNews
+                editedGoodNews,
+                editedShelterid
             )
 
         }

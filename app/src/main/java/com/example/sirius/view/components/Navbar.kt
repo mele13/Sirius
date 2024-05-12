@@ -61,6 +61,7 @@ import com.example.sirius.view.screens.SettingsScreen
 import com.example.sirius.view.screens.ShelterList
 import com.example.sirius.view.screens.SignupScreen
 import com.example.sirius.view.screens.SignupShelterScreen
+import com.example.sirius.view.screens.filteredShelter
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.EventViewModel
@@ -83,6 +84,7 @@ fun NavigationContent(
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel : NewsViewModel = viewModel(factory = NewsViewModel.factory)
     val shelterViewModel : ShelterViewModel = viewModel(factory = ShelterViewModel.factory)
+    val filteredShelter = filteredShelter
 
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -142,6 +144,7 @@ fun NavigationContent(
                         userViewModel = userViewModel,
                         type = null,
                         isAnimal = true,
+                        filteredShelters = filteredShelter
                     )
                 }
                 composable(route = Routes.ANIMALS + "/{type}",
@@ -161,6 +164,7 @@ fun NavigationContent(
                         userViewModel = userViewModel,
                         type = it.arguments?.getString("type"),
                         isAnimal = isAnimal,
+                        filteredShelters = filteredShelter
                     )
                 }
                 composable(route = Routes.DONATIONS) {

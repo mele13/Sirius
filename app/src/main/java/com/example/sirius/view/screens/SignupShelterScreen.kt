@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -129,6 +131,7 @@ fun SignupShelterScreen(navController: NavController, userViewModel: UserViewMod
 
 @Composable
 fun SignUpShelterHeader(isSystemInDarkTheme: Boolean) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -145,6 +148,7 @@ fun SignUpShelterHeader(isSystemInDarkTheme: Boolean) {
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.align(Alignment.CenterVertically)
         )
+
     }
     Spacer(modifier = Modifier.height(4.dp))
 }

@@ -44,6 +44,7 @@ fun newsFormFields(
         untilDate = newsFormState.untilDate,
         photoNews = newsFormState.photoNews,
         goodNews = newsFormState.goodNews,
+        shelter_id = newsFormState.shelter_id
     )
 
     newsFormState.id = formData.id
@@ -55,6 +56,7 @@ fun newsFormFields(
     newsFormState.untilDate = formData.untilDate
     newsFormState.photoNews = formData.photoNews
     newsFormState.goodNews = formData.goodNews
+    newsFormState.shelter_id = formData.shelter_id
     LazyColumn(
         modifier = Modifier.padding(8.dp)
     ) {
@@ -185,7 +187,8 @@ data class NewsFormData(
     var createdAt: String,
     var untilDate: String,
     var photoNews: String,
-    var goodNews: Int
+    var goodNews: Int,
+    var shelter_id:Int
 )
 
 @Stable
@@ -199,6 +202,7 @@ class NewsFormState {
         untilDate = ""
         photoNews = ""
         goodNews = 0
+        shelter_id = 0
     }
     var id by mutableStateOf(0)
     var title by mutableStateOf("")
@@ -209,6 +213,7 @@ class NewsFormState {
     var untilDate by mutableStateOf("")
     var photoNews by mutableStateOf("")
     var goodNews by mutableStateOf(0)
+    var shelter_id by mutableStateOf(0)
 }
 
 private fun updateGoodNews(newsFormData: NewsFormState, formData: NewsFormData, isChecked: Boolean) {

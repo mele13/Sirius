@@ -32,4 +32,7 @@ data class News (
         @NonNull
         @ColumnInfo(name = "good_news")
         val goodNews: Int, // 0 -> not good news | 1 -> it is good news
+        @NonNull
+        @ColumnInfo(name = "shelter_id")
+        val shelter_id: Int
 )
