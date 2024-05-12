@@ -289,7 +289,8 @@ private fun createAnimalFormDataFromAnimal(animal: Animal?): AnimalFormData? {
             it.entryDate,
             it.photoAnimal,
             it.inShelter,
-            it.lost
+            it.lost,
+            it.shelter_id
         )
     }
 }

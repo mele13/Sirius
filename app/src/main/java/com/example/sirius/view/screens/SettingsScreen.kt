@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +40,7 @@ import com.example.sirius.model.Shelter
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
+import com.example.sirius.navigation.Routes.HOME
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.BarSearch
@@ -47,12 +49,15 @@ import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
+var filteredShelter = arrayListOf(0)
 @Composable
 fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavController, userViewModel: UserViewModel, edit: Boolean){
     val textState = remember { mutableStateOf(TextFieldValue("")) }
     val shelters = shelterViewModel.getAllShelters().collectAsState(emptyList()).value
     val user = userViewModel.getAuthenticatedUser()
     val showDialogAdd = remember { mutableStateOf(false) }
+    val provisionalArray = arrayListOf<Int>()
+
 
     Column {
         BarSearch(state = textState, placeHolder = "Search here..." , modifier = Modifier.fillMaxWidth() )
@@ -65,7 +70,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
             items(items = shelters.filter {
                 it.name.contains(searchedText, ignoreCase = true)
             }, key = { it.id }) { item ->
-                Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit)
+                Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit,filteredShelter,provisionalArray)
             }
         }
 
@@ -74,6 +79,17 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
                 showDialogAdd,
                 Modifier.align(End)
             )
+        }
+        if(edit == false){
+            Button(onClick = {
+                             filteredShelter = provisionalArray
+                navController.navigate(HOME)
+
+                             }, modifier =
+            Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Aceptar")
+            }
+
         }
 
         if( showDialogAdd.value){
@@ -84,9 +100,11 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
 }
 
 @Composable
-fun Shelter(item: Any, index: Int, navController : NavController, shelterViewModel: ShelterViewModel, user: User?, edit: Boolean) {
+fun Shelter(item: Any, index: Int, navController: NavController, shelterViewModel: ShelterViewModel, user: User?, edit: Boolean, filteredShelter: ArrayList<Int>, provisional: ArrayList<Int>) {
     val border = if (index % 2 == 0) Green1 else Orange
-
+    var isSelected by remember {
+        mutableStateOf(false)
+    }
     when (item) {
         is Shelter -> {
             androidx.compose.material3.Card(
@@ -112,6 +130,22 @@ fun Shelter(item: Any, index: Int, navController : NavController, shelterViewMod
                         )
                         Text(text = item.email)
                     }
+                    if(edit == false) {
+                        Checkbox(
+                            checked = isSelected,
+                            onCheckedChange = { newSelected ->
+                                isSelected = newSelected
+                                if (isSelected == true) {
+                                    provisional.add(item.id)
+                                }
+                                if (isSelected == false) {
+                                    provisional.remove(item.id)
+                                }
+                            }
+                        )
+                    }
+
+
                     if (user != null && user.role == TypeUser.admin && edit) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,

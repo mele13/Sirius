@@ -57,6 +57,7 @@ import com.example.sirius.view.components.rememberAnimalFormState
 import com.example.sirius.view.components.rememberNewsFormState
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.UserViewModel
+import com.example.sirius.view.screens.filteredShelter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
@@ -68,6 +69,7 @@ fun HomeScreen(
     userViewModel: UserViewModel,
     typeList: List<String>,
 ) {
+    val filtredShelters = filteredShelter
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -78,7 +80,7 @@ fun HomeScreen(
             item {
                 Section(
                     title = stringResource(id = R.string.newsIntro),
-                    list = newsList.filter { it.goodNews == 0 },
+                    list = newsList.filter { it.goodNews == 0 && filtredShelters.contains(it.shelter_id) },
                     isAnimalSection = false,
                     navController = navController,
                     userViewModel = userViewModel,
@@ -86,7 +88,7 @@ fun HomeScreen(
                 )
                 Section(
                     title = stringResource(id = R.string.animalsIntro),
-                    list = animalList.filter { it.inShelter == 1 },
+                    list = animalList.filter { it.inShelter == 1 && filtredShelters.contains(it.shelter_id)},
                     isAnimalSection = true,
                     navController = navController,
                     userViewModel = userViewModel,
@@ -94,7 +96,7 @@ fun HomeScreen(
                 )
                 Section(
                     title = stringResource(id = R.string.lostIntro),
-                    list = animalList.filter { it.lost == 1 },
+                    list = animalList.filter { it.lost == 1 && filtredShelters.contains(it.shelter_id)},
                     isAnimalSection = true,
                     navController = navController,
                     userViewModel = userViewModel,
@@ -102,7 +104,7 @@ fun HomeScreen(
                 )
                 Section(
                     title = stringResource(id = R.string.goodNewsIntro),
-                    list = newsList.filter { it.goodNews == 1 },
+                    list = newsList.filter { it.goodNews == 1 && filtredShelters.contains(it.shelter_id)},
                     isAnimalSection = false,
                     navController = navController,
                     userViewModel = userViewModel,
@@ -151,7 +153,8 @@ fun Section(
         entryDate = "",
         photoAnimal = "",
         inShelter = 0,
-        lost = 0
+        lost = 0,
+        shelter_id = 0
     )
 
     var newsFormData = NewsFormData(
@@ -163,6 +166,7 @@ fun Section(
         "",
         "",
         "",
+        0,
         0)
     if (showDialogAdd.value) {
         if (isAnimalSection){

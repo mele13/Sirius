@@ -50,6 +50,8 @@ import com.example.sirius.view.components.NewsCard
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
+import com.example.sirius.view.screens.filteredShelter
+import com.squareup.wire.internal.countNonNull
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -69,6 +71,8 @@ fun DropdownFilters(ageList: List<String>,
     var selectedType by remember { mutableStateOf("") }
 
     val ageRange  = "Age range"
+
+    var filteredShelters = filteredShelter
 
     Row(
         modifier = Modifier
@@ -145,7 +149,8 @@ fun AnimalsGallery(
     typeList: List<String>,
     userViewModel: UserViewModel,
     type: String?,
-    isAnimal: Boolean
+    isAnimal: Boolean,
+    filteredShelters: ArrayList<Int>
 ) {
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel: NewsViewModel = viewModel(factory = NewsViewModel.factory)
@@ -173,9 +178,22 @@ fun AnimalsGallery(
 
         val items = remember { mutableStateListOf<Any>() }
 
+
         LaunchedEffect(isAnimal, type) {
             fetchItems(isAnimal, type, animalViewModel, newsViewModel, items)
         }
+
+        val filteredItems = items.filter { item ->
+        when (item) {
+            is Animal -> filteredShelters.contains(item.shelter_id)
+            is News -> filteredShelters.contains(item.shelter_id)
+            else -> true
+        }
+    }
+
+        items.clear()
+        items.addAll(filteredItems)
+
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -183,11 +201,13 @@ fun AnimalsGallery(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(items.size) { index ->
-                val item = items.getOrNull(index)
+            items(filteredItems.size) { index ->
+                val item = filteredItems.getOrNull(index)
                 when (item) {
-                    is Animal -> AnimalCard(item = item, navController = navController, userViewModel = userViewModel)
-                    is News -> NewsCard(item = item, navController = navController, userViewModel = userViewModel)
+                    is Animal ->
+                        AnimalCard(item = item, navController = navController, userViewModel = userViewModel)
+                    is News ->
+                        NewsCard(item = item, navController = navController, userViewModel = userViewModel)
                 }
             }
         }

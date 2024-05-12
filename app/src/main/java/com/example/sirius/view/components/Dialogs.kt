@@ -172,7 +172,8 @@ fun AnimalFormDialog(
         entryDate = "",
         photoAnimal = "",
         inShelter = 0,
-        lost = 0
+        lost = 0,
+        shelter_id = 0
     )
 
     if (animalFormData != null) {
@@ -207,7 +208,7 @@ fun AnimalFormDialog(
                         animalViewModel.viewModelScope.launch {
                             stringToEnumTypeAnimal(formData.type)?.let {
                                 Animal(formData.id, formData.name, formData.birthDate, formData.sex, formData.waitingAdoption, formData.fosterCare, formData.shortInfo, formData.longInfo, formData.breed,
-                                    it, formData.entryDate, formData.photoAnimal, formData.inShelter, formData.lost                                )
+                                    it, formData.entryDate, formData.photoAnimal, formData.inShelter, formData.lost,formData.shelter_id                                )
                             }?.let { animalViewModel.updateAnimal(it) }
                             animalFormState.clear()
                         }
@@ -219,7 +220,7 @@ fun AnimalFormDialog(
                         animalViewModel.viewModelScope.launch {
                             stringToEnumTypeAnimal(formData.type)?.let {
                                 Animal(0, formData.name, formData.birthDate, formData.sex, formData.waitingAdoption, formData.fosterCare, formData.shortInfo, formData.longInfo, formData.breed,
-                                    it, formData.entryDate, formData.photoAnimal, formData.lost, formData.inShelter
+                                    it, formData.entryDate, formData.photoAnimal, formData.lost, formData.inShelter,formData.shelter_id
                                 )
                             }?.let { animalViewModel.insertAnimal(it) }
                             animalFormState.clear()
@@ -276,6 +277,7 @@ fun NewsFormDialog(
         "",
         "",
         "",
+        0,
         0)
 
     if (newsFormData != null) {
@@ -304,7 +306,7 @@ fun NewsFormDialog(
                     if (isEdit){
                         showDialogAdd.value = false
                         newsViewmodel.viewModelScope.launch {
-                            newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews))
+                            newsViewmodel.updateNew(News(formData.id, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews,formData.shelter_id))
                             newsFormState.clear()
                         }
                     } else {
@@ -313,7 +315,7 @@ fun NewsFormDialog(
                         }
                         showDialogAdd.value = false
                         newsViewmodel.viewModelScope.launch {
-                            newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews))
+                            newsViewmodel.insertNews(News(0, formData.title, formData.shortInfo, formData.longInfo, formData.publishedDate, formData.createdAt, formData.untilDate, formData.photoNews, formData.goodNews,formData.shelter_id))
                             newsFormState.clear()
                         }
                     }
