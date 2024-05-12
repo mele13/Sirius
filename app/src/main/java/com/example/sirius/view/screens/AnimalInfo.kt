@@ -64,9 +64,9 @@ import com.example.sirius.model.TypeAnimal
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
+import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.AdoptAnAnimal
 import com.example.sirius.view.components.AnimalFormData

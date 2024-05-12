@@ -2,7 +2,17 @@
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -10,8 +20,20 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -80,7 +102,7 @@ fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShowEventsByCalendar(events: List<Event>, user: User,fecha : String, eventViewModel: EventViewModel) {
+fun ShowEventsByCalendar(events: List<Event>, user: User, fecha : String, eventViewModel: EventViewModel) {
 
     Column(
         modifier = Modifier
@@ -205,13 +227,23 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = {
+
+                            val new = Event(
+                                id = 0,
+                                titleEvent = title,
+                                descriptionEvent = description,
+                                dateEvent = newDate,
+                                eventType = eventViewModel.stringToTypeEvent(selectedItem),
+                                userId = user.id
+                            )
+
                             val newEvent = Event(
                                 id = 0,
                                 titleEvent = title,
                                 descriptionEvent = description,
                                 dateEvent = newDate,
-                                userId = user.id.toString(),
-                                eventType = eventViewModel.stringToTypeEvent(selectedItem)
+                                userId = user.id,
+                                eventType = eventViewModel.stringToTypeEvent(selectedItem),
                             )
                             eventViewModel.viewModelScope.launch {
                                 eventViewModel.insertEvent(newEvent)

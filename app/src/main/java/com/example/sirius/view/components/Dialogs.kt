@@ -30,6 +30,7 @@ import com.example.sirius.model.SectionType
 import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.ChatViewModel
+import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
@@ -106,6 +107,8 @@ fun OutlinedIcon(icon: ImageVector, modifier: Modifier, onClick: (() -> Unit)? =
 @Composable
 fun AdoptAnAnimal(item: Animal, chatViewModel: ChatViewModel, userViewModel: UserViewModel, onDismiss: () -> Unit) {
     val randomUser by userViewModel.getRandomUser().collectAsState(initial = null)
+    val eventViewModel: EventViewModel = viewModel(factory = EventViewModel.factory)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -129,7 +132,14 @@ fun AdoptAnAnimal(item: Animal, chatViewModel: ChatViewModel, userViewModel: Use
         confirmButton = {
             Button(
                 onClick = {
-                    randomUser?.let { chatViewModel.addMessageAdoption(it.id, item) }
+                    /*
+                    eventViewModel.insertEvent(
+                        Event(
+
+                    ))
+
+                     */
+                 //   randomUser?.let { chatViewModel.addMessageAdoption(it.id, item) }
                     onDismiss()
                 },
                 modifier = Modifier

@@ -42,7 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewModelScope
 import com.example.sirius.model.Event
-import com.example.sirius.model.TypeEvent.*
+import com.example.sirius.model.TypeEvent.adoption
+import com.example.sirius.model.TypeEvent.cite
+import com.example.sirius.model.TypeEvent.medical
+import com.example.sirius.model.TypeEvent.volunteer
+import com.example.sirius.model.TypeEvent.worker
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.tools.parseDateStringToLong
@@ -57,11 +61,13 @@ fun EventCard(event: Event, eventViewModel: EventViewModel, user: User) {
     val (dialogActivated, setDialogActivated) = remember { mutableStateOf(false) }
 
     val permission = when (event.eventType) {
-        volunteer -> user.role != TypeUser.volunteer || user.id.toString() == event.userId
+        volunteer -> user.role != TypeUser.volunteer || user.id == event.userId
         worker -> user.role == TypeUser.admin || user.role == TypeUser.owner ||
-                (user.role == TypeUser.worker && user.id.toString() == event.userId)
-        cite -> user.role == TypeUser.admin || user.role == TypeUser.owner || user.id.toString() == event.userId
+                (user.role == TypeUser.worker && user.id == event.userId)
+        cite -> user.role == TypeUser.admin || user.role == TypeUser.owner || user.id == event.userId
         medical -> TODO()
+        adoption -> user.role == TypeUser.admin || user.role == TypeUser.owner ||
+                (user.role == TypeUser.worker && user.id == event.userId)
     }
 
     if (permission) {

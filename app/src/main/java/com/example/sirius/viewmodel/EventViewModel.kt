@@ -14,7 +14,7 @@ class EventViewModel(private val eventDao: EventDAO) : ViewModel() {
 
     fun getEvents(): Flow<List<Event>> = eventDao.getEvent()
 
-    fun getEventsbyId(id: String): Flow<List<Event>> = eventDao.getNewsById(id)
+    fun getUnallocatedEvents(): Flow<List<Event>> = eventDao.getUnallocatedEvents()
 
     suspend fun insertEvent(newEvent: Event) {
         eventDao.insertEvent(newEvent)
@@ -33,9 +33,12 @@ class EventViewModel(private val eventDao: EventDAO) : ViewModel() {
             "cite" -> TypeEvent.cite
             "worker" -> TypeEvent.worker
             "volunteer" -> TypeEvent.volunteer
+            "adoption" -> TypeEvent.adoption
             else -> TypeEvent.volunteer
         }
     }
+
+    fun assignEvent(id: Int, userId : Int) = eventDao.assignEvent(id, userId)
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {

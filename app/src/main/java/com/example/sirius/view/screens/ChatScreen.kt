@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -52,11 +53,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.sirius.model.Chat
+import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green3
 import com.example.sirius.ui.theme.Green4
+import com.example.sirius.view.components.FloatingButton
 import com.example.sirius.view.components.SingleMessage
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -78,13 +81,25 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
         }
     }
 
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
+    ){
+
+        if(user?.role ?: "" == TypeUser.worker || user?.role ?: "" == TypeUser.volunteer){
+            FloatingButton(Icons.Outlined.Notifications) {
+                navController.navigate(Routes.ADOPTION)
+            }
+        }
+
+    }
+
     val unseenMessagesState = chatViewModel.getUnseenMessages().collectAsState(initial = emptyList())
 
     val unseenMessages by remember {
         unseenMessagesState
     }
 
-    println(userList)
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -105,7 +120,6 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
         }
     }
 }
-
 
 @Composable
 fun Chats(userList : List<User?>, user: User?, unseenMessages: List<Int>, chatViewModel: ChatViewModel,userViewModel: UserViewModel, navController: NavHostController){

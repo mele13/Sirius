@@ -44,6 +44,7 @@ import com.example.sirius.navigation.Destinations
 import com.example.sirius.navigation.Routes
 import com.example.sirius.navigation.createDestinations
 import com.example.sirius.ui.theme.Green3
+import com.example.sirius.view.screens.AdoptionApplications
 import com.example.sirius.view.screens.AnimalInfo
 import com.example.sirius.view.screens.AnimalSponsor
 import com.example.sirius.view.screens.AnimalsGallery
@@ -188,6 +189,10 @@ fun NavigationContent(
                 }
                 composable(route = Routes.SETTIGNS) {
                     SettingsScreen(shelterViewModel, navController, userViewModel, true)
+                }
+
+                composable(route = Routes.ADOPTION) {
+                    AdoptionApplications(userViewModel,chatViewModel)
                 }
                 composable(route = Routes.CHAT + "/{recipient_user}",
                     arguments = listOf(navArgument(name = "recipient_user") {

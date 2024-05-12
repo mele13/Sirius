@@ -437,7 +437,7 @@ fun ShowEvents(events: List<Event>, user: User, eventViewModel: EventViewModel) 
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         events.forEach { event ->
-            if (event.userId == user.id.toString() && (parseDateStringToLong(event.dateEvent) >= calendar.timeInMillis)) {
+            if (event.userId == user.id && (parseDateStringToLong(event.dateEvent) >= calendar.timeInMillis)) {
                 EventCard(event = event, eventViewModel = eventViewModel, user = user)
             }
         }

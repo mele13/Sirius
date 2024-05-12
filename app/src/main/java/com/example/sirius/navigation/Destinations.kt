@@ -74,4 +74,5 @@ object Routes {
     const val CALENDAR = "calendar"
     const val MANAGEMENT = "management"
     const val SHELTERLIST = "shelters"
+    const val ADOPTION = "adoption applications"
 }

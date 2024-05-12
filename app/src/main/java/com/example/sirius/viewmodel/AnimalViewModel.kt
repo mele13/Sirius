@@ -30,14 +30,12 @@ class AnimalViewModel(private val animalDao: AnimalDao) : ViewModel() {
 
     fun getAnimalById(option: Int): Flow<Animal?> = animalDao.getAnimalById(option)
 
-    fun getAnimalsByBirthYearRange(startYear: String, endYear: String): Flow<List<Animal>> = animalDao.getAnimalsByBirthYearRange(startYear, endYear)
 
     suspend fun insertLikedAnimal(animalId: Int, userId: Int) {
         val likedAnimal = LikedAnimal(animalId = animalId, userId = userId)
         animalDao.insertLikedAnimal(likedAnimal)
     }
     suspend fun removeLikedAnimal(userId: Int, animalId: Int) = animalDao.removeLikedAnimal(userId, animalId)
-    fun getLikedAnimals(userId: Int) = animalDao.getLikedAnimals(userId)
 
     suspend fun updateAnimal(animal: Animal) {
         animalDao.updateAnimal(animal)
