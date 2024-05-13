@@ -4,5 +4,6 @@ enum class TypeEvent {
     medical,
     cite,
     worker,
-    volunteer
+    volunteer,
+    adoption
 }

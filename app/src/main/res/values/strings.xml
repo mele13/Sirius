@@ -106,4 +106,6 @@
 
     <!--    Filters-->
     <string name="filter" translatable="false">Filters</string>
+    <string name="shelterSettings" translatable="false">Settings</string>
+
 </resources>

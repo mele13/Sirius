@@ -27,8 +27,13 @@ data class User(
     @NonNull
     @ColumnInfo(name = "photo_user")
     var photoUser: String,
+    @ColumnInfo(name = "shelter_id")
+    val shelterId: Int? = null,
     // Favourites
 ) {
     constructor(username: String, email: String, password: String, role: TypeUser, photoUser: String)
             : this(0, username, email, password, role, photoUser)
+
+    constructor(username: String, email: String, password: String, role: TypeUser, photoUser: String, shelterId: Int)
+            : this(0, username, email, password, role, photoUser, shelterId)
 }

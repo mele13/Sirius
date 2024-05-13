@@ -44,6 +44,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.sirius.R
 import com.example.sirius.tools.isEmailValid
+import com.example.sirius.tools.isPasswordValid
 import com.example.sirius.ui.theme.Green1
 
 
@@ -80,10 +81,13 @@ fun Password(password : MutableState<String>, logInButtonClicked : Boolean){
             passwordVisibility = !passwordVisibility
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = if (logInButtonClicked && password.value.isBlank()) Color.Red else Green1,
-            unfocusedBorderColor = if (logInButtonClicked && password.value.isBlank()) Color.Red else Green1,
-        ),
-    )
+            focusedBorderColor = if (password.value.isNotBlank() && !isPasswordValid(password.value)
+                || logInButtonClicked && password.value.isBlank()) Color.Red
+            else Green1,
+            unfocusedBorderColor = if (password.value.isNotBlank() && !isPasswordValid(password.value)
+                || logInButtonClicked && password.value.isBlank()) Color.Red
+            else Green1,
+    ))
 }
 
 

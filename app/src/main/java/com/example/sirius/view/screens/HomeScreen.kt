@@ -10,19 +10,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,8 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -46,10 +48,12 @@ import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
+import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.AnimalFormData
 import com.example.sirius.view.components.AnimalFormDialog
 import com.example.sirius.view.components.AnimalFormState
 import com.example.sirius.view.components.AnimalItem
+import com.example.sirius.view.components.FloatingButton
 import com.example.sirius.view.components.NewsFormData
 import com.example.sirius.view.components.NewsFormDialog
 import com.example.sirius.view.components.NewsItem
@@ -57,7 +61,6 @@ import com.example.sirius.view.components.rememberAnimalFormState
 import com.example.sirius.view.components.rememberNewsFormState
 import com.example.sirius.viewmodel.AnimalViewModel
 import com.example.sirius.viewmodel.UserViewModel
-import com.example.sirius.view.screens.filteredShelter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "DiscouragedApi")
@@ -260,34 +263,17 @@ private fun BoxWithContent(
             }
         }
         if (user != null && (user.role == TypeUser.admin || user.role == TypeUser.owner)){
-            AddButton(showDialogAdd, Modifier.align(Alignment.BottomEnd))
+
+                FloatingButton(icon = Icons.Default.Add, Modifier.align(Alignment.BottomEnd)) {
+                    showDialogAdd.value = true
+                }
+
+
         }
     }
 }
 
-@Composable
-fun AddButton(
-    showDialogAdd: MutableState<Boolean>,
-    modifier: Modifier,
-    icon : ImageVector? = Icons.Default.Add) {
-    SmallFloatingActionButton(
-        onClick = {
-            showDialogAdd.value = true
-        },
-        modifier = Modifier
-            .padding(5.dp)
-            .then(modifier),
-        shape = CircleShape
-    ) {
-        if (icon != null) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = Color.Black
-            )
-        }
-    }
-}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -333,11 +319,15 @@ fun DropdownButtonHome(
 
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
 
-    Box {
+    val overlayWidth = with(LocalDensity.current) { 250.dp} // Puedes ajustar el ancho aquí
+
+    Box (Modifier.fillMaxWidth()){
         Button(
             onClick = { onExpandedChange(!expanded) },
             modifier = Modifier
-                .padding(5.dp),
+                .padding(5.dp)
+                .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(Orange),
             contentPadding = PaddingValues(5.dp)
         ) {
             TextWithSplit(
@@ -348,12 +338,17 @@ fun DropdownButtonHome(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) },
+            modifier = Modifier.align(Alignment.Center).width(overlayWidth)
+
         ) {
 
             options.distinct().forEach { option ->
                 DropdownMenuItem(
+
+
                     {
-                        Text(text = option)
+                        Text(text = option,
+                            textAlign = TextAlign.Center )
                     },
                     onClick = {
                         when (text) {
@@ -366,7 +361,8 @@ fun DropdownButtonHome(
                         updateSelectedType(option)
                         onOptionSelected(option)
                         onExpandedChange(false)
-                    }
+                    },
+                    colors = MenuDefaults.itemColors(Orange),
                 )
             }
         }

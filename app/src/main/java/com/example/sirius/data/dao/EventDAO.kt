@@ -27,4 +27,10 @@ interface EventDAO {
 
     @Query("SELECT * FROM Event WHERE type = :typeEvent ORDER BY date DESC")
     fun getNewsById(typeEvent: String): Flow<List<Event>>
+
+    @Query("SELECT * FROM Event WHERE userId IS NULL AND type = 'adoption'")
+    fun getUnallocatedEvents(): Flow<List<Event>>
+
+    @Query("UPDATE Event SET userId = :userId WHERE id = :id")
+    fun assignEvent(id : Int, userId : Int)
 }

@@ -35,6 +35,14 @@ fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
             createDestination(Routes.MANAGEMENT, R.drawable.managment, R.string.handling),
         )
     }
+    else if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.admin) == true || userViewModel.getAuthenticatedUser()?.equals(null) != false) {
+        listOf(
+            createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
+            createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
+            createDestination(Routes.CHAT, R.drawable.chat_icon, R.string.chat),
+            createDestination(Routes.SETTIGNS, R.drawable.shelter_icon,R.string.shelterSettings )
+        )
+    }
     else{
         listOf(
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
@@ -74,4 +82,5 @@ object Routes {
     const val CALENDAR = "calendar"
     const val MANAGEMENT = "management"
     const val SHELTERLIST = "shelters"
+    const val ADOPTION = "adoption applications"
 }

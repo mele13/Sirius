@@ -114,11 +114,19 @@ dependencies {
 
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
 
-    testImplementation("io.mockk:mockk:$mockitoVersion")
+//    testImplementation("io.mockk:mockk:$mockitoVersion")
+    testImplementation ("org.mockito:mockito-core:3.11.2")
+    testImplementation ("androidx.arch.core:core-testing:2.1.0")
+    testImplementation ("io.mockk:mockk:1.12.0")
+ //   testImplementation ("io.mockk:mockk:4.5.1")
+
+
 
     androidTestImplementation("androidx.test.sespresso:espresso-core:$espressoCoreVersion")
     androidTestImplementation("androidx.test.ext:junit:$junitVersion")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
+    androidTestImplementation ("androidx.arch.core:core-testing:2.1.0")
+
 
     debugImplementation("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

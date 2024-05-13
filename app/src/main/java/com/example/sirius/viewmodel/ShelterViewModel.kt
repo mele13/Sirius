@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.Flow
 class ShelterViewModel(private val shelterDao: ShelterDao) : ViewModel() {
 
     fun getAllShelters() : Flow<List<Shelter>> = shelterDao.getAllShelters()
+    fun getAllSheltersId() : Flow<List<Int>> = shelterDao.getAllSheltersId()
+
 
     fun getShelterById(id : Int) : Flow<Shelter?> = shelterDao.getShelterById(id)
 

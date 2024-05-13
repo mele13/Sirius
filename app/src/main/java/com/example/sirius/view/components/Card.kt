@@ -73,7 +73,6 @@ import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.ui.theme.Wine
 import com.example.sirius.viewmodel.AnimalViewModel
-import com.example.sirius.viewmodel.NewsViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -420,8 +419,6 @@ private fun ShowDeleteDialog(
     DeleteDialog(
         onDismissRequest = { onShowDialogDeleteChanged(false) },
         titleDialog = titleDialog,
-        animalViewModel = viewModel(factory = AnimalViewModel.factory),
-        newsViewModel = viewModel(factory = NewsViewModel.factory),
         item = item
     )
 }

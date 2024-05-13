@@ -64,9 +64,9 @@ import com.example.sirius.model.TypeAnimal
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
-import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.tools.buildAnAgeText
 import com.example.sirius.tools.calculateAge
+import com.example.sirius.tools.checkIfAnimalIsFavorite
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.AdoptAnAnimal
 import com.example.sirius.view.components.AnimalFormData
@@ -137,30 +137,32 @@ fun AnimalInfo(
                                     .align(Alignment.BottomStart),
                                 colorFilter = ColorFilter.tint(color = colorScheme.background),
                             )
-                            if (id != null) {
-                                println("id animal")
-                                println(animal!!.id)
+                            if (id != null && user?.role == TypeUser.user) {
+
                                 DisplaySponsorButton(user = user, navController = navController, id = animal!!.id, modifier = Modifier.align(Alignment.BottomStart))
+
+
+
+                                Button(
+                                    onClick = { showDialog = true },
+                                    modifier = Modifier
+                                        .width(200.dp)
+                                        .align(Alignment.BottomCenter)
+                                        .offset(y = (-25).dp),
+                                    colors = ButtonDefaults.buttonColors(Orange)
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.adopt_me),
+                                        style = TextStyle(
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight(400),
+                                            color = Color(0xFFFFFFFF),
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
 
-                            Button(
-                                onClick = { showDialog = true },
-                                modifier = Modifier
-                                    .width(200.dp)
-                                    .align(Alignment.BottomCenter)
-                                    .offset(y = (-25).dp),
-                                colors = ButtonDefaults.buttonColors(Orange)
-                            ) {
-                                Text(
-                                    text = stringResource(id = R.string.adopt_me),
-                                    style = TextStyle(
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    ),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
                         }
                     }
                     item {
@@ -220,7 +222,11 @@ fun AnimalInfo(
             }
         }
     }
-    HandleAdoptionDialog(showDialog, animal, chatViewModel, userViewModel)
+
+    if(showDialog){
+        HandleAdoptionDialog(showDialog, animal, chatViewModel, userViewModel)
+
+    }
 }
 
 

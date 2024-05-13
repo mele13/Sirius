@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -67,6 +68,7 @@ import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.BarSearch
 import com.example.sirius.view.components.CustomTextField
 import com.example.sirius.view.components.StatusCheckbox
+import com.example.sirius.view.components.FloatingButton
 import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.Flow
@@ -85,6 +87,8 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
     val user = userViewModel.getAuthenticatedUser()
     val showDialogAdd = remember { mutableStateOf(false) }
     val provisionalArray = remember { mutableStateOf(arrayListOf<Int>()) }
+    val anyCheckboxSelected = provisionalArray.value.isNotEmpty()
+
 
     val allowAdoption = remember { mutableStateOf(false) }
 
@@ -187,37 +191,30 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
                             items = sheltersToDisplay,
                             key = { it.id }
                         ) { item ->
-                            Shelter(
-                                item = item,
-                                shelters.indexOf(item),
-                                navController,
-                                shelterViewModel,
-                                user,
-                                edit,
-                                filteredShelter,
-                                provisionalArray.value
-                            )
+                            Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit,provisionalArray)
+
                         }
                     }
                 }
                 if (user != null && user.role == TypeUser.admin && edit) {
-                    AddButton(
-                        showDialogAdd,
-                        Modifier.align(End)
-                    )
+                    FloatingButton(icon = Icons.Default.Add, Modifier.align(Alignment.End)) {
+                        showDialogAdd.value = true
+                    }
                 }
-                if (!edit) {
-                    Button(
-                        onClick = {
-                            filteredShelter = provisionalArray.value
-                            navController.navigate(HOME)
+                if(!edit){
+                    Button(onClick = {
+                        filteredShelter = provisionalArray.value as ArrayList<Int>
+                        navController.navigate(HOME)
 
-                        }, modifier =
-                        Modifier.align(Alignment.CenterHorizontally),
+                    },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        enabled = anyCheckboxSelected,
                         colors = ButtonDefaults.buttonColors(Orange)
+
                     ) {
                         Text("Accept")
                     }
+
                 }
 
                 if (showDialogAdd.value) {
@@ -229,19 +226,11 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
             }
         }
     }
+
 }
 
 @Composable
-fun Shelter(
-    item: Any,
-    index: Int,
-    navController: NavController,
-    shelterViewModel: ShelterViewModel,
-    user: User?,
-    edit: Boolean,
-    filteredShelter: ArrayList<Int>,
-    provisional: ArrayList<Int>,
-    ) {
+fun Shelter(item: Any, index: Int, navController: NavController, shelterViewModel: ShelterViewModel, user: User?, edit: Boolean, provisional: MutableState<ArrayList<Int>>) {
     val border = if (index % 2 == 0) Green1 else Orange
     var isSelected by remember {
         mutableStateOf(false)
@@ -277,10 +266,9 @@ fun Shelter(
                             onCheckedChange = { newSelected ->
                                 isSelected = newSelected
                                 if (isSelected) {
-                                    provisional.add(item.id)
-                                }
-                                if (!isSelected) {
-                                    provisional.remove(item.id)
+                                    provisional.value += item.id
+                                } else {
+                                    provisional.value -= item.id
                                 }
                             }
                         )
@@ -366,6 +354,7 @@ fun ShelterFormDialog(
                         label = "About us"
                     )
                 }
+
                 item {
                     CustomTextField(
                         value = editedLatitude,
@@ -410,6 +399,7 @@ fun ShelterFormDialog(
 
             }
         },
+
         confirmButton = {
             Button(
                 onClick = {
@@ -442,14 +432,17 @@ fun ShelterFormDialog(
                         }
                     }
                     showDialogAdd.value = false
-                }
+                },
+                colors = ButtonDefaults.buttonColors(Orange)
+
             ) {
                 Text("Add")
             }
         },
         dismissButton = {
             Button(
-                onClick = { showDialogAdd.value = false }
+                onClick = { showDialogAdd.value = false },
+                colors = ButtonDefaults.buttonColors(Orange)
             ) {
                 Text("Cancel")
             }

@@ -177,6 +177,22 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         return userDao.getAllUsersExceptAuthenticated(id)
     }
 
+    suspend fun getUsersFromMyShelter(shelterId : Int, id:Int): List<User> {
+        return userDao.getUserFormMyShelters(shelterId, id)
+    }
+
+    suspend fun getUserWithRoleUser(): List<User> {
+        return userDao.getUserWithRoleUser()
+    }
+
+    suspend fun getOwner(): List<User> {
+        return userDao.getOwners()
+    }
+
+    suspend fun getAdmin(): List<User> {
+        return userDao.getAdmin()
+    }
+
     private suspend fun insertUser(user: User) {
         userDao.insertUser(user)
     }
@@ -189,6 +205,9 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         userDao.update(user)
     }
 
+
+
+    fun getShelterByUserId(id : Int) : Flow<List<Int>> = userDao.getShelterByUserId(id)
     fun getRandomUser() : Flow<User?> = userDao.getRandomWorkerOrOwner()
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {
