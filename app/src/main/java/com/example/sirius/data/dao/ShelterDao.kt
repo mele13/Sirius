@@ -50,4 +50,12 @@ interface ShelterDao {
     @Update
     suspend fun updateShelter(shelter: Shelter)
 
+    @Query("SELECT * from Shelters WHERE donation = 1")
+    fun getSheltersAllowDonations(): Flow<List<Shelter>>
+
+    @Query("SELECT DISTINCT location FROM Shelters")
+    fun getLocation(): Flow<List<String>>
+
+    @Query("SELECT * from Shelters WHERE location LIKE '%' || :latitude || '%' AND location LIKE '%' || :longitude || '%'")
+    fun getSheltersLocation(latitude: String, longitude: String): Flow<List<Shelter>>
 }

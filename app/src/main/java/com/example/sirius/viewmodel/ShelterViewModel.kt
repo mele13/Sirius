@@ -29,6 +29,11 @@ class ShelterViewModel(private val shelterDao: ShelterDao) : ViewModel() {
         shelterDao.updateShelter(shelter)
     }
 
+    fun getSheltersAllowDonations() : Flow<List<Shelter>> = shelterDao.getSheltersAllowDonations()
+
+    fun getLocation(): Flow<List<String>> = shelterDao.getLocation()
+
+    fun getSheltersLocation(latitude: String, longitude: String): Flow<List<Shelter>> = shelterDao.getSheltersLocation(latitude, longitude)
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {
