@@ -120,7 +120,10 @@ fun Shelter(item: Any, index: Int, navController: NavController, shelterViewMode
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        navController.navigate(route = Routes.ABOUTUS + "/" + item.id)
+                        if(user?.role == TypeUser.admin){
+                            navController.navigate(route = Routes.ABOUTUS + "/" + item.id)
+
+                        }
                     }
                     .padding(4.dp),
                 border = BorderStroke(1.dp, border),
@@ -317,14 +320,17 @@ fun ShelterFormDialog(
 
 
                     showDialogAdd.value = false
-                }
+                },
+                colors = ButtonDefaults.buttonColors(Orange)
+
             ) {
                 Text("Add")
             }
         },
         dismissButton = {
             Button(
-                onClick = { showDialogAdd.value = false }
+                onClick = { showDialogAdd.value = false },
+                colors = ButtonDefaults.buttonColors(Orange)
             ) {
                 Text("Cancel")
             }

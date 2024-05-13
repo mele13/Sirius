@@ -22,6 +22,8 @@ interface ShelterDao {
     @Query("SELECT * FROM Shelters WHERE id = :id")
     fun getShelterById(id: Int): Flow<Shelter?>
 
+
+
     @Query("DELETE FROM Shelters WHERE id = :id ")
     suspend fun removeShelter(id: Int)
 

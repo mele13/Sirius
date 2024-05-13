@@ -33,10 +33,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.sirius.model.TypeUser
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.components.FloatingButton
 import com.example.sirius.view.screens.ShelterFormDialog
 import com.example.sirius.viewmodel.ShelterViewModel
+import com.example.sirius.viewmodel.UserViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -130,59 +132,61 @@ fun AddGoogleMap(location : String) {
 
 
 @SuppressLint("DiscouragedApi")
-            @Composable
-            fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel) {
-                val shelterImages = listOf("shelter1", "shelter2", "shelter3", "shelter4")
-                val context = LocalContext.current
+@Composable
+fun AboutUsScreen(id: Int? = 1 , shelterViewModel: ShelterViewModel, userViewModel: UserViewModel) {
+    val shelterImages = listOf("shelter1", "shelter2", "shelter3", "shelter4")
+    val context = LocalContext.current
+    val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
 
-                val shelter by shelterViewModel.getShelterById(id ?: 0).collectAsState(initial = null)
+    val shelter by shelterViewModel.getShelterById(id ?: 0).collectAsState(initial = null)
 
-                val showDialogAdd = remember { mutableStateOf(false) }
+    val showDialogAdd = remember { mutableStateOf(false) }
+    val shelterId = user?.let { userViewModel.getShelterByUserId(it.id).collectAsState(emptyList()).value }
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        item {
+            SectionTitle("About Us")
+            shelter?.let { JustifiedText(it.aboutUs) }
+        }
+
+        item {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (image in shelterImages) {
+                    val resourceId = context.resources.getIdentifier(
+                        image, "drawable", context.packageName
+                    )
                     item {
-                        SectionTitle("About Us")
-                        shelter?.let { JustifiedText(it.aboutUs) }
-                    }
-
-                    item {
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            for (image in shelterImages) {
-                                val resourceId = context.resources.getIdentifier(
-                                    image, "drawable", context.packageName
-                                )
-                                item {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        SquareImage(resourceId)
-                                    }
-                                }
-                            }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                            SquareImage(resourceId)
                         }
                     }
+                }
+            }
+        }
 
-                    item {
-                        shelter?.let { LocationCard(it.location) }
-                    }
+        item {
+            shelter?.let { LocationCard(it.location) }
+        }
 
-                    item {
-                        SectionTitle("Schedule")
-                        shelter?.let { JustifiedText(it.schedule) }
+        item {
+            SectionTitle("Schedule")
+            shelter?.let { JustifiedText(it.schedule) }
 
-                    }
+        }
 
-                    item {
-                        SectionTitle("Shelter's Data")
+        item {
+            SectionTitle("Shelter's Data")
             shelter?.let { JustifiedText(it.sheltersData) }
         }
 
@@ -194,9 +198,13 @@ fun AddGoogleMap(location : String) {
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
 
-        FloatingButton(Icons.Default.Edit, Modifier.align(Alignment.BottomEnd) ){
-            showDialogAdd.value = true
+        if(user?.role == TypeUser.admin || (user?.role == TypeUser.owner && shelterId?.get(0) ?: 1 == id)){
+            FloatingButton(Icons.Default.Edit, Modifier.align(Alignment.BottomEnd) ){
+                showDialogAdd.value = true
+            }
         }
+
+
 
     }
 

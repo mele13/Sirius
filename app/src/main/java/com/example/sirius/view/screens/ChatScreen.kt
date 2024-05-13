@@ -3,6 +3,7 @@ package com.example.sirius.view.screens
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.sirius.R
 import com.example.sirius.model.Chat
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
@@ -68,15 +71,40 @@ import java.util.Locale
 
 @SuppressLint("DiscouragedApi", "CoroutineCreationDuringComposition")
 @Composable
-fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, userViewModel : UserViewModel){
-
+fun ChatScreen(navController: NavHostController,
+               chatViewModel: ChatViewModel,
+               userViewModel: UserViewModel,
+               filteredShelters: ArrayList<Int>)
+{
     var userList by remember { mutableStateOf<List<User?>>(emptyList()) }
+    var ownerList by remember { mutableStateOf<List<User?>>(emptyList()) }
+    var workerList by remember { mutableStateOf<List<User?>>(emptyList()) }
+    var adminList by remember { mutableStateOf<List<User?>>(emptyList()) }
+    var usersList by remember { mutableStateOf<List<User?>>(emptyList()) }
+
+
     val user by remember { mutableStateOf(userViewModel.getAuthenticatedUser()) }
 
 
     LaunchedEffect(Unit) {
         try {
-            userList = user?.let { userViewModel.getAllUsersExceptAuthenticated(it.id) }!!
+
+            userList = userViewModel.getUserWithRoleUser()
+            if(user?.role == TypeUser.admin){
+                ownerList = userViewModel.getOwner()
+
+            }else if( user?.role == TypeUser.owner || user?.role == TypeUser.volunteer || user?.role == TypeUser.worker){
+                workerList = user?.shelterId?.let { userViewModel.getUsersFromMyShelter(it, user!!.id) }!!
+                adminList = userViewModel.getAdmin()
+            }else{
+                usersList = userViewModel.getUsersFromMyShelter(filteredShelters[0], user!!.id)
+
+            }
+
+
+
+
+
         } catch (e: Exception) {
             Log.e("Error : ", "Error when accessing the database", e)
         }
@@ -84,7 +112,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomEnd
+        contentAlignment = BottomEnd
     ){
 
         if(user?.role ?: "" == TypeUser.worker || user?.role ?: "" == TypeUser.volunteer){
@@ -109,22 +137,87 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(10.dp)) {
 
-                Chats(
-                    userList = userList,
-                    user = user,
-                    unseenMessages = unseenMessages,
-                    chatViewModel = chatViewModel,
-                    userViewModel = userViewModel,
-                    navController = navController
-                )
+                if(user?.role == TypeUser.admin){
+                    Text(text = "Shelters Owners")
+                    Chats(
+                        userList = ownerList,
+                        user = user,
+                        unseenMessages = unseenMessages,
+                        chatViewModel = chatViewModel,
+                        userViewModel = userViewModel,
+                        navController = navController,
+                        modifier = Modifier.  height(300.dp)
+                    )
+                    Text(text = "Users")
+
+                } else if( user?.role == TypeUser.volunteer || user?.role == TypeUser.worker){
+                    Text(text = "Shelters Staff")
+
+                    Chats(
+                        userList = workerList,
+                        user = user,
+                        unseenMessages = unseenMessages,
+                        chatViewModel = chatViewModel,
+                        userViewModel = userViewModel,
+                        navController = navController,
+                        modifier = Modifier. height(300.dp)
+
+                    )
+
+                    Text(text = "Users")
+
+                }else if( user?.role == TypeUser.owner){
+                    Text(text = "Shelters Staff")
+
+                    Chats(
+                        userList = workerList + adminList,
+                        user = user,
+                        unseenMessages = unseenMessages,
+                        chatViewModel = chatViewModel,
+                        userViewModel = userViewModel,
+                        navController = navController,
+                        modifier = Modifier. height(300.dp)
+
+                    )
+
+                    Text(text = "Users")
+
+                }
+
+                if(user?.role == TypeUser.user){
+                    Chats(
+                        userList = usersList,
+                        user = user,
+                        unseenMessages = unseenMessages,
+                        chatViewModel = chatViewModel,
+                        userViewModel = userViewModel,
+                        navController = navController,
+                        modifier = Modifier. fillMaxSize()
+
+                    )
+                }else{
+                    Chats(
+                        userList = userList,
+                        user = user,
+                        unseenMessages = unseenMessages,
+                        chatViewModel = chatViewModel,
+                        userViewModel = userViewModel,
+                        navController = navController,
+                        modifier = Modifier. fillMaxSize()
+
+                    )
+                }
+
             }
         }
     }
 }
 
 @Composable
-fun Chats(userList : List<User?>, user: User?, unseenMessages: List<Int>, chatViewModel: ChatViewModel,userViewModel: UserViewModel, navController: NavHostController){
-    LazyColumn(modifier = Modifier.padding(10.dp)) {
+fun Chats(userList : List<User?>, user: User?, unseenMessages: List<Int>, chatViewModel: ChatViewModel,userViewModel: UserViewModel, navController: NavHostController, modifier: Modifier){
+    LazyColumn(modifier = modifier
+        .padding(10.dp)
+        .then(modifier)) {
         items(items = userList, key = { it?.id ?: "" }) { item ->
             if (item != null) {
                 var lastMessage by remember(item.id) { mutableStateOf<String?>(null) }
@@ -234,20 +327,53 @@ fun UserEachRow(
 
 
             Column {
-                Text(
-                    text = person.username.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.ROOT
-                        ) else it.toString()
-                    },
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    ),
-                    modifier = Modifier
-                        .padding(start = 10.dp)
-                    //.align(CenterVertically)
-                )
+                
+                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = person.username.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(
+                                Locale.ROOT
+                            ) else it.toString()
+                        },
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        ),
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                        //.align(CenterVertically)
+                    )
+                    
+                    if(person.role == TypeUser.admin){
+                        Image(
+                            painter = painterResource(id = R.drawable.admin_icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+                        )
+                    }else if(person.role == TypeUser.worker){
+                        Image(
+                            painter = painterResource(id = R.drawable.worker_icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+
+                        )
+                    } else if(person.role == TypeUser.volunteer){
+                        Image(
+                            painter = painterResource(id = R.drawable.volunteer_icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+
+                        )
+                    }else if(person.role == TypeUser.owner){
+                        Image(
+                            painter = painterResource(id = R.drawable.owner_icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+
+                        )
+                    }
+                }
+                
 
                 Content(lastMessage, person, unseenMessages, userViewModel, chatViewModel = chatViewModel)
 

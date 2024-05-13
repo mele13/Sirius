@@ -54,4 +54,16 @@ interface UserDao {
 
     @Query("SELECT shelter_id FROM User WHERE id = :id")
     fun getShelterByUserId(id : Int) : Flow<List<Int>>
+
+    @Query("SELECT * FROM User WHERE shelter_id = :shelterId AND id != :id")
+    suspend fun getUserFormMyShelters(shelterId : Int, id : Int): List<User>
+
+    @Query("SELECT * FROM User WHERE  role = 'user'")
+    suspend fun getUserWithRoleUser(): List<User>
+
+    @Query("SELECT * FROM User WHERE  role = 'owner'")
+    suspend fun getOwners(): List<User>
+    @Query("SELECT * FROM User WHERE  role = 'admin'")
+    suspend fun getAdmin(): List<User>
+
 }

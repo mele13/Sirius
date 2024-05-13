@@ -193,7 +193,7 @@ fun NavigationContent(
                     DonationsScreen()
                 }
                 composable(route = Routes.ABOUTUS) {
-                    AboutUsScreen(shelterViewModel = shelterViewModel)
+                    AboutUsScreen(shelterViewModel = shelterViewModel, userViewModel = userViewModel)
                 }
                 composable(route = Routes.ABOUTUS + "/{id}",
                     arguments = listOf(navArgument(name = "id") {
@@ -202,11 +202,12 @@ fun NavigationContent(
 
                     AboutUsScreen(
                         it.arguments?.getInt("id"),
-                        shelterViewModel
+                        shelterViewModel,
+                        userViewModel
                     )
                 }
                 composable(route = Routes.CHAT) {
-                    ChatScreen(navController, chatViewModel, userViewModel)
+                    ChatScreen(navController, chatViewModel, userViewModel, filteredShelters = filteredShelter)
                 }
                 composable(route = Routes.SETTIGNS) {
                     SettingsScreen(shelterViewModel, navController, userViewModel, true)
