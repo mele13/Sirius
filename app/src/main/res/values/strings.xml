@@ -103,4 +103,6 @@
     <string name="appointment_date" translatable="false">Appointment date</string>
     <string name="prescription_end_date" translatable="false">Prescription end date</string>
     <string name="calendar" translatable="false">Calendar</string>
+    <string name="shelterSettings" translatable="false">Settings</string>
+
 </resources>

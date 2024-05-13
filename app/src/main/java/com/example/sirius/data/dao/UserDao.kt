@@ -51,4 +51,7 @@ interface UserDao {
     fun getRandomWorkerOrOwner() : Flow<User?>
     @Query("SELECT * FROM User WHERE id != :id")
     suspend fun getAllUsersExceptAuthenticated(id : Int): List<User>
+
+    @Query("SELECT shelter_id FROM User WHERE id = :id")
+    fun getShelterByUserId(id : Int) : Flow<List<Int>>
 }

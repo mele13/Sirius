@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -117,8 +116,6 @@ fun ProfileScreen(
 
     Column {
 
-        Settings(userViewModel, navController, Modifier.align(Alignment.End)
-        )
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -226,22 +223,7 @@ fun Likes(userViewModel: UserViewModel, likedAnimals: List<Animal>, navControlle
     }
 }
 
-@Composable
-fun Settings(userViewModel: UserViewModel, navController: NavController, modifier: Modifier){
-    if (userViewModel.getAuthenticatedUser()?.role == TypeUser.admin) {
-        Icon(
-            imageVector = Icons.Outlined.Settings,
-            contentDescription = "Settings",
-            tint = Color.Black,
-            modifier = modifier
-                .padding(10.dp)
-                .clickable {
-                    navController.navigate(Routes.SETTIGNS)
-                }
 
-        )
-    }
-}
 @Composable
 fun ShowAlertDialog(
     predefinedImageList: List<String>,
@@ -438,7 +420,7 @@ fun ShowEvents(events: List<Event>, user: User, eventViewModel: EventViewModel) 
         calendar.set(Calendar.MILLISECOND, 0)
         events.forEach { event ->
             if (event.userId == user.id && (parseDateStringToLong(event.dateEvent) >= calendar.timeInMillis)) {
-                EventCard(event = event, eventViewModel = eventViewModel, user = user)
+                EventCard(event = event, user = user)
             }
         }
     }

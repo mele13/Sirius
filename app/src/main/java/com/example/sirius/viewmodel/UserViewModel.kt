@@ -189,6 +189,9 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
         userDao.update(user)
     }
 
+
+
+    fun getShelterByUserId(id : Int) : Flow<List<Int>> = userDao.getShelterByUserId(id)
     fun getRandomUser() : Flow<User?> = userDao.getRandomWorkerOrOwner()
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {

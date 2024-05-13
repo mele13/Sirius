@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -44,6 +45,7 @@ import com.example.sirius.model.Event
 import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
 import com.example.sirius.tools.parseDateStringToLong
+import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.DatePickerItem
 import com.example.sirius.view.components.EventCard
 import com.example.sirius.viewmodel.EventViewModel
@@ -66,20 +68,26 @@ fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel)
             .padding(16.dp)
     ) {
         item {
-            SectionTitle("Calendar")
-        }
-        item {
-            Button(onClick = { showDialog = true }) {
-                Text(text = "Create event")
-                if (showDialog) {
-                    user?.let {
-                        CreateEventDialog(onDismiss = { showDialog = false },eventViewModel,
-                            it
-                        )
+
+            Row( Modifier.fillMaxWidth() ,horizontalArrangement =  Arrangement.SpaceBetween){
+                SectionTitle("Calendar")
+                Button(onClick = { showDialog = true },
+                    colors = ButtonDefaults.buttonColors(Orange)
+
+                ) {
+                    Text(text = "Create event")
+                    if (showDialog) {
+                        user?.let {
+                            CreateEventDialog(onDismiss = { showDialog = false },eventViewModel,
+                                it
+                            )
+                        }
                     }
                 }
+
             }
         }
+
 
         item {
             DatePickerItem(
@@ -87,15 +95,12 @@ fun CalendarScreen(eventViewModel: EventViewModel, userViewModel: UserViewModel)
                 onDateSelected = { dateAux -> date = dateAux
                     events?.let { user?.let { it1 -> ShowEventsByCalendar(it, it1,date, eventViewModel) } }
                 },
-                title = "Entry Date"
+                title = ""
             )
         }
-        item{
-            Text("Events")
-        }
 
-        }
-        }
+    }
+}
 
 
 
@@ -110,7 +115,7 @@ fun ShowEventsByCalendar(events: List<Event>, user: User, fecha : String, eventV
     ) {
         events.forEach { event ->
               if (parseDateStringToLong(event.dateEvent) >= parseDateStringToLong(fecha)) {
-                  EventCard(event,eventViewModel,user)
+                  EventCard(event,user)
                 }
             }
     }

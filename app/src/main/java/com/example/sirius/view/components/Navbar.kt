@@ -40,6 +40,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Destinations
 import com.example.sirius.navigation.Routes
 import com.example.sirius.navigation.createDestinations
@@ -85,7 +86,24 @@ fun NavigationContent(
     val animalViewModel: AnimalViewModel = viewModel(factory = AnimalViewModel.factory)
     val newsViewModel : NewsViewModel = viewModel(factory = NewsViewModel.factory)
     val shelterViewModel : ShelterViewModel = viewModel(factory = ShelterViewModel.factory)
-    val filteredShelter = filteredShelter
+    val user = userViewModel.getAuthenticatedUser()
+    var filteredShelter = filteredShelter
+
+
+
+
+    if(user?.role == TypeUser.admin){
+        val shelters = shelterViewModel.getAllSheltersId().collectAsState(emptyList()).value
+        filteredShelter.addAll(shelters)
+    } else if( user?.role == TypeUser.owner || user?.role == TypeUser.worker || user?.role == TypeUser.volunteer) {
+        val shelters =
+            user?.let { userViewModel.getShelterByUserId(it.id).collectAsState(emptyList()).value }
+        if (shelters != null) {
+            filteredShelter.addAll(shelters)
+        }
+    } else{
+        filteredShelter = filteredShelter
+    }
 
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -115,16 +133,19 @@ fun NavigationContent(
                         }
                     },
                     modifier = Modifier
-                        //.align(Alignment.TopEnd)
                         .padding(top = 16.dp, end = 16.dp)
-                        //.zIndex(99f),
                 )
             }
             NavHost(
                 modifier = Modifier.weight(1f),
                 navController = navController,
-                startDestination = if (userViewModel.getAuthenticatedUser() != null) Routes.SHELTERLIST
-                                   else Routes.LOADING
+                startDestination =
+                if (user != null && user.role == TypeUser.user) {
+                    Routes.SHELTERLIST
+                }else{
+                    Routes.LOADING
+                }
+
             ) {
                 composable(route = Routes.HOME) {
                     val animalList by animalViewModel.getAllAnimalsOrderedByDaysEntryDate().collectAsState(initial = emptyList())

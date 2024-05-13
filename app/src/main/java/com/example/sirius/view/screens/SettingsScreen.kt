@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -27,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -45,6 +46,7 @@ import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.BarSearch
 import com.example.sirius.view.components.CustomTextField
+import com.example.sirius.view.components.FloatingButton
 import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
@@ -56,7 +58,9 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
     val shelters = shelterViewModel.getAllShelters().collectAsState(emptyList()).value
     val user = userViewModel.getAuthenticatedUser()
     val showDialogAdd = remember { mutableStateOf(false) }
-    val provisionalArray = arrayListOf<Int>()
+    val provisionalArray = remember { mutableStateOf(emptyList<Int>()) }
+    val anyCheckboxSelected = provisionalArray.value.isNotEmpty()
+
 
 
     Column {
@@ -70,24 +74,29 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
             items(items = shelters.filter {
                 it.name.contains(searchedText, ignoreCase = true)
             }, key = { it.id }) { item ->
-                Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit,filteredShelter,provisionalArray)
+                Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit,provisionalArray)
             }
         }
 
         if (user != null && user.role == TypeUser.admin && edit) {
-            AddButton(
-                showDialogAdd,
-                Modifier.align(End)
-            )
+
+            FloatingButton(icon = Icons.Default.Add, Modifier.align(Alignment.End)) {
+                showDialogAdd.value = true
+            }
+
         }
-        if(edit == false){
+        if(!edit){
             Button(onClick = {
-                             filteredShelter = provisionalArray
+                filteredShelter = provisionalArray.value as ArrayList<Int>
                 navController.navigate(HOME)
 
-                             }, modifier =
-            Modifier.align(Alignment.CenterHorizontally)) {
-                Text("Aceptar")
+                             },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                enabled = anyCheckboxSelected,
+                colors = ButtonDefaults.buttonColors(Orange)
+
+            ) {
+                Text("Accept")
             }
 
         }
@@ -100,7 +109,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
 }
 
 @Composable
-fun Shelter(item: Any, index: Int, navController: NavController, shelterViewModel: ShelterViewModel, user: User?, edit: Boolean, filteredShelter: ArrayList<Int>, provisional: ArrayList<Int>) {
+fun Shelter(item: Any, index: Int, navController: NavController, shelterViewModel: ShelterViewModel, user: User?, edit: Boolean, provisional: MutableState<List<Int>>) {
     val border = if (index % 2 == 0) Green1 else Orange
     var isSelected by remember {
         mutableStateOf(false)
@@ -135,11 +144,10 @@ fun Shelter(item: Any, index: Int, navController: NavController, shelterViewMode
                             checked = isSelected,
                             onCheckedChange = { newSelected ->
                                 isSelected = newSelected
-                                if (isSelected == true) {
-                                    provisional.add(item.id)
-                                }
-                                if (isSelected == false) {
-                                    provisional.remove(item.id)
+                                if (isSelected) {
+                                    provisional.value += item.id
+                                } else {
+                                    provisional.value -= item.id
                                 }
                             }
                         )

@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.example.sirius.tools.formatDate
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green4
+import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.screens.getDrawableResourceId
 
 @Composable
@@ -70,7 +73,8 @@ fun SexCheckboxOption(
             onCheckedChange = { isChecked ->
                 animalFormState.sex = if (isChecked) sex else ""
                 animalFormData.sex = if (isChecked) sex else ""
-            }
+            },
+            colors = CheckboxDefaults.colors(Orange)
         )
     }
 }
@@ -95,6 +99,9 @@ fun DatePickerItem(
         title = {
             Text(title, fontWeight = FontWeight.Bold)
         },
+        colors = DatePickerDefaults.colors(
+            selectedDayContainerColor = Orange, todayDateBorderColor = Green4, todayContentColor = Green4),
+
     )
 
     onDateSelected(formatDate(datePickerState.selectedDateMillis!!))
@@ -187,7 +194,9 @@ fun StatusCheckbox(
         Text(labelText)
         Checkbox(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            colors = CheckboxDefaults.colors(Orange)
+
         )
     }
 }

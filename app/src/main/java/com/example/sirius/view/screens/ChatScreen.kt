@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,7 +59,7 @@ import com.example.sirius.model.User
 import com.example.sirius.navigation.Routes
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Green3
-import com.example.sirius.ui.theme.Green4
+import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.FloatingButton
 import com.example.sirius.view.components.SingleMessage
 import com.example.sirius.viewmodel.ChatViewModel
@@ -87,7 +88,7 @@ fun ChatScreen(navController: NavHostController,chatViewModel: ChatViewModel, us
     ){
 
         if(user?.role ?: "" == TypeUser.worker || user?.role ?: "" == TypeUser.volunteer){
-            FloatingButton(Icons.Outlined.Notifications) {
+            FloatingButton(Icons.Outlined.Notifications, Modifier.align(BottomEnd)) {
                 navController.navigate(Routes.ADOPTION)
             }
         }
@@ -394,12 +395,13 @@ fun Messages(navController: NavController, recipientUserId: Int, userViewModel :
                             onClick = {
                                 chatViewModel.addMessage(recipientUserId)
                                 chatViewModel.updateMessage("")
-                            }
+                            },
+
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
                                 contentDescription = "Send button",
-                                tint = Green4
+                                tint = Orange
                             )
                         }
                     }
