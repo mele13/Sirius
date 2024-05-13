@@ -36,12 +36,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
@@ -87,8 +87,9 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
     val user = userViewModel.getAuthenticatedUser()
     val showDialogAdd = remember { mutableStateOf(false) }
     val provisionalArray = remember { mutableStateOf(arrayListOf<Int>()) }
-    val anyCheckboxSelected = provisionalArray.value.isNotEmpty()
 
+    val isSelectedList = remember { mutableStateListOf<Boolean>() }
+    val lastIsSelectedState = remember { mutableStateOf(isSelectedList.any { it }) }
 
     val allowAdoption = remember { mutableStateOf(false) }
 
@@ -99,6 +100,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
     val parsedLocationsFlow: Flow<List<Location>> = parseLocationsFlow(locationsFlow)
 
     val context = LocalContext.current
+
 
     var locations by remember { mutableStateOf(emptyList<Location>()) }
     LaunchedEffect(Unit) {
@@ -159,19 +161,18 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
                             }
                         }
                     )
-                    selectedLocation = ZoneDropdown(zoneNames, provisionalArray, locations)
+                    selectedLocation = zoneDropdown(zoneNames, provisionalArray, locations)
                 }
             },
             gesturesEnabled = false
         ) {
             val sheltersToDisplay = when {
                 allowAdoption.value && selectedLocation != null -> {
-                    val adoptionShelters = sheltersAllowAdoption
                     val locationShelters = shelterViewModel.getSheltersLocation(
                         selectedLocation!!.latitude.toString(),
                         selectedLocation!!.longitude.toString()
                     ).collectAsState(emptyList()).value
-                    adoptionShelters + locationShelters
+                    sheltersAllowAdoption + locationShelters
                 }
                 allowAdoption.value -> sheltersAllowAdoption
                 selectedLocation != null -> shelterViewModel.getSheltersLocation(
@@ -180,6 +181,10 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
                 ).collectAsState(emptyList()).value
 
                 else -> shelters
+            }
+
+            LaunchedEffect(isSelectedList) {
+                lastIsSelectedState.value = isSelectedList.lastOrNull() ?: false
             }
 
             Column {
@@ -191,26 +196,30 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
                             items = sheltersToDisplay,
                             key = { it.id }
                         ) { item ->
-                            Shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit,provisionalArray)
-
+                            var isSelected = shelter(item = item, shelters.indexOf(item), navController, shelterViewModel, user, edit, provisionalArray)
+                            isSelectedList.add(isSelected)
                         }
                     }
                 }
+                lastIsSelectedState.value = isSelectedList.any { it }
+                isSelectedList.clear()
+
                 if (user != null && user.role == TypeUser.admin && edit) {
                     FloatingButton(icon = Icons.Default.Add, Modifier.align(Alignment.End)) {
                         showDialogAdd.value = true
                     }
                 }
+
+
                 if(!edit){
                     Button(onClick = {
-                        filteredShelter = provisionalArray.value as ArrayList<Int>
+                        filteredShelter = provisionalArray.value
                         navController.navigate(HOME)
 
                     },
                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                        enabled = anyCheckboxSelected,
+                        enabled = lastIsSelectedState.value,
                         colors = ButtonDefaults.buttonColors(Orange)
-
                     ) {
                         Text("Accept")
                     }
@@ -230,7 +239,7 @@ fun SettingsScreen(shelterViewModel: ShelterViewModel, navController: NavControl
 }
 
 @Composable
-fun Shelter(item: Any, index: Int, navController: NavController, shelterViewModel: ShelterViewModel, user: User?, edit: Boolean, provisional: MutableState<ArrayList<Int>>) {
+fun shelter(item: Any, index: Int, navController: NavController, shelterViewModel: ShelterViewModel, user: User?, edit: Boolean, provisional: MutableState<ArrayList<Int>>): Boolean {
     val border = if (index % 2 == 0) Green1 else Orange
     var isSelected by remember {
         mutableStateOf(false)
@@ -296,6 +305,7 @@ fun Shelter(item: Any, index: Int, navController: NavController, shelterViewMode
             }
         }
     }
+    return isSelected
 }
 
 @SuppressLint("UnrememberedMutableState")
@@ -451,7 +461,7 @@ fun ShelterFormDialog(
 }
 
 @Composable
-fun ZoneDropdown(
+fun zoneDropdown(
     zoneNames: List<String?>,
     provisionalArray: MutableState<ArrayList<Int>>,
     locations: List<Location>
@@ -491,10 +501,6 @@ fun ZoneDropdown(
                     onClick = {
                         selectedIndex = index
                         expanded = false
-                        println("locations")
-                        println(locations)
-                        println(locations[index])
-                        println(index)
                         selectedLocation.value = locations[index]
                         provisionalArray.value.clear()
                     }
