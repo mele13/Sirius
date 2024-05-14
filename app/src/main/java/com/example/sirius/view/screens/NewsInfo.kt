@@ -211,7 +211,7 @@ fun DisplayEditIconIfAdminOrOwner(
     user: User?,
     editMode: MutableState<Boolean>
 ) {
-    if (user?.role != TypeUser.admin && user?.role != TypeUser.owner && user?.role != TypeUser.worker && user?.role != TypeUser.worker) {
+    if (user?.role != TypeUser.admin && user?.role != TypeUser.owner && user?.role != TypeUser.worker && user?.role != TypeUser.volunteer) {
         Icon(
             imageVector = Icons.Default.Edit,
             contentDescription = null,

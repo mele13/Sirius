@@ -10,8 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sirius.model.Event
+import com.example.sirius.ui.theme.Orange
 import com.example.sirius.viewmodel.ChatViewModel
 import com.example.sirius.viewmodel.EventViewModel
 import com.example.sirius.viewmodel.UserViewModel
@@ -90,7 +92,8 @@ fun AdoptionApplications(userViewModel : UserViewModel, chatViewModel : ChatView
                             }
 
                             Column(Modifier.fillMaxHeight()) {
-                                Button(onClick = {
+                                Button(
+                                    onClick = {
                                       user?.let {
                                           chatViewModel.addMessageAdoption(event.requestingUser, event)
                                       }
@@ -108,33 +111,24 @@ fun AdoptionApplications(userViewModel : UserViewModel, chatViewModel : ChatView
                                             )
                                         )
                                     }
-
-
-
                                     mutableEventList.remove(event)
-
-                                }) {
-
+                                },
+                                    colors = ButtonDefaults.buttonColors(Orange)
+                                ) {
                                     Text(text = "Assign")
-
                                 }
-
                                 Button(onClick = {
                                     eventViewModel.viewModelScope.launch {
                                         eventViewModel.deleteEvent(event)
                                     }
 
-                                }) {
+                                },
+                                    colors = ButtonDefaults.buttonColors(Orange)
+                                ) {
 
                                     Text(text = "Decline")
-
                                 }
-
-
                             }
-                            
-
-                            
                         }
                     }
                 }

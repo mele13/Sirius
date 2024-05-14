@@ -262,13 +262,10 @@ private fun BoxWithContent(
                 }
             }
         }
-        if (user != null && (user.role == TypeUser.admin || user.role == TypeUser.owner)){
-
+        if (user?.role == TypeUser.admin || user?.role == TypeUser.owner || user?.role == TypeUser.worker || user?.role == TypeUser.volunteer) {
                 FloatingButton(icon = Icons.Default.Add, Modifier.align(Alignment.BottomEnd)) {
                     showDialogAdd.value = true
                 }
-
-
         }
     }
 }

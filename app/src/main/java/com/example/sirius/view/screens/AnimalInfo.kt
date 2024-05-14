@@ -368,7 +368,7 @@ fun HandleUserActions(
     onFavoriteChanged: (Boolean) -> Unit
 ) {
     if (userId != null) {
-        if (user?.role != TypeUser.admin && user?.role != TypeUser.owner && user?.role != TypeUser.worker && user?.role != TypeUser.worker) {
+        if (user?.role != TypeUser.admin && user?.role != TypeUser.owner && user?.role != TypeUser.worker && user?.role != TypeUser.volunteer) {
             Box {
                 if (user != null) {
                     FavoriteIcon(
