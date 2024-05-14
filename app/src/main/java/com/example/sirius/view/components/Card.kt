@@ -386,7 +386,7 @@ private fun getContentDescription(item: Any): String? {
 }
 
 private fun shouldShowDeleteIcon(user: User?): Boolean {
-    return user != null && (user.role == TypeUser.admin || user.role == TypeUser.owner)
+    return user != null && (user.role == TypeUser.admin || user.role == TypeUser.owner || user.role == TypeUser.worker || user.role == TypeUser.volunteer)
 }
 
 @Composable

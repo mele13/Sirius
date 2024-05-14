@@ -34,8 +34,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import com.example.sirius.model.TypeUser
 import com.example.sirius.model.User
-import com.example.sirius.tools.parseStringToTypeUser
 import com.example.sirius.ui.theme.Green1
 import com.example.sirius.view.screens.getDrawableResourceId
 import com.example.sirius.viewmodel.UserViewModel
@@ -44,12 +44,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListEmployed(viewModel: UserViewModel) {
     var employers by remember { mutableStateOf(emptyList<User>()) }
-
+    val user = viewModel.getAuthenticatedUser()
     LaunchedEffect(key1 = Unit) {
-        employers = viewModel.getAllEmployers()
+        if (user != null) {
+            employers = user.shelterId?.let { viewModel.getAllEmployers(it) }!!
+        }
     }
 
-    val dropdownItems = listOf("admin", "user")
+    val dropdownItems = listOf(TypeUser.worker, TypeUser.volunteer)
     val textState = remember { mutableStateOf(TextFieldValue(""))}
 
     Column(Modifier.fillMaxSize()) {
@@ -101,9 +103,8 @@ fun ListEmployed(viewModel: UserViewModel) {
                             Row(
                                 modifier = Modifier
                                     .border(1.dp, Color.Black)
-                                    //.padding(2.dp)
                                     .clickable(onClick = { expanded.value = !expanded.value })
-                                    .width(65.dp),
+                                    .width(90.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
@@ -127,12 +128,12 @@ fun ListEmployed(viewModel: UserViewModel) {
                                     dropdownItems.forEach { item ->
                                         DropdownMenuItem(
                                             {
-                                                Text(text = item)
+                                                Text(text = item.toString())
                                             },
                                             onClick = {
                                                 expanded.value = false
                                                 viewModel.viewModelScope.launch {
-                                                    user.let { viewModel.updateRole(it, parseStringToTypeUser(item)) }
+                                                    user.let { viewModel.updateRole(it, item) }
                                                 }
                                             }
                                         )

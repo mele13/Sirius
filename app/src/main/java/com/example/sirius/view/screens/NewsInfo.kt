@@ -69,7 +69,6 @@ fun NewsInfo(
 
     val news by viewModel.getNewsById(id ?: 0).collectAsState(initial = null)
     val context = LocalContext.current
-    val userId = userViewModel.getAuthenticatedUser()?.id
 
     var title by remember { mutableStateOf("") }
     var shortInfoAnimal by remember { mutableStateOf("") }
@@ -127,7 +126,7 @@ fun NewsInfo(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Start,
                             )
-                            DisplayEditIconIfAdminOrOwner(userId, user, editMode)
+                            DisplayEditIconIfAdminOrOwner(user, editMode)
                         }
                     }
                     item {
@@ -209,11 +208,10 @@ private fun createNewsFormDataFromNews(news: News?): NewsFormData? {
 
 @Composable
 fun DisplayEditIconIfAdminOrOwner(
-    userId: Int?,
     user: User?,
     editMode: MutableState<Boolean>
 ) {
-    if (userId != null && (user?.role == TypeUser.admin || user?.role == TypeUser.owner)) {
+    if (user?.role != TypeUser.admin && user?.role != TypeUser.owner && user?.role != TypeUser.worker && user?.role != TypeUser.worker) {
         Icon(
             imageVector = Icons.Default.Edit,
             contentDescription = null,

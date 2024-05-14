@@ -40,6 +40,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.sirius.R
 import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Destinations
 import com.example.sirius.navigation.Routes
@@ -97,7 +98,7 @@ fun NavigationContent(
         filteredShelter.addAll(shelters)
     } else if( user?.role == TypeUser.owner || user?.role == TypeUser.worker || user?.role == TypeUser.volunteer) {
         val shelters =
-            user?.let { userViewModel.getShelterByUserId(it.id).collectAsState(emptyList()).value }
+            user.let { userViewModel.getShelterByUserId(it.id).collectAsState(emptyList()).value }
         if (shelters != null) {
             filteredShelter.addAll(shelters)
         }
@@ -109,7 +110,7 @@ fun NavigationContent(
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.End
+            //horizontalAlignment = Alignment.End
         ) {
             val currentRoute = navController.currentBackStackEntry?.destination?.route
             if (currentRoute !in listOf(
@@ -124,17 +125,49 @@ fun NavigationContent(
                     Routes.SHELTERLIST
                 )
             ) {
-                ProfileButton(
-                    onClick = {
-                        if (userViewModel.getAuthenticatedUser() != null)
-                            navController.navigate(Routes.PROFILE)
-                        else {
-                            navController.navigate(Routes.LOGIN)
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(top = 16.dp, end = 16.dp)
-                )
+                if(user?.role == TypeUser.user) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.filter),
+                            contentDescription = stringResource(id = R.string.filter),
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate(Routes.SHELTERLIST)
+                                }
+                                .padding(top = 16.dp, start = 16.dp)
+                        )
+                        ProfileButton(
+                            onClick = {
+                                if (userViewModel.getAuthenticatedUser() != null)
+                                    navController.navigate(Routes.PROFILE)
+                                else {
+                                    navController.navigate(Routes.LOGIN)
+                                }
+                            },
+                            modifier = Modifier
+                                .padding(top = 16.dp, end = 16.dp)
+
+                        )
+                    }
+                }else{
+                    ProfileButton(
+                        onClick = {
+                            if (userViewModel.getAuthenticatedUser() != null)
+                                navController.navigate(Routes.PROFILE)
+                            else {
+                                navController.navigate(Routes.LOGIN)
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(top = 16.dp, end = 16.dp)
+
+                    )
+                }
+
             }
             NavHost(
                 modifier = Modifier.weight(1f),
