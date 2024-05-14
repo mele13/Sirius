@@ -176,6 +176,7 @@ fun ProfileScreen(
                         userViewModel.viewModelScope.launch {
                             userViewModel.logout()
                             navController.navigate(Routes.LOGIN)
+                            filteredShelter.clear()
                         }
                     }
                 )
