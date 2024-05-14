@@ -110,7 +110,7 @@ fun NavigationContent(
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier.fillMaxSize(),
-            //horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.End
         ) {
             val currentRoute = navController.currentBackStackEntry?.destination?.route
             if (currentRoute !in listOf(
@@ -164,7 +164,6 @@ fun NavigationContent(
                         },
                         modifier = Modifier
                             .padding(top = 16.dp, end = 16.dp)
-
                     )
                 }
 
