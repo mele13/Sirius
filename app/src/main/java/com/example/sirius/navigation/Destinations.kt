@@ -19,7 +19,7 @@ fun createDestination(route: String, selectedIcon: Int, iconTextId: Int): Destin
 fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
     println("USUARIO")
     println(userViewModel.getAuthenticatedUser()?.equals(null))
-    return if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true && userViewModel.getAuthenticatedUser()?.equals(null) != false) {
+    return if (userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == true ) {
         listOf(
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
             createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
@@ -27,7 +27,7 @@ fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
             createDestination(Routes.DONATIONS, R.drawable.donations_icon, R.string.donations),
             createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
         )
-    } else if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.owner) == true && userViewModel.getAuthenticatedUser()?.equals(null) != false) {
+    } else if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.owner) == true ) {
         listOf(
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
             createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
@@ -36,7 +36,7 @@ fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
             createDestination(Routes.MANAGEMENT, R.drawable.managment, R.string.handling),
         )
     }
-    else if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.admin) == true && userViewModel.getAuthenticatedUser()?.equals(null) != false) {
+    else if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.admin) == true ) {
         listOf(
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
             createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
