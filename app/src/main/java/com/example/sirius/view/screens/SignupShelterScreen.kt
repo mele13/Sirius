@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sirius.R
+import com.example.sirius.model.TypeUser
 import com.example.sirius.navigation.Routes
 import com.example.sirius.view.components.CustomSnackbar
 import com.example.sirius.view.components.Password
@@ -108,6 +109,7 @@ fun SignupShelterScreen(navController: NavController, userViewModel: UserViewMod
                         username.value,
                         email.value,
                         password.value,
+                        TypeUser.owner,
                         signUpButtonClicked,
                         errorMessage,
                         navController,

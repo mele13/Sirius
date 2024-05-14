@@ -127,6 +127,7 @@ fun SignupScreen(navController: NavController, userViewModel: UserViewModel) {
                             username.value,
                             email.value,
                             password.value,
+                            TypeUser.user,
                             signUpButtonClicked,
                             errorMessage,
                             navController,
@@ -183,6 +184,7 @@ fun signUpUser(
     username: String,
     email: String,
     password: String,
+    role: TypeUser,
     signUpButtonClicked: MutableState<Boolean>,
     errorMessage: MutableState<String?>,
     navController: NavController,
@@ -191,7 +193,7 @@ fun signUpUser(
     signUpButtonClicked.value = true
     if (isEmailValid(email) && isPasswordValid(password)) {
         userViewModel.viewModelScope.launch {
-            val success = userViewModel.registerUser(username, email, password, TypeUser.user)
+            val success = userViewModel.registerUser(username, email, password, role)
             if (success) {
                 delay(2000)
                 navController.navigate(Routes.HOME)
