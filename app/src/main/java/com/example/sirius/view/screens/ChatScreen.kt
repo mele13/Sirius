@@ -98,8 +98,9 @@ fun ChatScreen(navController: NavHostController,
                 workerList = user?.shelterId?.let { userViewModel.getUsersFromMyShelter(it, user!!.id) }!!
                 adminList = userViewModel.getAdmin()
             }else{
-                usersList = userViewModel.getUsersFromMyShelter(filteredShelters[0], user!!.id)
-
+                for(shelter in filteredShelters){
+                    usersList += userViewModel.getUsersFromMyShelter(shelter, user!!.id)
+                }
             }
 
 
