@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -67,8 +68,8 @@ import com.example.sirius.ui.theme.Green1
 import com.example.sirius.ui.theme.Orange
 import com.example.sirius.view.components.BarSearch
 import com.example.sirius.view.components.CustomTextField
-import com.example.sirius.view.components.StatusCheckbox
 import com.example.sirius.view.components.FloatingButton
+import com.example.sirius.view.components.StatusCheckbox
 import com.example.sirius.viewmodel.ShelterViewModel
 import com.example.sirius.viewmodel.UserViewModel
 import kotlinx.coroutines.flow.Flow
@@ -279,7 +280,8 @@ fun shelter(item: Any, index: Int, navController: NavController, shelterViewMode
                                 } else {
                                     provisional.value -= item.id
                                 }
-                            }
+                            },
+                            colors = CheckboxDefaults.colors(Orange)
                         )
                     }
 
