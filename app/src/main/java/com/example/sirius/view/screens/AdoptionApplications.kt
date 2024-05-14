@@ -51,7 +51,7 @@ fun AdoptionApplications(userViewModel : UserViewModel, chatViewModel : ChatView
             LazyColumn(
                 modifier = Modifier.fillMaxHeight()
             ) {
-                items(mutableEventList) {
+                items(mutableEventList) {event ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -67,7 +67,7 @@ fun AdoptionApplications(userViewModel : UserViewModel, chatViewModel : ChatView
                         ) {
                             Column(Modifier.fillMaxHeight()) {
                                 Text(
-                                    text = it.titleEvent,
+                                    text = event.titleEvent,
                                     style = TextStyle(
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight(400),
@@ -77,7 +77,7 @@ fun AdoptionApplications(userViewModel : UserViewModel, chatViewModel : ChatView
                                 )
 
                                 Text(
-                                    text = it.descriptionEvent,
+                                    text = event.descriptionEvent,
                                     style = TextStyle(
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight(400),
@@ -91,26 +91,27 @@ fun AdoptionApplications(userViewModel : UserViewModel, chatViewModel : ChatView
 
                             Column(Modifier.fillMaxHeight()) {
                                 Button(onClick = {
-                                    //   user?.let { chatViewModel.addMessageAdoption(it.id, item) }  MODIFICA ESTA LINEA PARA QUE SE GENERE EL CHAT
-                                   // user?.let { it1 -> eventViewModel.assignEvent(it.id, it1.id) }
-
+                                      user?.let {
+                                          chatViewModel.addMessageAdoption(event.requestingUser, event)
+                                      }
 
                                     eventViewModel.viewModelScope.launch {
                                         eventViewModel.updateEvent(
                                             Event(
-                                            id = it.id,
-                                            dateEvent = it.dateEvent,
-                                            descriptionEvent =  it.descriptionEvent,
-                                            titleEvent =  it.titleEvent,
-                                            eventType =  it.eventType,
-                                            userId = user?.id
-                                        )
+                                                id = event.id,
+                                                dateEvent = event.dateEvent,
+                                                descriptionEvent =  event.descriptionEvent,
+                                                titleEvent =  event.titleEvent,
+                                                eventType =  event.eventType,
+                                                userId = user?.id,
+                                                requestingUser = event.requestingUser
+                                            )
                                         )
                                     }
 
 
 
-                                    mutableEventList.remove(it)
+                                    mutableEventList.remove(event)
 
                                 }) {
 
@@ -120,7 +121,7 @@ fun AdoptionApplications(userViewModel : UserViewModel, chatViewModel : ChatView
 
                                 Button(onClick = {
                                     eventViewModel.viewModelScope.launch {
-                                        eventViewModel.deleteEvent(it)
+                                        eventViewModel.deleteEvent(event)
                                     }
 
                                 }) {

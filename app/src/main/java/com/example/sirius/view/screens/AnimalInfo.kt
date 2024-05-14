@@ -224,7 +224,7 @@ fun AnimalInfo(
     }
 
     if(showDialog){
-        HandleAdoptionDialog(showDialog, animal, chatViewModel, userViewModel)
+        HandleAdoptionDialog(showDialog, animal, chatViewModel, userViewModel,navController)
 
     }
 }
@@ -335,7 +335,7 @@ fun DisplayAnimalFormDialogIfNeeded(
 }
 
 @Composable
-fun HandleAdoptionDialog(showDialog: Boolean, animal: Animal?, chatViewModel: ChatViewModel, userViewModel: UserViewModel) {
+fun HandleAdoptionDialog(showDialog: Boolean, animal: Animal?, chatViewModel: ChatViewModel, userViewModel: UserViewModel, navController: NavController) {
     var showDialogMutable by remember { mutableStateOf(showDialog) }
 
     if (showDialogMutable) {
@@ -345,7 +345,7 @@ fun HandleAdoptionDialog(showDialog: Boolean, animal: Animal?, chatViewModel: Ch
 
         animal?.let { animal ->
             shelter?.let {
-                AdoptAnAnimal(animal, chatViewModel, userViewModel) {
+                AdoptAnAnimal(animal, chatViewModel, userViewModel, navController) {
                     showDialogMutable = false
                 }
             }

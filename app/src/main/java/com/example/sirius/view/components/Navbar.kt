@@ -216,6 +216,8 @@ fun NavigationContent(
                 composable(route = Routes.ADOPTION) {
                     AdoptionApplications(userViewModel,chatViewModel)
                 }
+
+
                 composable(route = Routes.CHAT + "/{recipient_user}",
                     arguments = listOf(navArgument(name = "recipient_user") {
                         type = NavType.IntType

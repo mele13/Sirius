@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
@@ -41,15 +43,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.sirius.model.Animal
 import com.example.sirius.model.Event
 import com.example.sirius.model.News
 import com.example.sirius.model.SectionType
+import com.example.sirius.model.TypeEvent
 import com.example.sirius.tools.parseDateStringToLong
 import com.example.sirius.tools.stringToEnumTypeAnimal
 import com.example.sirius.ui.theme.Orange
@@ -142,9 +147,13 @@ fun OutlinedIcon(icon: ImageVector, modifier: Modifier, onClick: (() -> Unit)? =
 }
 
 @Composable
-fun AdoptAnAnimal(item: Animal, chatViewModel: ChatViewModel, userViewModel: UserViewModel, onDismiss: () -> Unit) {
+fun AdoptAnAnimal(item: Animal, chatViewModel: ChatViewModel, userViewModel: UserViewModel,navController:NavController, onDismiss: () -> Unit) {
     val randomUser by userViewModel.getRandomUser().collectAsState(initial = null)
     val eventViewModel: EventViewModel = viewModel(factory = EventViewModel.factory)
+    val user = userViewModel.getAuthenticatedUser()
+    var day by remember { mutableStateOf("") }
+    var month by remember { mutableStateOf("") }
+    var year by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -161,22 +170,66 @@ fun AdoptAnAnimal(item: Animal, chatViewModel: ChatViewModel, userViewModel: Use
             }
         },
         text = {
-            Text(
-                text = "As a rule of the shelter, before you can adopt  an animal, we have to conduct a short interview. Would you like to contact us?",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Column {
+                Text(
+                    text = "As a rule of the shelter, before you can adopt an animal, we have to conduct a short interview. Would you like to contact us?",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Text(
+                    text = "Write below the date on which you want to make the appointment (YYYYY-MM-DD)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                // Campos de entrada para día, mes y año
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = year,
+                        onValueChange = { year = it },
+                        label = { "Day" },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = month,
+                        onValueChange = { month = it },
+                        label = { "Month"},
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = day,
+                        onValueChange = { day = it },
+                        label = { "Year" },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    /*
-                    eventViewModel.insertEvent(
+
+                    val newEvent = user?.let {
                         Event(
+                            titleEvent = "Adoption Event",
+                            descriptionEvent = "Cite to adopt " + item.nameAnimal,
+                            dateEvent = "$year-$month-$day",
+                            eventType = TypeEvent.adoption,
+                            requestingUser = it.id
+                        )
+                    }
+                    eventViewModel.viewModelScope.launch {
+                        if (newEvent != null) {
+                            eventViewModel.insertEvent(newEvent)
+                        }
+                    }
 
-                    ))
 
-                     */
-                 //   randomUser?.let { chatViewModel.addMessageAdoption(it.id, item) }
+
+                  //  navController.navigate(route = Routes.ADOPTION + "/" + item.id)
+
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(Orange),

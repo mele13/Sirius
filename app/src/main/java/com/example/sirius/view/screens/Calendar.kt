@@ -233,15 +233,6 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = {
 
-                            val new = Event(
-                                id = 0,
-                                titleEvent = title,
-                                descriptionEvent = description,
-                                dateEvent = newDate,
-                                eventType = eventViewModel.stringToTypeEvent(selectedItem),
-                                userId = user.id
-                            )
-
                             val newEvent = Event(
                                 id = 0,
                                 titleEvent = title,
@@ -249,6 +240,7 @@ fun CreateEventDialog(onDismiss: () -> Unit,eventViewModel: EventViewModel,user:
                                 dateEvent = newDate,
                                 userId = user.id,
                                 eventType = eventViewModel.stringToTypeEvent(selectedItem),
+                                requestingUser = user.id
                             )
                             eventViewModel.viewModelScope.launch {
                                 eventViewModel.insertEvent(newEvent)

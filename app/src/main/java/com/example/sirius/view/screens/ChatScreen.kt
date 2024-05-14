@@ -40,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,6 +75,8 @@ fun ChatScreen(navController: NavHostController,
                userViewModel: UserViewModel,
                filteredShelters: ArrayList<Int>)
 {
+
+
     var userList by remember { mutableStateOf<List<User?>>(emptyList()) }
     var ownerList by remember { mutableStateOf<List<User?>>(emptyList()) }
     var workerList by remember { mutableStateOf<List<User?>>(emptyList()) }
@@ -112,12 +113,12 @@ fun ChatScreen(navController: NavHostController,
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = BottomEnd
+        contentAlignment = Alignment.BottomEnd
     ){
 
         if(user?.role ?: "" == TypeUser.worker || user?.role ?: "" == TypeUser.volunteer){
-            FloatingButton(Icons.Outlined.Notifications, Modifier.align(BottomEnd)) {
-                navController.navigate(Routes.ADOPTION)
+            FloatingButton(Icons.Outlined.Notifications, Modifier.align(Alignment.BottomEnd)) {
+                navController.navigate(route = Routes.ADOPTION)
             }
         }
 
@@ -192,7 +193,7 @@ fun ChatScreen(navController: NavHostController,
                         chatViewModel = chatViewModel,
                         userViewModel = userViewModel,
                         navController = navController,
-                        modifier = Modifier. fillMaxSize()
+                        modifier = Modifier. fillMaxSize().padding(bottom = 25.dp)
 
                     )
                 }else{
@@ -203,7 +204,7 @@ fun ChatScreen(navController: NavHostController,
                         chatViewModel = chatViewModel,
                         userViewModel = userViewModel,
                         navController = navController,
-                        modifier = Modifier. fillMaxSize()
+                        modifier = Modifier. fillMaxSize().padding(bottom = 25.dp)
 
                     )
                 }

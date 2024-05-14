@@ -22,12 +22,16 @@ data class Event (
     @NonNull
     @ColumnInfo(name = "type")
     var eventType: TypeEvent,
+    @NonNull
+    @ColumnInfo(name = "requestingUser")
+    var requestingUser: Int,
+
     @ColumnInfo(name = "userId")
     val userId: Int? = null,
 ) {
-    constructor( titleEvent: String, descriptionEvent: String, dateEvent: String, eventType: TypeEvent)
-            : this(0,  titleEvent, descriptionEvent, dateEvent, eventType)
+    constructor( titleEvent: String, descriptionEvent: String, dateEvent: String, eventType: TypeEvent, requestingUser: Int)
+            : this(0,  titleEvent, descriptionEvent, dateEvent, eventType, requestingUser)
 
-    constructor( titleEvent: String, descriptionEvent: String, dateEvent: String, eventType: TypeEvent, userId: Int)
-            : this(0,  titleEvent, descriptionEvent, dateEvent, eventType, userId)
+    constructor( titleEvent: String, descriptionEvent: String, dateEvent: String, eventType: TypeEvent, userId: Int, requestingUser: Int)
+            : this(0,  titleEvent, descriptionEvent, dateEvent, eventType, requestingUser,userId )
 }

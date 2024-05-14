@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sirius.data.dao.ChatDao
-import com.example.sirius.model.Animal
 import com.example.sirius.model.Chat
+import com.example.sirius.model.Event
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -72,8 +72,8 @@ class ChatViewModel(private val chatDao: ChatDao, private val userViewModel: Use
     }
 
 
-    fun addMessageAdoption(recipientUserId: Int, animal : Animal){
-        val message = "Hello, I would like to start the process of adopting ${animal.nameAnimal} from your shelter."
+    fun addMessageAdoption(recipientUserId: Int, event : Event){
+        val message = "Your appointment for the ${event.dateEvent} has been accepted, we are waiting for you!"
         if (message.isNotEmpty()) {
             val currentUser = userViewModel.getAuthenticatedUser()
             val chatId = currentUser?.let { generateChatId(it.id, recipientUserId) }
