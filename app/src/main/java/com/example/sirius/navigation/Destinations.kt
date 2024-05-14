@@ -57,7 +57,7 @@ fun createDestinations(userViewModel: UserViewModel): List<Destinations> {
             createDestination(Routes.HOME, R.drawable.home_icon, R.string.home),
             createDestination(Routes.ANIMALS, R.drawable.animals_icon, R.string.animals),
             createDestination(Routes.CHAT, R.drawable.chat_icon, R.string.chat),
-            createDestination(Routes.DONATIONS, R.drawable.donations_icon, R.string.donations),
+            createDestination(Routes.CALENDAR, R.drawable.calendar,R.string.calendar ),
             createDestination(Routes.ABOUTUS, R.drawable.aboutus_icon, R.string.aboutUs),
         )
     }
