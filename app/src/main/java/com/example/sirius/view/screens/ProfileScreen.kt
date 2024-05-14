@@ -186,7 +186,7 @@ fun ProfileScreen(
                 Likes(userViewModel, likedAnimals, navController)
             }
             item{
-                Events(userViewModel = userViewModel, events = events, user = user, eventViewModel = eventViewModel)
+                Events(userViewModel = userViewModel, events = events, user = user)
             }
         }
     }
@@ -194,10 +194,10 @@ fun ProfileScreen(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Events(userViewModel: UserViewModel, events: List<Event>?, user: User?, eventViewModel: EventViewModel){
+fun Events(userViewModel: UserViewModel, events: List<Event>?, user: User?){
     if(userViewModel.getAuthenticatedUser()?.role?.equals(TypeUser.user) == false){
         Text(text = "Events for you")
-        events?.let { user?.let { it1 -> ShowEvents(it, it1, eventViewModel) } }
+        events?.let { user?.let { it1 -> ShowEvents(it, it1) } }
 
     }
 }
@@ -300,7 +300,7 @@ fun ProfileItem(
             if (labelId != R.string.password) {
                 Text(text = label)
             }
-            val icon = EditMode(isEditing)
+            val icon = editMode(isEditing)
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -311,7 +311,6 @@ fun ProfileItem(
                             isEditing = true
                             onEditClick?.invoke()
                         } else {
-                            // Confirmar cambios
                             if (validateAndSaveChanges(
                                     labelId,
                                     user,
@@ -337,7 +336,7 @@ fun ProfileItem(
     }
 }
 
-fun EditMode(isEditing: Boolean) : ImageVector{
+fun editMode(isEditing: Boolean) : ImageVector{
 
     return if (isEditing) {
         Icons.Default.Check
@@ -407,7 +406,7 @@ private fun validateAndSaveChanges(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 
-fun ShowEvents(events: List<Event>, user: User, eventViewModel: EventViewModel) {
+fun ShowEvents(events: List<Event>, user: User) {
     val currentTimeMillis = System.currentTimeMillis()
     val calendar = Calendar.getInstance()
     Column(
